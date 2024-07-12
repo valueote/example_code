@@ -99,7 +99,7 @@ chat_prompt = ChatPromptTemplate.from_messages([
 chat_msgs = chat_prompt.format_prompt(input_language="英语",
                                       output_language="中文",
                                       text="I love programming.")
-print(chat_msgs)
+
 
 # 发送给 chatmodel，或者响应并输出
 response = chat_model.invoke(input=chat_msgs)
