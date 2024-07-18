@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MyQA</title>
+</head>
+<body>
+<h2>MyLocalQA</h2>
+<form method="post" >
+    <label for="question">please input your questions:</label> <br/>
+    <input type="text" id="question" name="question" /> <br/>
+    <input type="submit" value="submit" /> <br/>
+</form>
+    {% if result is defined %}
+        <h2>Answer</h2>
+    <p>{{ result.result}}</p>
+    {% endif %}
+</body>
+</html>

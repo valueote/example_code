@@ -1,11 +1,19 @@
 # 获取 chatmodel
 from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
 
-from modelchoise import modelchoise
-modelchoise.os_setenv()
-# chat_model = modelchoise.get_spark_chat_model()
-chat_model = modelchoise.get_tongyiqwen_chat_model()
+chat_model_openai = ChatOpenAI(
+    # openai API https://platform.openai.com/docs/models
+    # model="gpt-4o",
+    api_key="sk-proj-jPaxmCiqK2xozpoGMGbhT3BlbkFJjAj4MwLrOf0TQi9HljFI",
+    model="gpt-3.5-turbo",
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+)
 
+chat_model = chat_model_openai
 
 # 1. 解析 提示词(input str) 生成过程
 # 1-1. 生成 提示词模板字符串（原始模板） ，注意：""" \n
