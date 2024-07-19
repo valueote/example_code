@@ -9,7 +9,6 @@ from langchain_openai import ChatOpenAI
 chat_model_openai = ChatOpenAI(
     # openai API https://platform.openai.com/docs/models
     # model="gpt-4o",
-    api_key="sk-proj-jPaxmCiqK2xozpoGMGbhT3BlbkFJjAj4MwLrOf0TQi9HljFI",
     model="gpt-3.5-turbo",
     temperature=0,
     max_tokens=None,
