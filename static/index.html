@@ -120,8 +120,100 @@
         <button id="send">Send</button>
     </div>
 
+    <div id="auth-container">
+        <h2>登录</h2>
+        <form id="login-form">
+            <input type="text" id="login-username" placeholder="用户名" required>
+            <input type="password" id="login-password" placeholder="密码" required>
+            <button type="submit">登录</button>
+        </form>
+        <h2>注册</h2>
+        <form id="register-form">
+            <input type="text" id="register-username" placeholder="用户名" required>
+            <input type="password" id="register-password" placeholder="密码" required>
+            <button type="submit">注册</button>
+        </form>
+    </div>
+
+    <div id="chat-container" style="display: none;">
+        <h1>Chat with AI</h1>
+        <div id="chat-messages"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+        <button onclick="logout()">登出</button>
+    </div>
+
+
+
     <script>
         let chatHistory = [];
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            fetch('/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "登录成功") {
+                    document.getElementById('auth-container').style.display = 'none';
+                    document.getElementById('chat-container').style.display = 'block';
+                } else {
+                    alert(data.message);
+                }
+            });
+        });
+
+        // 注册函数
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            fetch('/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message));
+        });
+
+        // 发送消息函数
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            fetch('/ask', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({question: userInput})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "请先登录") {
+                    alert("会话已过期，请重新登录");
+                    document.getElementById('auth-container').style.display = 'block';
+                    document.getElementById('chat-container').style.display = 'none';
+                } else {
+                    // 显示AI回复
+                    document.getElementById('chat-messages').innerHTML += `<p><strong>You:</strong> ${userInput}</p><p><strong>AI:</strong> ${data.answer}</p>`;
+                    document.getElementById('user-input').value = '';
+                }
+            });
+        }
+
+        // 登出函数
+        function logout() {
+            fetch('/logout')
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById('auth-container').style.display = 'block';
+                document.getElementById('chat-container').style.display = 'none';
+            });
+        }
+
 
         document.getElementById('send').addEventListener('click', function() {
             const questionInput = document.getElementById('question');
