@@ -7,8 +7,6 @@ from langchain_openai import ChatOpenAI
 
 # langchain API https://python.langchain.com/v0.2/docs/integrations/chat/openai/
 chat_model_openai = ChatOpenAI(
-    # openai API https://platform.openai.com/docs/models
-    # model="gpt-4o",
     model="gpt-3.5-turbo",
     temperature=0,
     max_tokens=None,
