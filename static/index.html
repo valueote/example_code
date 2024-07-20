@@ -239,27 +239,6 @@
             .then(data => alert(data.message));
         });
 
-        // 发送消息事件
-        function sendMessage() {
-            const userInput = document.getElementById('user-input').value;
-            fetch('/ask', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({question: userInput})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message === "请先登录") {
-                    alert("会话已过期，请重新登录");
-                    document.getElementById('auth-container').style.display = 'block';
-                    document.getElementById('chat-container').style.display = 'none';
-                } else {
-                    // 显示AI回复
-                    document.getElementById('chat-messages').innerHTML += `<p><strong>You:</strong> ${userInput}</p><p><strong>AI:</strong> ${data.answer}</p>`;
-                    document.getElementById('user-input').value = '';
-                }
-            });
-        }
 
         // 登出事件
         function logout() {
