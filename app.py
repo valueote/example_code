@@ -1,5 +1,8 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
+import mysql.connector
+import secrets
 import os
 os.environ["SERPAPI_API_KEY"] = "7c568f6675a4d131a3e98359a6a58a82ed7d752c908f3e4ad9a68f6e443deb15"
 os.environ["USER_AGENT"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0"
@@ -115,37 +118,59 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
 
 
 
+# MySQL数据库配置
+db_config = {
+    'user': 'test',
+    'password': 'oneplusone',
+    'host': 'localhost',
+    'database': 'practice'
+}
+
+def get_db_connection():
+    connection = mysql.connector.connect(**db_config)
+    return connection
+
+
 @app.route('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
-
-from flask import Flask, request, jsonify, send_from_directory, session
-from werkzeug.security import generate_password_hash, check_password_hash
-import secrets
-
 app.secret_key = secrets.token_hex(16)
 
 # 模拟用户数据库
-users = {
-    "username": "password_hash"
-}
 
 @app.route('/register', methods=['POST'])
 def register():
     username = request.json.get('username')
     password = request.json.get('password')
-    if username in users:
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+    if cursor.fetchone():
         return jsonify({"message": "用户已存在"}), 400
-    users[username] = generate_password_hash(password)
+
+    password_hash = generate_password_hash(password)
+    cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password_hash))
+    connection.commit()
+    cursor.close()
+    connection.close()
     return jsonify({"message": "注册成功"}), 201
 
 @app.route('/login', methods=['POST'])
 def login():
     username = request.json.get('username')
     password = request.json.get('password')
-    if username not in users or not check_password_hash(users[username], password):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
+    user = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    if not user or not check_password_hash(user[0], password):
         return jsonify({"message": "用户名或密码错误"}), 401
+
     session['username'] = username
     return jsonify({"message": "登录成功"}), 200
 
@@ -179,6 +204,16 @@ def ask():
 
     return jsonify({'answer': ai_message})
 
+
+
+
+### chage
+
+
+
+
 if __name__ == '__main__':
     webbrowser.open_new('http://127.0.0.1:5000')
     app.run(debug=True)
+
+

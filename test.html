@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with AI</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+        #header {
+            width: 100%;
+            padding: 10px 0;
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #main {
+            display: flex;
+            flex-direction: column;
+            width: 80%;
+            max-width: 1000px;
+            height: 80vh;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: scroll;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            max-width: 75%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: #d1e7dd;
+            align-self: flex-end;
+            text-align: right;
+        }
+        .ai-message {
+            background-color: #f8d7da;
+            align-self: flex-start;
+            text-align: left;
+        }
+        .typing {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 10px 0;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            margin: 0 4px;
+            background-color: #ccc;
+            border-radius: 50%;
+            animation: blink 1.4s infinite both;
+        }
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes blink {
+            0%, 80%, 100% {
+                opacity: 0;
+            }
+            40% {
+                opacity: 1;
+            }
+        }
+        #input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #f8f9fa;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+        }
+        #question {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #send {
+            padding: 15px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #send:hover {
+            background-color: #0056b3;
+        }
+        pre, code {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div id="header">Chat with AI</div>
+    <div id="main">
+        <div id="chat-box"></div>
+    </div>
+    <div id="input-area">
+        <input type="text" id="question" placeholder="Ask a question...">
+        <button id="send">Send</button>
+    </div>
+
+    <script>
+        let chatHistory = [];
+
+        document.getElementById('send').addEventListener('click', function() {
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value;
+            if (question.trim() === '') return;
+
+            const chatBox = document.getElementById('chat-box');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.innerText = question;
+            chatBox.appendChild(userMessage);
+            questionInput.value = '';
+
+            chatHistory.push({ role: 'user', content: question });
+
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing';
+            typingIndicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+            chatBox.appendChild(typingIndicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question, chat_history: chatHistory }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.removeChild(typingIndicator);
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai-message';
+                aiMessage.innerHTML = marked(data.answer);  // 使用 marked.js 解析 Markdown
+                chatBox.appendChild(aiMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                chatHistory.push({ role: 'ai', content: data.answer });
+            })
+            .catch(error => {
+                chatBox.removeChild(typingIndicator);
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('question').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('send').click();
+            }
+        });
+    </script>
+</body>
+</html>
