@@ -264,38 +264,7 @@
             });
         }
 
-        function displayMessage(message, isUser) {
-            const chatBox = document.getElementById('chat-box');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = isUser ? 'user-message' : 'ai-message';
-            
-            // 使用 marked 库来渲染 Markdown
-            messageDiv.innerHTML = marked.parse(message);
-            
-            chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function sendMessage() {
-            const userInput = document.getElementById('user-input').value;
-            if (userInput.trim() === '') return;
-
-            displayMessage(userInput, true);
-            document.getElementById('user-input').value = '';
-
-            fetch('/ask', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ question: userInput }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayMessage(data.answer, false);
-            })
-            .catch(error => console.error('Error:', error));
-        }
+   
 
     document.getElementById('send').addEventListener('click', function() {
         const questionInput = document.getElementById('question');
