@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with AI</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <!-- 如果需要支持特定语言，可以加载额外的语言文件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/cpp.min.js"></script>
     <style>
         
         /* 基本样式 */
@@ -154,17 +160,8 @@
             text-decoration: none;
         }
 
-        pre {
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            padding: 10px;
-            overflow-x: auto;
-        }
-
-        code {
-            font-family: 'Courier New', Courier, monospace;
-        }
+      
+      
     </style>
 </head>
 <body>
@@ -205,6 +202,17 @@
 
     <script>
         let chatHistory = [];
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                } else {
+                    return hljs.highlightAuto(code).value;
+                }
+            },
+            langPrefix: 'hljs language-'  // 添加 'hljs' 类以应用 highlight.js 样式
+        });
+
 
         // 切换到注册页面
         function switchToRegister() {
@@ -302,6 +310,10 @@
             // 使用 Marked.js 渲染 AI 回复
             aiMessage.innerHTML = marked.parse(data.answer);
             chatBox.appendChild(aiMessage);
+            aiMessage.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+            });
+
             chatBox.scrollTop = chatBox.scrollHeight;
 
             chatHistory.push({ role: 'ai', content: data.answer });
