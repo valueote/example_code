@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
+        
         /* 基本样式 */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -151,6 +153,18 @@
             color: #007bff;
             text-decoration: none;
         }
+
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
     </style>
 </head>
 <body>
@@ -239,7 +253,6 @@
             .then(data => alert(data.message));
         });
 
-
         // 登出事件
         function logout() {
             fetch('/logout')
@@ -251,50 +264,84 @@
             });
         }
 
-        document.getElementById('send').addEventListener('click', function() {
-            const questionInput = document.getElementById('question');
-            const question = questionInput.value;
-            if (question.trim() === '') return;
-
-            const chatBox = document.getElementById('main');
-            const userMessage = document.createElement('div');
-            userMessage.className = 'message user-message';
-            userMessage.innerText = question;
-            chatBox.appendChild(userMessage);
-            questionInput.value = '';
-
-            chatHistory.push({ role: 'user', content: question });
-
-            const typingIndicator = document.createElement('div');
-            typingIndicator.className = 'typing';
-            typingIndicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-            chatBox.appendChild(typingIndicator);
+        function displayMessage(message, isUser) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'user-message' : 'ai-message';
+            
+            // 使用 marked 库来渲染 Markdown
+            messageDiv.innerHTML = marked.parse(message);
+            
+            chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+
+            displayMessage(userInput, true);
+            document.getElementById('user-input').value = '';
 
             fetch('/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ question, chat_history: chatHistory }),
+                body: JSON.stringify({ question: userInput }),
             })
             .then(response => response.json())
             .then(data => {
-                chatBox.removeChild(typingIndicator);
-                const aiMessage = document.createElement('div');
-                aiMessage.className = 'message ai-message';
-                aiMessage.innerHTML = data.answer.replace(/\n/g, '<br>');
-                chatBox.appendChild(aiMessage);
-                chatBox.scrollTop = chatBox.scrollHeight;
-
-                chatHistory.push({ role: 'ai', content: data.answer });
+                displayMessage(data.answer, false);
             })
-            .catch(error => {
-                chatBox.removeChild(typingIndicator);
-                console.error('Error:', error);
-            });
-        });
+            .catch(error => console.error('Error:', error));
+        }
 
+    document.getElementById('send').addEventListener('click', function() {
+        const questionInput = document.getElementById('question');
+        const question = questionInput.value;
+        if (question.trim() === '') return;
+
+        const chatBox = document.getElementById('main');
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message user-message';
+        // 使用 Marked.js 渲染用户消息
+        userMessage.innerHTML = marked.parse(question);
+        chatBox.appendChild(userMessage);
+        questionInput.value = '';
+
+        chatHistory.push({ role: 'user', content: question });
+
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing';
+        typingIndicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        chatBox.appendChild(typingIndicator);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        fetch('/ask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question, chat_history: chatHistory }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            chatBox.removeChild(typingIndicator);
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'message ai-message';
+            // 使用 Marked.js 渲染 AI 回复
+            aiMessage.innerHTML = marked.parse(data.answer);
+            chatBox.appendChild(aiMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            chatHistory.push({ role: 'ai', content: data.answer });
+        })
+        .catch(error => {
+            chatBox.removeChild(typingIndicator);
+            console.error('Error:', error);
+        });
+    });
         document.getElementById('question').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('send').click();
