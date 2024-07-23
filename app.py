@@ -120,21 +120,39 @@ def get_vectordb():
     )
     return vectorstore
 
-def get_qa_chain(question:str):
-    vectorstore = get_vectordb()
+def get_qa_chain(username,user_message):
+    retriever = get_vectordb().as_retriever()
     os_setenv()
-    chat_mode = get_spark_chat_model()
+    chat_model = get_spark_chat_model()
     from langchain.retrievers.multi_query import MultiQueryRetriever  # MultiQueryRetriever工具
     from langchain.chains import RetrievalQA  # RetrievalQA链
-    # 实例化一个MultiQueryRetriever
-    retriever_from_llm = MultiQueryRetriever.from_llm(retriever=vectorstore.as_retriever(), llm=chat_mode)
-
+    
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful AI assistant. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question."),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{input}"),
+    ])
+    retrieval_chain = create_history_aware_retriever(chat_model, retriever, prompt)
+    # 创建组合文档链
+    combine_prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful AI assistant. Use the following pieces of context to answer the user's question. If you don't know the answer, just say that you don't know, don't try to make up an answer.\n\nContext: {context}"),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{question}"),
+    ])
+    combine_docs_chain = create_stuff_documents_chain(chat_model, combine_prompt)
+    
+    # 创建检索链
+    conversation_chain = create_retrieval_chain(retrieval_chain, combine_docs_chain)
     # 实例化一个RetrievalQA链
-    qa_chain = RetrievalQA.from_chain_type(chat_mode, retriever=retriever_from_llm)
+    
+    response = conversation_chain.invoke({
+        "chat_history": chat_histories[username],
+        "input":user_message,
+        "question": user_message
+    })
+    
 
-    result = qa_chain({"query": question})
-
-    return result["result"]
+    return response["answer"]
 
 ################################# End #################################
 
@@ -203,31 +221,35 @@ def logout():
     return jsonify({"message": "已登出"}), 200
 
 
+chat_histories = {}
 @app.route('/ask', methods=['POST'])
 def ask():
     if 'username' not in session:
         return jsonify({"message": "请先登录"}), 401
+    
+    username = session['username']
     user_message = request.json.get('question')
     
+    if username not in chat_histories:
+        chat_histories[username] = []
 
+    chat_histories[username].append(HumanMessage(content=user_message))
     
-    ai_message = get_qa_chain(user_message)
-
+    ai_message = get_qa_chain(username,user_message)
+        
     # 处理换行符
     ai_message = ai_message.replace('\n', '\n\n')
 
+    # 将AI响应添加到历史记录
+    chat_histories[username].append(AIMessage(content=ai_message))
+    
 
     return jsonify({'answer': ai_message})
 
-
-
-
-### chage
-
-
-
-
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
 
 
