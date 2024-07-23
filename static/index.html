@@ -4,16 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chat Application</title>
+    <!-- 引入highlight.js的CSS样式 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <!-- 引入highlight.js的JavaScript库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <!-- 引入marked.js的JavaScript库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- 引入highlight.js的另一种CSS样式 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <!-- 再次引入highlight.js的JavaScript库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <!-- 引入highlight.js的Python语言支持 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js"></script>
+    <!-- 引入highlight.js的JavaScript语言支持 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+    <!-- 引入highlight.js的C++语言支持 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/cpp.min.js"></script>
     <style>
+        /* 全局样式 */
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
@@ -24,6 +33,7 @@
             align-items: center;
             height: 100vh;
         }
+        /* 容器样式 */
         .container {
             background-color: white;
             border-radius: 8px;
@@ -31,11 +41,13 @@
             width: 400px;
             padding: 40px;
         }
+        /* 标题样式 */
         h1 {
             text-align: center;
             color: #1877f2;
             margin-bottom: 30px;
         }
+        /* 输入框样式 */
         input[type="text"], input[type="password"] {
             width: 100%;
             padding: 12px;
@@ -44,6 +56,7 @@
             border-radius: 6px;
             box-sizing: border-box;
         }
+        /* 按钮样式 */
         button {
             width: 100%;
             padding: 12px;
@@ -55,9 +68,11 @@
             font-size: 16px;
             font-weight: bold;
         }
+        /* 按钮悬停样式 */
         button:hover {
             background-color: #166fe5;
         }
+        /* 切换表单链接样式 */
         .switch-form {
             text-align: center;
             margin-top: 20px;
@@ -66,11 +81,13 @@
             color: #1877f2;
             text-decoration: none;
         }
+        /* 聊天容器样式 */
         #chat-container {
             display: none;
             flex-direction: column;
             height: 500px;
         }
+        /* 聊天消息区域样式 */
         #chat-messages {
             flex-grow: 1;
             overflow-y: auto;
@@ -79,25 +96,30 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
+        /* 消息样式 */
         .message {
             margin-bottom: 15px;
             padding: 10px;
             border-radius: 18px;
             max-width: 70%;
         }
+        /* 用户消息样式 */
         .user-message {
             background-color: #1877f2;
             color: white;
             align-self: flex-end;
         }
+        /* AI消息样式 */
         .ai-message {
             background-color: #e4e6eb;
             color: black;
             align-self: flex-start;
         }
+        /* 聊天输入区域样式 */
         #chat-input {
             display: flex;
         }
+        /* 用户输入框样式 */
         #user-input {
             flex-grow: 1;
             padding: 12px;
@@ -105,6 +127,7 @@
             border-radius: 20px;
             margin-right: 10px;
         }
+        /* 发送按钮样式 */
         #send-button {
             padding: 12px 20px;
             background-color: #1877f2;
@@ -113,10 +136,36 @@
             border-radius: 20px;
             cursor: pointer;
         }
+        /* 文件上传区域样式 */
+        #upload-container {
+            margin-top: 20px;
+        }
+        /* 文件上传输入框样式 */
+        #upload-input {
+            display: none;
+        }
+        /* 文件上传标签样式 */
+        #upload-label {
+            display: block;
+            padding: 12px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        /* 文件上传标签悬停样式 */
+        #upload-label:hover {
+            background-color: #166fe5;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 登录表单 -->
         <div id="login-container">
             <h1>AI Chat Login</h1>
             <input type="text" id="username" placeholder="Username" required>
@@ -127,6 +176,7 @@
             </div>
         </div>
 
+        <!-- 注册表单 -->
         <div id="register-container" style="display:none;">
             <h1>Register</h1>
             <input type="text" id="reg-username" placeholder="Username" required>
@@ -137,6 +187,7 @@
             </div>
         </div>
 
+        <!-- 聊天界面 -->
         <div id="chat-container">
             <h1>Chat with AI</h1>
             <div id="chat-messages"></div>
@@ -144,29 +195,37 @@
                 <input type="text" id="user-input" placeholder="Type your message...">
                 <button id="send-button" onclick="sendMessage()">Send</button>
             </div>
+            <div id="upload-container">
+                <input type="file" id="upload-input" multiple>
+                <label for="upload-input" id="upload-label">Upload Documents</label>
+            </div>
             <button onclick="logout()" style="margin-top: 20px;">Logout</button>
         </div>
     </div>
 
     <script>
+        // 显示登录表单
         function showLoginForm() {
             document.getElementById('login-container').style.display = 'block';
             document.getElementById('register-container').style.display = 'none';
             document.getElementById('chat-container').style.display = 'none';
         }
     
+        // 显示注册表单
         function showRegisterForm() {
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('register-container').style.display = 'block';
             document.getElementById('chat-container').style.display = 'none';
         }
     
+        // 显示聊天界面
         function showChatInterface() {
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('register-container').style.display = 'none';
             document.getElementById('chat-container').style.display = 'flex';
         }
     
+        // 登录功能
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -190,6 +249,7 @@
             });
         }
     
+        // 注册功能
         function register() {
             const username = document.getElementById('reg-username').value;
             const password = document.getElementById('reg-password').value;
@@ -212,6 +272,7 @@
             });
         }
     
+        // 登出功能
         function logout() {
             fetch('/logout')
             .then(response => response.json())
@@ -224,6 +285,7 @@
             });
         }
     
+        // 发送消息功能
         function sendMessage() {
             const userInput = document.getElementById('user-input');
             const message = userInput.value;
@@ -263,6 +325,7 @@
             });
         }
 
+        // 追加消息功能
         function appendMessage(sender, message, isStreaming = false) {
             const chatMessages = document.getElementById('chat-messages');
             let messageElement = document.getElementById(`${sender}-message-streaming`);
@@ -302,6 +365,27 @@
             if (e.key === 'Enter') {
                 sendMessage();
             }
+        });
+
+        // 文件上传功能
+        document.getElementById('upload-input').addEventListener('change', function(event) {
+            const files = event.target.files;
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
         });
     </script>
 </body>

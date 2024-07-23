@@ -1,0 +1,11 @@
+According to veteran C++ programmers, there ate two projects which bring togetherall the kowledge that a proficient C++ programmer should have:
+1.implementing a STL-compliant template class;and
+2.impelmenting a macro to hash string literals at compile-time
+A hashmap is a bit of a complicated data structure, but we've given you nearly all of the implementation of it. In brief, this is how it works:
+
+    A hashmap stores an array (represented by the private vector _buckets_array in our HashMap) of "buckets".
+    Each "bucket" is a linked list: linked lists are made up of nodes, which are defined in hashmap.h.
+    Each node in these linked lists contains one key-value pair that is contained in our map. In the node struct, this is the field value, of type value_type. value_type is a type-alias for a std::pair<K, M>. Check out its definition near the top of the .h file!
+    When a user of the hashmap class tries to look up or insert a key, the HashMap class first converts the key, no matter what type it is, to an integer. It does this using the hash function, stored in the private member varibale _hash_function. For our purposes, this will always be the default hash function in the STL. Then, the HashMap class mods that integer by the number of buckets in _buckets_array. This is the index at which HashMap will insert or look for the key. From here, its just a matter of traversing the linked list stored at that index to find the key in question (it is possible that multiple keys are stored in the same index because their hashes, or the mod of their hashes, are the same!)
+    The HashMap will occasionally increase the number of buckets and re-hash and store everything to make sure each index doesn't have too many keys stored there. This keeps all operations very fast, because it is very quick to look up an index in an array, and we are guaranteed to have very short linked lists there!
+
