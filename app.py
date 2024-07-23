@@ -96,28 +96,6 @@ chat_history = [
 chat_history.append(HumanMessage(content="please remember my name, i'm vivy"))
 chat_history.append(AIMessage(content="ok vivy, i will remember your name"))
 
-# Create Agent
-from langchain.agents import Tool
-from langchain.chains import LLMMathChain
-
-llm_math = LLMMathChain(llm=chat_model)
-
-# Initialize the math tool
-math_tool = Tool(
-    name='Calculator',
-    func=llm_math.run,
-    description='Useful for when you need to answer questions about math.'
-)
-# When giving tools to LLM, we must pass as list of tools
-tools = [math_tool]
-
-from langchain import hub
-
-prompt = hub.pull("hwchase17/react")
-agent = create_react_agent(llm=chat_model, tools=tools, prompt=prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
-
-
 
 # MySQL数据库配置
 db_config = {
