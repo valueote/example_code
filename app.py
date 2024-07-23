@@ -3,6 +3,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import secrets
+import streamlit as st
 import os
 os.environ["SERPAPI_API_KEY"] = "7c568f6675a4d131a3e98359a6a58a82ed7d752c908f3e4ad9a68f6e443deb15"
 os.environ["USER_AGENT"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0"
@@ -187,14 +188,11 @@ def ask():
     user_message = request.json.get('question')
     chat_history.append(HumanMessage(content=user_message))
 
-    if any(char.isdigit() for char in user_message):
-        ai_message = agent_executor.invoke({"input": user_message})['output']
-    else:
-        response = retrieval_chain.invoke({
-            "chat_history": chat_history,
-            "input": user_message
-        })
-        ai_message = response["answer"]
+    response = retrieval_chain.invoke({
+        "chat_history": chat_history,
+        "input": user_message
+    })
+    ai_message = response["answer"]
 
     # 处理换行符
     ai_message = ai_message.replace('\n', '\n\n')
