@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify, send_from_directory, session
+from flask import Flask, request, jsonify, send_from_directory, session, Response
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import secrets
 import streamlit as st
 import os
-
+import time
 import webbrowser
 from langchain_community.chat_models import ChatSparkLLM
 from langchain_core.prompts import ChatPromptTemplate
@@ -234,17 +234,18 @@ def ask():
         chat_histories[username] = []
 
     chat_histories[username].append(HumanMessage(content=user_message))
-    
-    ai_message = get_qa_chain(username,user_message)
-        
-    # 处理换行符
-    ai_message = ai_message.replace('\n', '\n\n')
+
+    def generate():
+        ai_message = get_qa_chain(username, user_message)
+        for char in ai_message:
+            yield char
+            time.sleep(0.05)  # 模拟逐字输出
 
     # 将AI响应添加到历史记录
+    ai_message = get_qa_chain(username, user_message)
     chat_histories[username].append(AIMessage(content=ai_message))
-    
+    return Response(generate(), mimetype='text/event-stream')
 
-    return jsonify({'answer': ai_message})
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -7,13 +7,10 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <!-- 如果需要支持特定语言，可以加载额外的语言文件 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/cpp.min.js"></script>
     <style>
-        
-        /* 基本样式 */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
@@ -25,7 +22,6 @@
             height: 100vh;
             background-color: #f0f2f5;
         }
-        /* 头部样式 */
         #header {
             width: 100%;
             padding: 10px 0;
@@ -36,7 +32,6 @@
             font-weight: bold;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        /* 主内容区样式 */
         #main {
             width: 90%;
             max-width: 1200px;
@@ -50,7 +45,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* 消息样式 */
         .message {
             margin: 10px 0;
             padding: 10px 20px;
@@ -68,7 +62,6 @@
             align-self: flex-start;
             text-align: left;
         }
-        /* 打字动画样式 */
         .typing {
             display: flex;
             align-items: center;
@@ -97,7 +90,6 @@
                 opacity: 1;
             }
         }
-        /* 输入区样式 */
         #input-area {
             width: 90%;
             max-width: 1200px;
@@ -124,7 +116,6 @@
         #send:hover {
             background-color: #0056b3;
         }
-        /* 登录和注册样式 */
         #login-container, #register-container {
             background-color: white;
             padding: 20px;
@@ -159,14 +150,10 @@
             color: #007bff;
             text-decoration: none;
         }
-
-      
-      
     </style>
 </head>
 <body>
     <div id="header">Chat with AI</div>
-
     <div id="chat-container">
         <div id="main" id="chat-box"></div>
         <div id="input-area">
@@ -175,7 +162,6 @@
             <button onclick="logout()">登出</button>
         </div>
     </div>
-
     <div id="login-container">
         <h2>登录</h2>
         <form id="login-form">
@@ -187,7 +173,6 @@
             <a href="#" onclick="switchToRegister()">没有账号？点击注册</a>
         </div>
     </div>
-
     <div id="register-container">
         <h2>注册</h2>
         <form id="register-form">
@@ -199,7 +184,6 @@
             <a href="#" onclick="switchToLogin()">已有账号？点击登录</a>
         </div>
     </div>
-
     <script>
         let chatHistory = [];
         marked.setOptions({
@@ -210,23 +194,19 @@
                     return hljs.highlightAuto(code).value;
                 }
             },
-            langPrefix: 'hljs language-'  // 添加 'hljs' 类以应用 highlight.js 样式
+            langPrefix: 'hljs language-'
         });
 
-
-        // 切换到注册页面
         function switchToRegister() {
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('register-container').style.display = 'block';
         }
 
-        // 切换到登录页面
         function switchToLogin() {
             document.getElementById('register-container').style.display = 'none';
             document.getElementById('login-container').style.display = 'block';
         }
 
-        // 登录表单提交事件
         document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('login-username').value;
@@ -247,7 +227,6 @@
             });
         });
 
-        // 注册表单提交事件
         document.getElementById('register-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('register-username').value;
@@ -261,7 +240,6 @@
             .then(data => alert(data.message));
         });
 
-        // 登出事件
         function logout() {
             fetch('/logout')
             .then(response => response.json())
@@ -272,57 +250,72 @@
             });
         }
 
-   
+        document.getElementById('send').addEventListener('click', function() {
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value;
+            if (question.trim() === '') return;
 
-    document.getElementById('send').addEventListener('click', function() {
-        const questionInput = document.getElementById('question');
-        const question = questionInput.value;
-        if (question.trim() === '') return;
+            const chatBox = document.getElementById('main');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.innerHTML = marked.parse(question);
+            chatBox.appendChild(userMessage);
+            questionInput.value = '';
 
-        const chatBox = document.getElementById('main');
-        const userMessage = document.createElement('div');
-        userMessage.className = 'message user-message';
-        // 使用 Marked.js 渲染用户消息
-        userMessage.innerHTML = marked.parse(question);
-        chatBox.appendChild(userMessage);
-        questionInput.value = '';
+            chatHistory.push({ role: 'user', content: question });
 
-        chatHistory.push({ role: 'user', content: question });
-
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'typing';
-        typingIndicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-        chatBox.appendChild(typingIndicator);
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        fetch('/ask', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ question, chat_history: chatHistory }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            chatBox.removeChild(typingIndicator);
-            const aiMessage = document.createElement('div');
-            aiMessage.className = 'message ai-message';
-            // 使用 Marked.js 渲染 AI 回复
-            aiMessage.innerHTML = marked.parse(data.answer);
-            chatBox.appendChild(aiMessage);
-            aiMessage.querySelectorAll('pre code').forEach((block) => {
-            hljs.highlightElement(block);
-            });
-
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing';
+            typingIndicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+            chatBox.appendChild(typingIndicator);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            chatHistory.push({ role: 'ai', content: data.answer });
-        })
-        .catch(error => {
-            chatBox.removeChild(typingIndicator);
-            console.error('Error:', error);
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question, chat_history: chatHistory }),
+            })
+            .then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+                let aiMessage = '';
+                const aiMessageElement = document.createElement('div');
+                aiMessageElement.className = 'message ai-message';
+                chatBox.appendChild(aiMessageElement);
+
+                function processText(text) {
+                    aiMessage += text;
+                    const parsed = marked.parse(aiMessage);
+                    aiMessageElement.innerHTML = parsed;
+                    aiMessageElement.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+
+                function read() {
+                    return reader.read().then(({ done, value }) => {
+                        if (done) {
+                            chatBox.removeChild(typingIndicator);
+                            chatHistory.push({ role: 'ai', content: aiMessage });
+                            return;
+                        }
+                        const text = decoder.decode(value, { stream: true });
+                        processText(text);
+                        return read();
+                    });
+                }
+
+                return read();
+            })
+            .catch(error => {
+                chatBox.removeChild(typingIndicator);
+                console.error('Error:', error);
+            });
         });
-    });
+
         document.getElementById('question').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('send').click();
