@@ -35,13 +35,21 @@ def os_setenv():
 
 def get_spark_chat_model():
     from langchain_community.chat_models import ChatSparkLLM
-    chat_model_spark = ChatSparkLLM()
+    chat_model_spark = ChatSparkLLM(
+                        spark_app_id="8ec6da98",
+                        spark_api_key="905cda25181eecd10ccf47f3c768d22f",
+                        spark_api_secret="MzBlMzVhMTY3NGI1NjJiMzI3NzRiYWRm",
+                        spark_api_url="wss://spark-api.xf-yun.com/v3.5/chat",
+                        spark_llm_domain="generalv3.5",
+                        timeout=90
+                        )
+
     return chat_model_spark
 
 def get_vectordb():
     from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
     # 1-1. 遍历文件夹，逐一加载并累加所有的各类文档
-    base_dir = "../mydocuments"  # 所有文档的存放目录
+    base_dir = "/home/vivy/ai/practice/example_code/doc"  # 所有文档的存放目录
     documents = []  # 声明 文档列表，以保存所有的加载的文档
     # 开始遍历指定文件夹
     for filename in os.listdir(base_dir):
@@ -75,7 +83,7 @@ def get_vectordb():
     # 指定运算|计算设备
     EMBEDDING_DEVICE = "cpu"
     # 生成|实例化 embedding model
-    embeddings = HuggingFaceEmbeddings(model_name="..\models\m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     from langchain_community.vectorstores import Qdrant
     # 将切分的文档embedding到qdrant
