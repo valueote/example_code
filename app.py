@@ -1,12 +1,12 @@
-from flask import Flask, request, jsonify, send_from_directory, session
+
+from flask import Flask, request, jsonify, send_from_directory, session, Response
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import secrets
+from werkzeug.utils import secure_filename
 import os
-os.environ["SERPAPI_API_KEY"] = "7c568f6675a4d131a3e98359a6a58a82ed7d752c908f3e4ad9a68f6e443deb15"
-os.environ["USER_AGENT"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0"
-
+import time
 import webbrowser
 from langchain_community.chat_models import ChatSparkLLM
 from langchain_core.prompts import ChatPromptTemplate
@@ -41,8 +41,6 @@ from langchain.schema import (
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
-# Set environment variables
-
 # Chat model config
 chat_model = ChatSparkLLM(
     spark_app_id="8ec6da98",
@@ -53,71 +51,131 @@ chat_model = ChatSparkLLM(
     timeout=90
 )
 
-################# retrieval chain #################
 
-# load website
-loader = WebBaseLoader(
-    web_path="https://web.stanford.edu/class/cs106l/index.html"
-)
-# load website into Document
-docs = loader.load()
+################################# retrieval chain #################################
 
-EMBEDDING_DEVICE = "cpu"
-embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base", model_kwargs={'device': EMBEDDING_DEVICE})
-
-text_splitter = RecursiveCharacterTextSplitter()
-documents = text_splitter.split_documents(documents=docs)
-vector = FAISS.from_documents(documents=documents, embedding=embeddings)
-retriever = vector.as_retriever()
-
-# prompt for chat model
-prompt = ChatPromptTemplate.from_messages([
-    MessagesPlaceholder(variable_name="chat_history"),
-    ("user", "{input}"),
-    ("user", "Given the above conversation, generate a search query to look up in order to get information relevant to the conversation")
-])
-
-retriever_chain = create_history_aware_retriever(chat_model, retriever, prompt)
-
-prompt = ChatPromptTemplate.from_messages([
-    ("system", "Answer the user's questions based on the below context:\n\n{context}"),
-    MessagesPlaceholder(variable_name="chat_history"),
-    ("user", "{input}"),
-])
-
-document_chain = create_stuff_documents_chain(chat_model, prompt)
-retrieval_chain = create_retrieval_chain(retriever_chain, document_chain)
-
-chat_history = [
-    HumanMessage(content="do you know my name"),
-    AIMessage(content="sorry, i don't know your name")
-]
-chat_history.append(HumanMessage(content="please remember my name, i'm vivy"))
-chat_history.append(AIMessage(content="ok vivy, i will remember your name"))
-
-# Create Agent
-from langchain.agents import Tool
-from langchain.chains import LLMMathChain
-
-llm_math = LLMMathChain(llm=chat_model)
-
-# Initialize the math tool
-math_tool = Tool(
-    name='Calculator',
-    func=llm_math.run,
-    description='Useful for when you need to answer questions about math.'
-)
-# When giving tools to LLM, we must pass as list of tools
-tools = [math_tool]
-
-from langchain import hub
-
-prompt = hub.pull("hwchase17/react")
-agent = create_react_agent(llm=chat_model, tools=tools, prompt=prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
+def os_setenv():
+    os.environ["SERPAPI_API_KEY"] = "7c568f6675a4d131a3e98359a6a58a82ed7d752c908f3e4ad9a68f6e443deb15"
+    os.environ[
+        "USER_AGENT"] = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36 Edg/126.0.0.0"
 
 
+def get_spark_chat_model():
+    from langchain_community.chat_models import ChatSparkLLM
+    chat_model_spark = ChatSparkLLM(
+        spark_app_id="8ec6da98",
+        spark_api_key="905cda25181eecd10ccf47f3c768d22f",
+        spark_api_secret="MzBlMzVhMTY3NGI1NjJiMzI3NzRiYWRm",
+        spark_api_url="wss://spark-api.xf-yun.com/v3.5/chat",
+        spark_llm_domain="generalv3.5",
+        timeout=90
+    )
 
+    return chat_model_spark
+
+
+def get_vectordb():
+    from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
+    # 1-1. 遍历文件夹，逐一加载并累加所有的各类文档
+    base_dir = "C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/mydocuments"  # 所有文档的存放目录
+    documents = []  # 声明 文档列表，以保存所有的加载的文档
+    # 开始遍历指定文件夹
+    for filename in os.listdir(base_dir):
+        # 构建完成的文件名（含有路径信息）
+        file_path = os.path.join(base_dir, filename)
+        '''
+            扩展：通过读取文件的头部信息，获取文件的真实类型
+        '''
+        # 分别使用不同的加载器加载各类不同的文档
+        if filename.endswith(".pdf"):
+            loader = PyPDFLoader(file_path)
+            # documents.append(loader)
+            documents.extend(loader.load())
+        elif filename.endswith(".docx"):
+            loader = Docx2txtLoader(file_path)
+            documents.extend(loader.load())
+        elif filename.endswith(".txt"):
+            loader = TextLoader(file_path, encoding='utf-8')
+            documents.extend(loader.load())
+
+    # 2. 文档（文本）切分/分割
+    # 2-0. 导入 字符文本切分器
+    from langchain.text_splitter import RecursiveCharacterTextSplitter
+    # 2-1. 生成|实例化 字符文本器的实例对象
+    # 指定：切分文档块的大小、重叠词/Token数
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=10)
+    # 完成文档切分
+    chunked_documents = text_splitter.split_documents(documents=documents)
+
+    from langchain_huggingface import HuggingFaceEmbeddings
+    # 指定运算|计算设备
+    EMBEDDING_DEVICE = "cpu"
+    # 生成|实例化 embedding model
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
+                                       model_kwargs={'device': EMBEDDING_DEVICE})
+    from langchain_community.vectorstores import Qdrant
+    # 将切分的文档embedding到qdrant
+    vectorstore = Qdrant.from_documents(
+        documents=chunked_documents,  # 已经分块的文档
+        embedding=embeddings,  # 指定 embedding 模型
+        location=":memory:",  # 指定 in-memory 存储
+        collection_name="my_documents",  # 指定 类似 数据库的 名称
+    )
+    return vectorstore
+
+
+def get_qa_chain(username, user_message):
+    retriever = get_vectordb().as_retriever()
+    os_setenv()
+    chat_model = get_spark_chat_model()
+    from langchain.retrievers.multi_query import MultiQueryRetriever  # MultiQueryRetriever工具
+    from langchain.chains import RetrievalQA  # RetrievalQA链
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system",
+         "You are a helpful AI assistant. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question."),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{input}"),
+    ])
+    retrieval_chain = create_history_aware_retriever(chat_model, retriever, prompt)
+    # 创建组合文档链
+    combine_prompt = ChatPromptTemplate.from_messages([
+        ("system",
+         "You are a helpful AI assistant. Use the following pieces of context to answer the user's question. If you don't know the answer, just say that you don't know, don't try to make up an answer.\n\nContext: {context}"),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{question}"),
+    ])
+    combine_docs_chain = create_stuff_documents_chain(chat_model, combine_prompt)
+
+    # 创建检索链
+    conversation_chain = create_retrieval_chain(retrieval_chain, combine_docs_chain)
+    # 实例化一个RetrievalQA链
+
+    response = conversation_chain.invoke({
+        "chat_history": chat_histories[username],
+        "input": user_message,
+        "question": user_message
+    })
+
+    return response["answer"]
+
+
+################################# End #################################
+
+
+################################# Config for webUI #################################
+def save_chat_history(username, chat_history):
+    file_path = f"C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/example_code/chat_history/{username}.json"
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump([message.dict() for message in chat_history], f, ensure_ascii=False, indent=4)
+
+def load_chat_history(username):
+    file_path = f"C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/example_code/chat_history/{username}.json"
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            messages = json.load(f)
+            return [HumanMessage(**msg) if msg['type'] == 'human' else AIMessage(**msg) for msg in messages]
+    return []
 # MySQL数据库配置
 db_config = {
     'user': 'test',
@@ -125,6 +183,7 @@ db_config = {
     'host': 'localhost',
     'database': 'practice'
 }
+
 
 def get_db_connection():
     connection = mysql.connector.connect(**db_config)
@@ -135,7 +194,9 @@ def get_db_connection():
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
+
 app.secret_key = secrets.token_hex(16)
+
 
 # 模拟用户数据库
 
@@ -157,6 +218,7 @@ def register():
     connection.close()
     return jsonify({"message": "注册成功"}), 201
 
+
 @app.route('/login', methods=['POST'])
 def login():
     username = request.json.get('username')
@@ -172,7 +234,10 @@ def login():
         return jsonify({"message": "用户名或密码错误"}), 401
 
     session['username'] = username
+    chat_histories[username] = load_chat_history(username)  # 加载聊天记录
     return jsonify({"message": "登录成功"}), 200
+
+
 
 @app.route('/logout')
 def logout():
@@ -180,39 +245,65 @@ def logout():
     return jsonify({"message": "已登出"}), 200
 
 
+chat_histories = {}
+
+
+@app.route('/ask', methods=['POST'])
 @app.route('/ask', methods=['POST'])
 def ask():
     if 'username' not in session:
         return jsonify({"message": "请先登录"}), 401
+
+    username = session['username']
     user_message = request.json.get('question')
-    chat_history.append(HumanMessage(content=user_message))
 
-    if any(char.isdigit() for char in user_message):
-        ai_message = agent_executor.invoke({"input": user_message})['output']
-    else:
-        response = retrieval_chain.invoke({
-            "chat_history": chat_history,
-            "input": user_message
-        })
-        ai_message = response["answer"]
+    if username not in chat_histories:
+        chat_histories[username] = []
 
-    # 处理换行符
-    ai_message = ai_message.replace('\n', '\n\n')
+    chat_histories[username].append(HumanMessage(content=user_message))
 
-    chat_history.append(HumanMessage(content=user_message))
-    chat_history.append(AIMessage(content=ai_message))
+    def generate():
+        ai_message = get_qa_chain(username, user_message)
+        for char in ai_message:
+            yield char
+            time.sleep(0.05)  # 模拟逐字输出
 
-    return jsonify({'answer': ai_message})
+    # 将AI响应添加到历史记录
+    ai_message = get_qa_chain(username, user_message)
+    chat_histories[username].append(AIMessage(content=ai_message))
+
+    # 保存聊天记录到文件
+    save_chat_history(username, chat_histories[username])
+
+    return Response(generate(), mimetype='text/event-stream')
 
 
+UPLOAD_FOLDER = '/home/vivy/ai/practice/example_code/doc'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-### chage
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'files' not in request.files:
+        return jsonify({"message": "No file part"}), 400
+    files = request.files.getlist('files')
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        else:
+            return jsonify({"message": "Invalid file type"}), 400
+    return jsonify({"message": "Files uploaded successfully"}), 200
+import json
+import os
 
 
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
