@@ -368,8 +368,7 @@
         });
 
         // 文件上传功能
-        document.getElementById('upload-input').addEventListener('change', function(event) {
-            const files = event.target.files;
+        function uploadFiles(files) {
             const formData = new FormData();
             for (let i = 0; i < files.length; i++) {
                 formData.append('files', files[i]);
@@ -386,6 +385,12 @@
             .catch((error) => {
                 console.error('Error:', error);
             });
+        }
+
+        // 监听文件上传输入框的变化
+        document.getElementById('upload-input').addEventListener('change', function(event) {
+            const files = event.target.files;
+            uploadFiles(files);
         });
     </script>
 </body>
