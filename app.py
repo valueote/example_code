@@ -75,12 +75,12 @@ def get_spark_chat_model():
 import json
 
 def save_chat_history(username, chat_history):
-    file_path = f"C:/Users/Lenovo/Desktop/实训/23组 小组项目2/example_code/chat_history/{username}.json"
+    file_path = f"chat_history/{username}.json" #do not change the path
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump([message.dict() for message in chat_history], f, ensure_ascii=False, indent=4)
 
 def load_chat_history(username):
-    file_path = f"C:/Users/Lenovo/Desktop/实训/23组 小组项目2/example_code/chat_history/{username}.json"
+    file_path = f"chat_history/{username}.json" #do not change the path
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             messages = json.load(f)
@@ -91,7 +91,7 @@ def load_chat_history(username):
 def get_vectordb():
     from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
     # 1-1. 遍历文件夹，逐一加载并累加所有的各类文档
-    base_dir = "C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/mydocuments"  # 所有文档的存放目录
+    base_dir = "doc"  # do not change the path
     documents = []  # 声明 文档列表，以保存所有的加载的文档
     # 开始遍历指定文件夹
     for filename in os.listdir(base_dir):
@@ -124,8 +124,8 @@ def get_vectordb():
     from langchain_huggingface import HuggingFaceEmbeddings
     # 指定运算|计算设备
     EMBEDDING_DEVICE = "cpu"
-    # 生成|实例化 embedding model
-    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
+    #/home/vivy/ai/m3e-base;
+    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     from langchain_community.vectorstores import Qdrant
     # 将切分的文档embedding到qdrant
@@ -288,7 +288,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'files' not in request.files:
@@ -303,5 +302,14 @@ def upload_file():
     return jsonify({"message": "Files uploaded successfully"}), 200
 
 
+@app.route('/get_chat_history', methods=['GET'])
+def get_chat_history():
+    if 'username' not in session:
+        return jsonify({"message": "请先登录"}), 401
+
+    username = session['username']
+    chat_history = load_chat_history(username)
+    history_with_sender = [{"sender": "ai" if isinstance(message, AIMessage) else "user", "content": message.content} for message in chat_history]
+    return jsonify({"chat_history": history_with_sender}), 200
 if __name__ == '__main__':
     app.run(debug=True)
