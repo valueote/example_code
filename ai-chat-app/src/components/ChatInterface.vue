@@ -22,8 +22,6 @@
 
 <script>
 import ChatMessageComponent from './ChatMessageComponent.vue';
-import { marked } from 'marked';
-import hljs from 'highlight.js';
 
 export default {
   name: 'ChatInterface',
@@ -74,28 +72,16 @@ export default {
         });
     },
     appendMessage(sender, message, isStreaming = false) {
-      const chatMessages = this.$refs.chatMessages;
-      const messageElement = document.createElement('div');
-      messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
-
-      if (sender === 'ai') {
-        const htmlContent = marked(message);
-        messageElement.innerHTML = htmlContent;
-        this.highlightCodeBlocks(messageElement);
+      const newMessage = { sender, content: message };
+      if (isStreaming) {
+        if (this.chatMessages.length > 0 && this.chatMessages[this.chatMessages.length - 1].sender === 'ai') {
+          this.chatMessages[this.chatMessages.length - 1].content = message;
+        } else {
+          this.chatMessages.push(newMessage);
+        }
       } else {
-        messageElement.textContent = message;
+        this.chatMessages.push(newMessage);
       }
-
-      if (!isStreaming) {
-        chatMessages.appendChild(messageElement);
-      }
-
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    },
-    highlightCodeBlocks(element) {
-      element.querySelectorAll('pre code').forEach(block => {
-        hljs.highlightBlock(block);
-      });
     },
     handleFileUpload(event) {
       const files = event.target.files;
@@ -132,7 +118,7 @@ export default {
         .then(response => response.json())
         .then(data => {
           data.chat_history.forEach(message => {
-            this.appendMessage(message.sender, message.content);
+            this.chatMessages.push(message);
           });
         })
         .catch(error => {
@@ -145,3 +131,54 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+#chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+#chat-input {
+  display: flex;
+  justify-content: space-between;
+}
+#user-input {
+  flex-grow: 1;
+  padding: 12px;
+  border: 1px solid #dddfe2;
+  border-radius: 20px;
+  margin-right: 10px;
+}
+button {
+  padding: 12px 20px;
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+#upload-container {
+  margin-top: 20px;
+}
+#upload-input {
+  display: none;
+}
+#upload-label {
+  display: block;
+  padding: 12px;
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+#upload-label:hover {
+  background-color: #166fe5;
+}
+</style>
