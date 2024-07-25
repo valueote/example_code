@@ -1,8 +1,12 @@
 <template>
-  <div class="container">
-    <Login v-if="currentView === 'login'" @show-register="currentView = 'register'" @login-success="currentView = 'chat'" />
-    <Register v-if="currentView === 'register'" @show-login="currentView = 'login'" />
-    <Chat v-if="currentView === 'chat'" @logout="currentView = 'login'" />
+  <div class="app-container">
+    <div class="content-wrapper">
+      <transition name="fade" mode="out-in">
+        <Login v-if="currentView === 'login'" @show-register="currentView = 'register'" @login-success="currentView = 'chat'" />
+        <Register v-if="currentView === 'register'" @show-login="currentView = 'login'" />
+        <Chat v-if="currentView === 'chat'" @logout="currentView = 'login'" />
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -26,56 +30,95 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f2f5;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   margin: 0;
   padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
 }
-.container {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 80%;
-  max-width: 800px;
+
+.app-container {
+  width: 100%;
+  max-width: 480px;
+  padding: 20px;
+}
+
+.content-wrapper {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   padding: 40px;
 }
+
 h1 {
   text-align: center;
-  color: #1877f2;
+  color: #4a5568;
   margin-bottom: 30px;
+  font-weight: 500;
 }
+
 input[type="text"], input[type="password"] {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid #dddfe2;
-  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
   box-sizing: border-box;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
 }
+
+input[type="text"]:focus, input[type="password"]:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
 button {
+  width: 100%;
   padding: 12px;
-  background-color: #1877f2;
+  background-color: #667eea;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
 }
+
 button:hover {
-  background-color: #166fe5;
+  background-color: #5a67d8;
 }
+
 .switch-form {
   text-align: center;
   margin-top: 20px;
 }
+
 .switch-form a {
-  color: #1877f2;
+  color: #667eea;
   text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.switch-form a:hover {
+  color: #5a67d8;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 </style>
