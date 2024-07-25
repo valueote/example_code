@@ -72,6 +72,7 @@ def get_spark_chat_model():
     )
 
     return chat_model_spark
+
 import json
 
 def save_chat_history(username, chat_history):
