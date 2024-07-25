@@ -45,11 +45,15 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css');
+
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', sans-serif;
   background-color: #f0f2f5;
+  color: #333;
 }
 
 .app-container {
@@ -65,7 +69,7 @@ body {
   margin: 0 auto;
 }
 
-/* 登录和注册表单样式 */
+/* Login and register form styles */
 .content-wrapper > div:not(.chat-container) {
   background-color: white;
   border-radius: 12px;
@@ -90,13 +94,15 @@ input {
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 16px;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 input:focus {
   outline: none;
   border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
 }
+
 
 button {
   width: 100%;

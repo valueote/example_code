@@ -4,52 +4,34 @@
       <h1>Chat with AI</h1>
       <div class="header-buttons">
         <button @click="logout" class="logout-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
+          <i class="fas fa-sign-out-alt"></i> Logout
         </button>
-        <div class="close-button" @click="closeChat">×</div>
+        <button @click="clearHistory" class="clear-history-button">
+          <i class="fas fa-trash-alt"></i> Clear History
+        </button>
       </div>
     </div>
-    <div class="chat-content">
-      <div id="chat-messages" ref="chatMessages">
-        <ChatMessageComponent
-          v-for="(message, index) in chatMessages"
-          :key="index"
-          :message="message"
-        />
-      </div>
+    <div class="chat-messages" ref="chatMessages">
+      <ChatMessageComponent v-for="(message, index) in messages" :key="index" :message="message" />
     </div>
-    <div class="input-area">
-      <div id="chat-input">
-        <input type="text" v-model="userInput" @keypress.enter="sendMessage" placeholder="Type your message...">
-        <div class="action-buttons">
-          <div id="upload-container">
-            <input type="file" id="upload-input" ref="uploadInput" multiple @change="handleFileUpload">
-            <label for="upload-input" id="upload-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
-            </label>
-          </div>
-          <button @click="sendMessage" class="send-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-          </button>
-        </div>
-      </div>
+    <div class="chat-input">
+      <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your message..."></textarea>
+      <button @click="sendMessage" class="send-button">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+    <div class="file-upload">
+      <input type="file" @change="handleFileUpload" multiple accept=".txt,.pdf,.docx" ref="fileInput" style="display:none;">
+      <button @click="$refs.fileInput.click()" class="upload-button">
+        <i class="fas fa-upload"></i> Upload Files
+      </button>
     </div>
   </div>
 </template>
 
 <script>
 import ChatMessageComponent from './ChatMessageComponent.vue';
+import axios from 'axios';
 
 export default {
   name: 'ChatInterface',
@@ -58,104 +40,112 @@ export default {
   },
   data() {
     return {
+      messages: [],
       userInput: '',
-      chatMessages: []
+      isLoading: false
     };
   },
+  mounted() {
+    this.loadChatHistory();
+    this.scrollToBottom();
+  },
   methods: {
-    sendMessage() {
+    async sendMessage() {
       if (this.userInput.trim() === '') return;
-      this.appendMessage('user', this.userInput);
-      const message = this.userInput;
+      
+      const userMessage = { sender: 'user', content: this.userInput };
+      this.messages.push(userMessage);
       this.userInput = '';
+      this.scrollToBottom();
 
-      fetch('/ask', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ question: message }),
-      })
-        .then(response => {
-          const reader = response.body.getReader();
-          let aiResponse = '';
-
-          const readStream = () => {
-            reader.read().then(({ done, value }) => {
-              if (done) {
-                this.appendMessage('ai', aiResponse);
-                return;
-              }
-              const chunk = new TextDecoder().decode(value);
-              aiResponse += chunk;
-              this.updateLastAiMessage(aiResponse);
-              readStream();
-            });
-          };
-
-          readStream();
-        })
-        .catch(error => {
-          console.error('Error:', error);
+      this.isLoading = true;
+      try {
+        const response = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: userMessage.content }),
         });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let aiResponse = '';
+         // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          aiResponse += chunk;
+          this.updateLastAIMessage(aiResponse);
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        this.isLoading = false;
+        this.scrollToBottom();
+      }
     },
-    appendMessage(sender, message) {
-      this.chatMessages.push({ sender, content: message });
-    },
-    updateLastAiMessage(message) {
-      if (this.chatMessages.length > 0 && this.chatMessages[this.chatMessages.length - 1].sender === 'ai') {
-        this.chatMessages[this.chatMessages.length - 1].content = message;
+    updateLastAIMessage(content) {
+      const lastMessage = this.messages[this.messages.length - 1];
+      if (lastMessage.sender === 'ai') {
+        lastMessage.content = content;
+      } else {
+        this.messages.push({ sender: 'ai', content: content });
       }
     },
     scrollToBottom() {
-      const chatMessages = this.$refs.chatMessages;
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      this.$nextTick(() => {
+        const chatMessages = this.$refs.chatMessages;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      });
     },
-    handleFileUpload(event) {
-      const files = event.target.files;
+    logout() {
+      axios.get('/logout')
+        .then(() => {
+          this.$emit('logout');
+        })
+        .catch(error => {
+          console.error('Logout error:', error);
+        });
+    },
+    async loadChatHistory() {
+      try {
+        const response = await axios.get('/get_chat_history');
+        this.messages = response.data.chat_history;
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+      }
+    },
+    async clearHistory() {
+      try {
+        await axios.post('/clear_chat_history');
+        this.messages = [];
+      } catch (error) {
+        console.error('Error clearing chat history:', error);
+      }
+    },
+    async handleFileUpload() {
+      const files = this.$refs.fileInput.files;
+      if (files.length === 0) return;
+
       const formData = new FormData();
       for (let i = 0; i < files.length; i++) {
         formData.append('files', files[i]);
       }
 
-      fetch('/upload', {
-        method: 'POST',
-        body: formData
-      })
-        .then(response => response.json())
-        .then(data => {
-          alert(data.message);
-        })
-        .catch(error => {
-          console.error('Error:', error);
+      try {
+        const response = await axios.post('/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
-    },
-    logout() {
-      fetch('/logout')
-        .then(response => response.json())
-        .then(data => {
-          alert(data.message);
-          this.$emit('logout');
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-    },
-    loadChatHistory() {
-      fetch('/get_chat_history')
-        .then(response => response.json())
-        .then(data => {
-          data.chat_history.forEach(message => {
-            this.chatMessages.push(message);
-          });
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
+        console.log(response.data.message);
+        // Optionally, add a system message to show successful upload
+        this.messages.push({ sender: 'system', content: 'Files uploaded successfully' });
+      } catch (error) {
+        console.error('Error uploading files:', error);
+        // Optionally, add a system message to show upload failure
+        this.messages.push({ sender: 'system', content: 'File upload failed' });
+      }
     }
-  },
-  mounted() {
-    this.loadChatHistory();
   }
 };
 </script>
@@ -165,144 +155,109 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100%;
-  background-color: #ffffff;
+  background-color: #f0f2f5;
   border-radius: 12px;
+  overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: relative;
 }
 
 .chat-header {
+  background-color: #667eea;
+  color: white;
+  padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background-color: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+}
+
+.chat-header h1 {
+  color:white;
+  margin: 0;
+  font-size: 24px;
 }
 
 .header-buttons {
   display: flex;
-  align-items: center;
+  gap: 10px;
 }
 
-
-.chat-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-
-.logout-button {
+.logout-button, .clear-history-button {
   background-color: transparent;
-  border: none;
+  border: 2px solid white;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
   cursor: pointer;
-  padding: 8px;
-  margin-right: 8px;
-  color: #4a5568;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.logout-button:hover {
-  color: #2d3748;
+.logout-button:hover, .clear-history-button:hover {
+  background-color: white;
+  color: #667eea;
 }
 
-.close-button {
-  font-size: 24px;
-  cursor: pointer;
-  color: #4a5568;
-}
-
-
-.chat-content {
-  flex-grow: 1;
+.chat-messages {
+  flex: 1;
   overflow-y: auto;
   padding: 20px;
-  background-color: #f7fafc;
 }
 
-.input-area {
-  border-top: 1px solid #e2e8f0;
-  padding: 15px;
-  background-color: #ffffff;
-  position: sticky;
-  bottom: 0;
-}
-
-#chat-input {
+.chat-input {
   display: flex;
-  align-items: center;
+  padding: 20px;
+  background-color: white;
 }
 
-#chat-input input {
-  flex-grow: 1;
-  padding: 12px 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 24px;
-  font-size: 16px;
-  margin-right: 10px;
-}
-
-#chat-input input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.action-buttons {
-  display: flex;
-  align-items: center;
-}
-
-#upload-container {
-  margin-right: 10px;
-}
-
-#upload-input {
-  display: none;
-}
-
-#upload-label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40px;
-  height: 40px;
-  background-color: #4a5568;
-  color: white;
+.chat-input textarea {
+  flex: 1;
   border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  border-radius: 20px;
+  padding: 12px 20px;
+  font-size: 16px;
+  resize: none;
+  background-color: #f0f2f5;
+  transition: all 0.3s ease;
 }
 
-#upload-label:hover {
-  background-color: #2d3748;
+.chat-input textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #667eea;
 }
 
 .send-button {
-  width: 40px;
-  height: 40px;
   background-color: #667eea;
   color: white;
   border: none;
   border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  margin-left: 10px;
   cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .send-button:hover {
   background-color: #5a67d8;
+  transform: scale(1.05);
 }
 
-/* 添加这个样式来限制对话气泡的宽度 */
-:deep(.message-bubble) {
-  max-width: 70%;
-  word-wrap: break-word;
+.file-upload {
+  padding: 10px 20px;
+  background-color: white;
+  border-top: 1px solid #e4e6eb;
+}
+
+.upload-button {
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-button:hover {
+  background-color: #5a67d8;
 }
 </style>

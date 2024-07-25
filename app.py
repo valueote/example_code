@@ -252,6 +252,11 @@ def logout():
 chat_histories = {}
 
 
+# Add these imports at the top of the file
+from flask import Response
+import time
+
+# Replace the existing 'ask' route with this updated version
 @app.route('/ask', methods=['POST'])
 def ask():
     if 'username' not in session:
@@ -269,13 +274,13 @@ def ask():
         ai_message = get_qa_chain(username, user_message)
         for char in ai_message:
             yield char
-            time.sleep(0.05)  # 模拟逐字输出
+            time.sleep(0.05)  # Simulate character-by-character output
 
-    # 将AI响应添加到历史记录
+    # Add AI response to chat history
     ai_message = get_qa_chain(username, user_message)
     chat_histories[username].append(AIMessage(content=ai_message))
 
-    # 保存聊天记录到文件
+    # Save chat history to file
     save_chat_history(username, chat_histories[username])
 
     return Response(generate(), mimetype='text/event-stream')
@@ -312,5 +317,24 @@ def get_chat_history():
     chat_history = load_chat_history(username)
     history_with_sender = [{"sender": "ai" if isinstance(message, AIMessage) else "user", "content": message.content} for message in chat_history]
     return jsonify({"chat_history": history_with_sender}), 200
+
+@app.route('/clear_chat_history', methods=['POST'])
+def clear_chat_history():
+    if 'username' not in session:
+        return jsonify({"message": "请先登录"}), 401
+
+    username = session['username']
+    
+    # Clear the chat history in memory
+    if username in chat_histories:
+        chat_histories[username] = []
+    
+    # Clear the chat history file
+    file_path = f"chat_history/{username}.json"
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    
+    return jsonify({"message": "Chat history cleared"}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)

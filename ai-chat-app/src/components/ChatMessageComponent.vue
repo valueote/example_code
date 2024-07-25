@@ -73,7 +73,7 @@ export default {
 }
 
 .user-message .message-content {
-  background-color: #1877f2;
+  background-color: #667eea;
   color: white;
 }
 
@@ -86,18 +86,27 @@ export default {
   color: #2d3748;
 }
 
-/* 添加样式以确保代码块正确显示 */
+/* Improved code block styling */
 .ai-message pre {
   background-color: #1e1e1e;
-  border-radius: 12px;
+  border-radius: 20px;
   padding: 12px;
   overflow-x: auto;
   max-width: 100%;
+  margin: 10px 0;
 }
 
 .ai-message code {
-  font-family: 'Courier New', Courier, monospace;
-  border-radius: 8px;
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  font-size: 13px;
 }
 
+/* Remove extra padding in message bubbles */
+.message-content > *:first-child {
+  margin-top: 0;
+}
+
+.message-content > *:last-child {
+  margin-bottom: 0;
+}
 </style>
