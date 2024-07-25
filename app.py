@@ -102,16 +102,17 @@ def get_vectordb():
             扩展：通过读取文件的头部信息，获取文件的真实类型
         '''
         # 分别使用不同的加载器加载各类不同的文档
-        if filename.endswith(".pdf"):
-            loader = PyPDFLoader(file_path)
-            # documents.append(loader)
-            documents.extend(loader.load())
-        elif filename.endswith(".docx"):
-            loader = Docx2txtLoader(file_path)
-            documents.extend(loader.load())
-        elif filename.endswith(".txt"):
-            loader = TextLoader(file_path, encoding='utf-8')
-            documents.extend(loader.load())
+        if os.path.getsize(file_path) > 0:
+            if filename.endswith(".pdf"):
+                loader = PyPDFLoader(file_path)
+                # documents.append(loader)
+                documents.extend(loader.load())
+            elif filename.endswith(".docx"):
+                loader = Docx2txtLoader(file_path)
+                documents.extend(loader.load())
+            elif filename.endswith(".txt"):
+                loader = TextLoader(file_path, encoding='utf-8')
+                documents.extend(loader.load())
 
     # 2. 文档（文本）切分/分割
     # 2-0. 导入 字符文本切分器
@@ -126,7 +127,7 @@ def get_vectordb():
     # 指定运算|计算设备
     EMBEDDING_DEVICE = "cpu"
     #/home/vivy/ai/m3e-base;
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     from langchain_community.vectorstores import Qdrant
     # 将切分的文档embedding到qdrant
@@ -286,7 +287,7 @@ def ask():
     return Response(generate(), mimetype='text/event-stream')
 
 
-UPLOAD_FOLDER = '/home/vivy/ai/practice/example_code/doc'
+UPLOAD_FOLDER = './doc'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
