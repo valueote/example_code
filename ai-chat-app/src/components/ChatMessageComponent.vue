@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import 'highlight.js/styles/github.css'; // You can choose other styles from highlight.js
+import 'highlight.js/styles/github-dark.css'; // You can choose other styles from highlight.js
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 
