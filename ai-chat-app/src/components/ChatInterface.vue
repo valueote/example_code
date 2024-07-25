@@ -12,17 +12,17 @@
       <div class="input-area">
         <div id="chat-input">
           <input type="text" v-model="userInput" @keypress.enter="sendMessage" placeholder="Type your message...">
-          <button @click="sendMessage" class="send-button">Send</button>
-        </div>
-        <div class="action-buttons">
-          <div id="upload-container">
-            <input type="file" id="upload-input" ref="uploadInput" multiple @change="handleFileUpload">
-            <label for="upload-input" id="upload-label">Upload Documents</label>
+          <div class="action-buttons">
+            <div id="upload-container">
+              <input type="file" id="upload-input" ref="uploadInput" multiple @change="handleFileUpload">
+              <label for="upload-input" id="upload-label">+</label>
+            </div>
+            <button @click="sendMessage" class="send-button">➜</button>
           </div>
-          <button @click="logout" class="logout-button">Logout</button>
         </div>
       </div>
     </div>
+    <button @click="logout" class="logout-button">Logout</button>
   </div>
 </template>
 
@@ -138,18 +138,29 @@ export default {
 };
 </script>
 
+
 <style scoped>
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 66vw;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  padding: 20px;
+  margin: 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .chat-content {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 60px); /* 减去标题的高度 */
+  height: calc(100% - 60px - 50px); /* 减去标题和登出按钮的高度 */
 }
 
 #chat-messages {
@@ -157,30 +168,25 @@ export default {
   overflow-y: auto;
   padding: 20px;
   background-color: #f7fafc;
-  border-radius: 8px 8px 0 0;
-  border: 1px solid #e2e8f0;
-  border-bottom: none;
 }
 
 .input-area {
-  background-color: #fff;
-  border: 1px solid #e2e8f0;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  padding: 20px;
+  border-top: 1px solid #e2e8f0;
+  padding: 10px;
 }
 
 #chat-input {
   display: flex;
-  margin-bottom: 15px;
+  align-items: center;
 }
 
 #chat-input input {
   flex-grow: 1;
   padding: 12px 16px;
   border: 2px solid #e2e8f0;
-  border-radius: 8px 0 0 8px;
+  border-radius: 24px;
   font-size: 16px;
+  margin-right: 10px;
 }
 
 #chat-input input:focus {
@@ -188,29 +194,12 @@ export default {
   border-color: #667eea;
 }
 
-.send-button {
-  padding: 12px 24px;
-  background-color: #667eea;
-  color: white;
-  border: none;
-  border-radius: 0 8px 8px 0;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-}
-
-.send-button:hover {
-  background-color: #5a67d8;
-}
-
 .action-buttons {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
 }
 
 #upload-container {
-  flex: 1;
   margin-right: 10px;
 }
 
@@ -219,16 +208,18 @@ export default {
 }
 
 #upload-label {
-  display: block;
-  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
   background-color: #4a5568;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 50%;
   cursor: pointer;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: bold;
   transition: background-color 0.3s ease;
 }
 
@@ -236,9 +227,29 @@ export default {
   background-color: #2d3748;
 }
 
+.send-button {
+  width: 40px;
+  height: 40px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.send-button:hover {
+  background-color: #5a67d8;
+}
+
 .logout-button {
-  flex: 1;
-  padding: 12px;
+  align-self: flex-end;
+  padding: 10px 20px;
+  margin: 10px;
   background-color: #f56565;
   color: white;
   border: none;

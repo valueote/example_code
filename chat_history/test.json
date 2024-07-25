@@ -61,5 +61,131 @@
         "tool_calls": [],
         "invalid_tool_calls": [],
         "usage_metadata": null
+    },
+    {
+        "content": "do you konw my name",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "As an AI assistant, I do not have personal information about you. However, I can assist you with any questions or tasks you may have. Please feel free to ask me anything!",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "the final answer for the universal  is 42",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "Yes, I am aware that in the book \"The Hitchhiker's Guide to the Galaxy\" by Douglas Adams, 42 is given as the ultimate answer to the ultimate question of life, the universe, and everything. However, this is a fictional concept and not an actual answer to any real-world universal questions. If you have any other questions or need assistance with something else, feel free to ask!",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "my password for the computer is 115, plz remember that",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "I'm sorry, but as an AI assistant, I do not store or remember any personal information, including passwords. It is important to keep your passwords secure and not share them with anyone, including AI assistants. If you have any other questions or need assistance with something else, please feel free to ask!",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "hello",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "hello",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "Hello! How can I assist you today?",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "Hello! How can I assist you today?",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "give me a short cpp code",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "Sure, here's a simple C++ code that prints \"Hello, World!\" to the console:\n\n```cpp\n#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}\n```",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
     }
 ]
