@@ -1,6 +1,18 @@
 <template>
   <div class="chat-container">
-    <h1>Chat with AI</h1>
+    <div class="chat-header">
+      <h1>Chat with AI</h1>
+      <div class="header-buttons">
+        <button @click="logout" class="logout-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+        <div class="close-button" @click="closeChat">×</div>
+      </div>
+    </div>
     <div class="chat-content">
       <div id="chat-messages" ref="chatMessages">
         <ChatMessageComponent
@@ -9,20 +21,30 @@
           :message="message"
         />
       </div>
-      <div class="input-area">
-        <div id="chat-input">
-          <input type="text" v-model="userInput" @keypress.enter="sendMessage" placeholder="Type your message...">
-          <div class="action-buttons">
-            <div id="upload-container">
-              <input type="file" id="upload-input" ref="uploadInput" multiple @change="handleFileUpload">
-              <label for="upload-input" id="upload-label">+</label>
-            </div>
-            <button @click="sendMessage" class="send-button">➜</button>
+    </div>
+    <div class="input-area">
+      <div id="chat-input">
+        <input type="text" v-model="userInput" @keypress.enter="sendMessage" placeholder="Type your message...">
+        <div class="action-buttons">
+          <div id="upload-container">
+            <input type="file" id="upload-input" ref="uploadInput" multiple @change="handleFileUpload">
+            <label for="upload-input" id="upload-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </label>
           </div>
+          <button @click="sendMessage" class="send-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
-    <button @click="logout" class="logout-button">Logout</button>
   </div>
 </template>
 
@@ -138,32 +160,64 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .chat-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 66vw;
-  margin: 0 auto;
+  width: 100%;
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
-h1 {
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 20px;
-  margin: 0;
+  background-color: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+}
+
+
+.chat-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+
+.logout-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: 8px;
+  color: #4a5568;
+  transition: color 0.3s ease;
+}
+
+.logout-button:hover {
+  color: #2d3748;
+}
+
+.close-button {
+  font-size: 24px;
+  cursor: pointer;
+  color: #4a5568;
+}
+
 
 .chat-content {
-  display: flex;
-  flex-direction: column;
-  height: calc(100% - 60px - 50px); /* 减去标题和登出按钮的高度 */
-}
-
-#chat-messages {
   flex-grow: 1;
   overflow-y: auto;
   padding: 20px;
@@ -172,7 +226,10 @@ h1 {
 
 .input-area {
   border-top: 1px solid #e2e8f0;
-  padding: 10px;
+  padding: 15px;
+  background-color: #ffffff;
+  position: sticky;
+  bottom: 0;
 }
 
 #chat-input {
@@ -218,8 +275,6 @@ h1 {
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 24px;
-  font-weight: bold;
   transition: background-color 0.3s ease;
 }
 
@@ -235,7 +290,6 @@ h1 {
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -246,21 +300,9 @@ h1 {
   background-color: #5a67d8;
 }
 
-.logout-button {
-  align-self: flex-end;
-  padding: 10px 20px;
-  margin: 10px;
-  background-color: #f56565;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-}
-
-.logout-button:hover {
-  background-color: #e53e3e;
+/* 添加这个样式来限制对话气泡的宽度 */
+:deep(.message-bubble) {
+  max-width: 70%;
+  word-wrap: break-word;
 }
 </style>

@@ -1,6 +1,8 @@
 <template>
   <div :class="['message', message.sender === 'user' ? 'user-message' : 'ai-message']">
-    <div class="message-content" v-html="formattedMessage"></div>
+    <div class="message-bubble">
+      <div class="message-content" v-html="formattedMessage"></div>
+    </div>
   </div>
 </template>
 
@@ -45,7 +47,13 @@ export default {
 <style scoped>
 .message {
   margin-bottom: 15px;
-  max-width: 80%;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-bubble {
+  max-width: 70%;
+  word-wrap: break-word;
 }
 
 .message-content {
@@ -57,7 +65,10 @@ export default {
 }
 
 .user-message {
-  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.user-message .message-bubble {
   margin-left: auto;
 }
 
@@ -67,7 +78,7 @@ export default {
 }
 
 .ai-message {
-  align-self: flex-start;
+  align-items: flex-start;
 }
 
 .ai-message .message-content {
@@ -78,12 +89,15 @@ export default {
 /* 添加样式以确保代码块正确显示 */
 .ai-message pre {
   background-color: #1e1e1e;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 12px;
   overflow-x: auto;
+  max-width: 100%;
 }
 
 .ai-message code {
   font-family: 'Courier New', Courier, monospace;
+  border-radius: 8px;
 }
+
 </style>

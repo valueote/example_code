@@ -48,7 +48,7 @@ export default {
 body {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f0f2f5;
 }
 
@@ -68,8 +68,8 @@ body {
 /* 登录和注册表单样式 */
 .content-wrapper > div:not(.chat-container) {
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 40px;
   width: 100%;
   max-width: 400px;
@@ -80,6 +80,7 @@ h1 {
   text-align: center;
   margin-bottom: 24px;
   color: #333;
+  font-weight: 600;
 }
 
 input {
@@ -87,24 +88,31 @@ input {
   padding: 12px;
   margin-bottom: 16px;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #667eea;
 }
 
 button {
   width: 100%;
   padding: 12px;
-  background-color: #1877f2;
+  background-color: #667eea;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #166fe5;
+  background-color: #5a67d8;
 }
 
 .switch-form {
@@ -113,8 +121,9 @@ button:hover {
 }
 
 .switch-form a {
-  color: #1877f2;
+  color: #667eea;
   text-decoration: none;
+  font-weight: 600;
 }
 
 .switch-form a:hover {
