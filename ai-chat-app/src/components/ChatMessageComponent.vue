@@ -3,22 +3,31 @@
 </template>
 
 <script>
+import 'highlight.js/styles/github.css'; // You can choose other styles from highlight.js
 import { marked } from 'marked';
-import { hljs } from 'highlight.js';
+import hljs from 'highlight.js';
 
 export default {
   name: 'ChatMessageComponent',
   props: ['message'],
   computed: {
     formattedMessage() {
-      return this.message.sender === 'ai' ? marked(this.message.content) : this.message.content;
+      if (this.message.sender === 'ai') {
+        return marked(this.message.content, {
+          highlight: function (code, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+          }
+        });
+      }
+      return this.message.content;
     }
   },
   mounted() {
     if (this.message.sender === 'ai') {
       this.$nextTick(() => {
         this.$el.querySelectorAll('pre code').forEach(block => {
-          hljs.highlightBlock(block);
+          hljs.highlightElement(block);
         });
       });
     }
@@ -32,6 +41,7 @@ export default {
   padding: 10px;
   border-radius: 18px;
   max-width: 70%;
+  white-space: pre-wrap;
 }
 .user-message {
   background-color: #1877f2;
