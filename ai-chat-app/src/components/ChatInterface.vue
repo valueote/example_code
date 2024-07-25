@@ -60,7 +60,7 @@ export default {
               }
               const chunk = new TextDecoder().decode(value);
               aiResponse += chunk;
-              this.appendMessage('ai', aiResponse, true);
+              this.updateLastAiMessage(aiResponse);
               readStream();
             });
           };
@@ -71,16 +71,12 @@ export default {
           console.error('Error:', error);
         });
     },
-    appendMessage(sender, message, isStreaming = false) {
-      const newMessage = { sender, content: message };
-      if (isStreaming) {
-        if (this.chatMessages.length > 0 && this.chatMessages[this.chatMessages.length - 1].sender === 'ai') {
-          this.chatMessages[this.chatMessages.length - 1].content = message;
-        } else {
-          this.chatMessages.push(newMessage);
-        }
-      } else {
-        this.chatMessages.push(newMessage);
+    appendMessage(sender, message) {
+      this.chatMessages.push({ sender, content: message });
+    },
+    updateLastAiMessage(message) {
+      if (this.chatMessages.length > 0 && this.chatMessages[this.chatMessages.length - 1].sender === 'ai') {
+        this.chatMessages[this.chatMessages.length - 1].content = message;
       }
     },
     handleFileUpload(event) {
