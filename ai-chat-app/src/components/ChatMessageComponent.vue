@@ -1,6 +1,7 @@
 <template>
-  <div :class="['message', message.sender === 'user' ? 'user-message' : 'ai-message']">
-    <div class="message-bubble">
+  <div :class="['mb-4', message.sender === 'user' ? 'text-right' : 'text-left']">
+    <div :class="['inline-block max-w-[70%] rounded-lg px-4 py-2', 
+                  message.sender === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800']">
       <div class="message-content" v-html="formattedMessage"></div>
     </div>
   </div>
@@ -49,78 +50,25 @@ export default {
 </script>
 
 <style scoped>
-.message {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
+:deep(.message-content pre) {
+  @apply bg-gray-800 rounded-md p-3 overflow-x-auto max-w-full my-2;
 }
 
-.message-bubble {
-  max-width: 70%;
-  word-wrap: break-word;
-}
-
-.message-content {
-  padding: 12px 16px;
-  border-radius: 18px;
-  font-size: 14px;
-  line-height: 1.4;
-  white-space: pre-wrap;
-}
-
-.user-message {
-  align-items: flex-end;
-}
-
-.user-message .message-bubble {
-  margin-left: auto;
-}
-
-.user-message .message-content {
-  background-color: #667eea;
-  color: white;
-}
-
-.ai-message {
-  align-items: flex-start;
-}
-
-.ai-message .message-content {
-  background-color: #e4e6eb;
-  color: #2d3748;
-}
-
-/* Improved code block styling */
-.ai-message pre {
-  background-color: #1e1e1e;
-  border-radius: 8px;
-  padding: 12px;
-  overflow-x: auto;
-  max-width: 100%;
-  margin: 10px 0;
-}
-
-.ai-message code {
-  font-family: 'Fira Code', 'Courier New', Courier, monospace;
-  font-size: 13px;
+:deep(.message-content code) {
+  @apply font-mono text-sm;
 }
 
 /* Remove extra padding in message bubbles */
-.message-content > *:first-child {
-  margin-top: 0;
+:deep(.message-content > *:first-child) {
+  @apply mt-0;
 }
 
-.message-content > *:last-child {
-  margin-bottom: 0;
+:deep(.message-content > *:last-child) {
+  @apply mb-0;
 }
 
 /* Style for inline code */
-.ai-message :not(pre) > code {
-  background-color: #f0f0f0;
-  color: #333;
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-family: 'Fira Code', 'Courier New', Courier, monospace;
-  font-size: 90%;
+:deep(.message-content :not(pre) > code) {
+  @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono;
 }
 </style>

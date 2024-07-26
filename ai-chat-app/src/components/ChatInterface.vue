@@ -1,30 +1,51 @@
 <template>
-  <div class="chat-container">
-    <div class="chat-header">
-      <h1>Chat with AI</h1>
-      <div class="header-buttons">
-        <button @click="logout" class="logout-button">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
-        <button @click="clearHistory" class="clear-history-button">
-          <i class="fas fa-trash-alt"></i> Clear History
+  <div class="flex h-screen w-screen">
+    <!-- 侧边栏 -->
+    <div class="w-1/4 bg-white border-r border-gray-200 shadow-md flex flex-col">
+      <div class="p-4">
+        <button @click="newConversation" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300">
+          New Conversation
         </button>
       </div>
+      <div class="flex-1 overflow-y-auto">
+        <div v-for="(conversation, index) in conversations" :key="index" 
+             @click="switchConversation(index)"
+             class="p-3 hover:bg-gray-100 cursor-pointer"
+             :class="{ 'bg-indigo-100': currentConversationIndex === index }">
+          Conversation {{ index + 1 }}
+        </div>
+      </div>
     </div>
-    <div class="chat-messages" ref="chatMessages">
-      <ChatMessageComponent v-for="(message, index) in messages" :key="index" :message="message" />
-    </div>
-    <div class="chat-input">
-      <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your message..."></textarea>
-      <button @click="sendMessage" class="send-button">
-        <i class="fas fa-paper-plane"></i>
-      </button>
-    </div>
-    <div class="file-upload">
-      <input type="file" @change="handleFileUpload" multiple accept=".txt,.pdf,.docx" ref="fileInput" style="display:none;">
-      <button @click="$refs.fileInput.click()" class="upload-button">
-        <i class="fas fa-upload"></i> Upload Files
-      </button>
+
+    <!-- 主聊天界面 -->
+    <div class="w-3/4 flex flex-col bg-gray-100">
+      <div class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-semibold">Chat with AI</h1>
+        <div class="space-x-4">
+          <button @click="logout" class="px-4 py-2 border border-white rounded-full hover:bg-white hover:text-indigo-600 transition duration-300">
+            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+          </button>
+          <button @click="clearHistory" class="px-4 py-2 border border-white rounded-full hover:bg-white hover:text-indigo-600 transition duration-300">
+            <i class="fas fa-trash-alt mr-2"></i> Clear History
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto px-6 py-4" ref="chatMessages">
+        <ChatMessageComponent v-for="(message, index) in messages" :key="index" :message="message" />
+      </div>
+      <div class="bg-white px-6 py-4 border-t border-gray-200">
+        <div class="flex items-center space-x-2">
+          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your message..."
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+          <button @click="sendMessage" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-300">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+          <input type="file" @change="handleFileUpload" multiple accept=".txt,.pdf,.docx" ref="fileInput" class="hidden">
+          <button @click="$refs.fileInput.click()" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-300">
+            <i class="fas fa-upload"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -42,6 +63,8 @@ export default {
     return {
       messages: [],
       userInput: '',
+      conversations: [[]],
+      currentConversationIndex: 0,
       isLoading: false
     };
   },
@@ -69,7 +92,7 @@ export default {
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let aiResponse = '';
-         // eslint-disable-next-line no-constant-condition
+        //eslint-disable-next-line no-constant-condition
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -82,6 +105,7 @@ export default {
         console.error('Error:', error);
       } finally {
         this.isLoading = false;
+        this.conversations[this.currentConversationIndex] = [...this.messages];
         this.scrollToBottom();
       }
     },
@@ -112,6 +136,7 @@ export default {
       try {
         const response = await axios.get('/get_chat_history');
         this.messages = response.data.chat_history;
+        this.conversations[0] = [...this.messages];
       } catch (error) {
         console.error('Error loading chat history:', error);
       }
@@ -120,9 +145,20 @@ export default {
       try {
         await axios.post('/clear_chat_history');
         this.messages = [];
+        this.conversations[this.currentConversationIndex] = [];
       } catch (error) {
         console.error('Error clearing chat history:', error);
       }
+    },
+    newConversation() {
+      this.conversations.push([]);
+      this.currentConversationIndex = this.conversations.length - 1;
+      this.messages = [];
+    },
+    switchConversation(index) {
+      this.currentConversationIndex = index;
+      this.messages = this.conversations[index];
+      this.scrollToBottom();
     },
     async handleFileUpload() {
       const files = this.$refs.fileInput.files;
@@ -138,11 +174,9 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         console.log(response.data.message);
-        // Optionally, add a system message to show successful upload
         this.messages.push({ sender: 'system', content: 'Files uploaded successfully' });
       } catch (error) {
         console.error('Error uploading files:', error);
-        // Optionally, add a system message to show upload failure
         this.messages.push({ sender: 'system', content: 'File upload failed' });
       }
     }
@@ -151,113 +185,8 @@ export default {
 </script>
 
 <style scoped>
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #f0f2f5;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.chat-header {
-  background-color: #667eea;
-  color: white;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.chat-header h1 {
-  color:white;
+html, body {
+  height: 100%;
   margin: 0;
-  font-size: 24px;
-}
-
-.header-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.logout-button, .clear-history-button {
-  background-color: transparent;
-  border: 2px solid white;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.logout-button:hover, .clear-history-button:hover {
-  background-color: white;
-  color: #667eea;
-}
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-}
-
-.chat-input {
-  display: flex;
-  padding: 20px;
-  background-color: white;
-}
-
-.chat-input textarea {
-  flex: 1;
-  border: none;
-  border-radius: 20px;
-  padding: 12px 20px;
-  font-size: 16px;
-  resize: none;
-  background-color: #f0f2f5;
-  transition: all 0.3s ease;
-}
-
-.chat-input textarea:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #667eea;
-}
-
-.send-button {
-  background-color: #667eea;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  margin-left: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.send-button:hover {
-  background-color: #5a67d8;
-  transform: scale(1.05);
-}
-
-.file-upload {
-  padding: 10px 20px;
-  background-color: white;
-  border-top: 1px solid #e4e6eb;
-}
-
-.upload-button {
-  background-color: #667eea;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.upload-button:hover {
-  background-color: #5a67d8;
 }
 </style>

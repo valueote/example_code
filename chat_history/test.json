@@ -1,6 +1,6 @@
 [
     {
-        "content": "give me a short cpp code\n",
+        "content": "hellp\n",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "human",
@@ -9,7 +9,28 @@
         "example": false
     },
     {
-        "content": "```cpp\n#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}\n```",
+        "content": "**\"Hello\"是一个英文单词，代表打招呼或表示惊讶的用语**。\n\nHello这个词在英语中极为常见，它不仅仅是一个简单的问候语，还承载着唤起注意、表达惊奇甚至是开启对话的功能。人们在接听电话时使用\"Hello\"来表明已经在听，或者在日常生活中用来开始一段对话。同时，在一些文化作品中，比如歌曲《Hello》的运用，更赋予了这个词汇以丰富的情感和背景故事。",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "hello there\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "Hello there, how can I assist you today?",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "ai",
