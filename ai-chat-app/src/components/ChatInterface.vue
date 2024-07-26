@@ -1,47 +1,51 @@
 <template>
   <div class="flex h-screen w-screen">
     <!-- 侧边栏 -->
-    <div class="w-1/5 bg-gray-800 text-white flex flex-col">
+    <div class="w-1/5 bg-gray-800 text-white flex flex-col transition-all duration-300 ease-in-out">
       <div class="p-4">
-        <button @click="newConversation" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300">
+        <button @click="newConversation" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300 transform hover:-translate-y-1 hover:shadow-md animate-pulse">
           New Conversation
         </button>
       </div>
       <div class="flex-1 overflow-y-auto">
-        <div v-for="(conversation, index) in conversations" :key="index" 
-             @click="switchConversation(index)"
-             class="p-3 hover:bg-gray-700 cursor-pointer transition duration-300"
-             :class="{ 'bg-gray-700': currentConversationIndex === index }">
-          Conversation {{ index + 1 }}
-        </div>
+        <transition-group name="list" tag="div">
+          <div v-for="(conversation, index) in conversations" :key="index" 
+               @click="switchConversation(index)"
+               class="p-3 hover:bg-gray-700 cursor-pointer transition duration-300"
+               :class="{ 'bg-gray-700': currentConversationIndex === index }">
+            Conversation {{ index + 1 }}
+          </div>
+        </transition-group>
       </div>
     </div>
 
     <!-- 主聊天界面 -->
-    <div class="w-4/5 flex flex-col bg-gray-100">
+    <div class="w-4/5 flex flex-col bg-gray-100 transition-all duration-300 ease-in-out">
       <div class="bg-indigo-600 text-white px-6 py-3 flex justify-between items-center">
-        <h1 class="text-lg font-semibold">Chat Bot</h1>
+        <h1 class="text-lg font-semibold animate-fade-in">Chat Bot</h1>
         <div class="space-x-4">
-          <button @click="logout" class="px-3 py-1 border border-white rounded-full text-sm hover:bg-white hover:text-indigo-600 transition duration-300">
+          <button @click="logout" class="px-3 py-1 border border-white rounded-full text-sm hover:bg-white hover:text-indigo-600 transition duration-300 transform hover:-translate-y-1">
             <i class="fas fa-sign-out-alt mr-2"></i> Logout
           </button>
-          <button @click="clearHistory" class="px-3 py-1 border border-white rounded-full text-sm hover:bg-white hover:text-indigo-600 transition duration-300">
+          <button @click="clearHistory" class="px-3 py-1 border border-white rounded-full text-sm hover:bg-white hover:text-indigo-600 transition duration-300 transform hover:-translate-y-1">
             <i class="fas fa-trash-alt mr-2"></i> Clear History
           </button>
         </div>
       </div>
       <div class="flex-1 overflow-y-auto px-6 py-4" ref="chatMessages">
-        <ChatMessageComponent v-for="(message, index) in messages" :key="index" :message="message" />
+        <transition-group name="message" tag="div">
+          <ChatMessageComponent v-for="(message, index) in messages" :key="index" :message="message" />
+        </transition-group>
       </div>
       <div class="bg-white px-6 py-4 border-t border-gray-200">
         <div class="flex items-center space-x-2">
           <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your message..."
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
-          <button @click="sendMessage" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-300">
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition duration-300"></textarea>
+          <button @click="sendMessage" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-300 transform hover:-translate-y-1 hover:shadow-md">
             <i class="fas fa-paper-plane"></i>
           </button>
           <input type="file" @change="handleFileUpload" multiple accept=".txt,.pdf,.docx" ref="fileInput" class="hidden">
-          <button @click="$refs.fileInput.click()" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-300">
+          <button @click="$refs.fileInput.click()" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-300 transform hover:-translate-y-1 hover:shadow-md">
             <i class="fas fa-upload"></i>
           </button>
         </div>
@@ -219,10 +223,46 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 html, body {
   height: 100%;
   margin: 0;
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.message-enter-active,
+.message-leave-active {
+  transition: all 0.5s ease;
+}
+
+.message-enter-from,
+.message-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 30s;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 </style>
