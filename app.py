@@ -96,12 +96,7 @@ def get_vectordb():
     documents = []  # 声明 文档列表，以保存所有的加载的文档
     # 开始遍历指定文件夹
     for filename in os.listdir(base_dir):
-        # 构建完成的文件名（含有路径信息）
         file_path = os.path.join(base_dir, filename)
-        '''
-            扩展：通过读取文件的头部信息，获取文件的真实类型
-        '''
-        # 分别使用不同的加载器加载各类不同的文档
         if os.path.getsize(file_path) > 0:
             if filename.endswith(".pdf"):
                 loader = PyPDFLoader(file_path)
@@ -114,13 +109,8 @@ def get_vectordb():
                 loader = TextLoader(file_path, encoding='utf-8')
                 documents.extend(loader.load())
 
-    # 2. 文档（文本）切分/分割
-    # 2-0. 导入 字符文本切分器
     from langchain.text_splitter import RecursiveCharacterTextSplitter
-    # 2-1. 生成|实例化 字符文本器的实例对象
-    # 指定：切分文档块的大小、重叠词/Token数
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=10)
-    # 完成文档切分
     chunked_documents = text_splitter.split_documents(documents=documents)
 
     from langchain_huggingface import HuggingFaceEmbeddings
@@ -130,7 +120,6 @@ def get_vectordb():
     embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     from langchain_community.vectorstores import Qdrant
-    # 将切分的文档embedding到qdrant
     vectorstore = Qdrant.from_documents(
         documents=chunked_documents,  # 已经分块的文档
         embedding=embeddings,  # 指定 embedding 模型
@@ -203,7 +192,6 @@ def index():
 app.secret_key = secrets.token_hex(16)
 
 
-# 模拟用户数据库
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -252,12 +240,9 @@ def logout():
 
 chat_histories = {}
 
-
-# Add these imports at the top of the file
 from flask import Response
 import time
 
-# Replace the existing 'ask' route with this updated version
 @app.route('/ask', methods=['POST'])
 def ask():
     if 'username' not in session:
@@ -275,13 +260,12 @@ def ask():
         ai_message = get_qa_chain(username, user_message)
         for char in ai_message:
             yield char
-            time.sleep(0.05)  # Simulate character-by-character output
+            time.sleep(0.05) 
 
-    # Add AI response to chat history
+
     ai_message = get_qa_chain(username, user_message)
     chat_histories[username].append(AIMessage(content=ai_message))
 
-    # Save chat history to file
     save_chat_history(username, chat_histories[username])
 
     return Response(generate(), mimetype='text/event-stream')
