@@ -22,12 +22,16 @@ export default {
   computed: {
     formattedMessage() {
       if (this.message.sender === 'ai') {
-        return marked(this.message.content, {
+        marked.setOptions({
           highlight: function (code, lang) {
-            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-            return hljs.highlight(code, { language }).value;
-          }
+            if (lang && hljs.getLanguage(lang)) {
+              return hljs.highlight(code, { language: lang }).value;
+            }
+            return hljs.highlightAuto(code).value;
+          },
+          langPrefix: 'hljs language-'
         });
+        return marked(this.message.content);
       }
       return this.message.content;
     }
@@ -89,7 +93,7 @@ export default {
 /* Improved code block styling */
 .ai-message pre {
   background-color: #1e1e1e;
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 12px;
   overflow-x: auto;
   max-width: 100%;
@@ -108,5 +112,15 @@ export default {
 
 .message-content > *:last-child {
   margin-bottom: 0;
+}
+
+/* Style for inline code */
+.ai-message :not(pre) > code {
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  font-size: 90%;
 }
 </style>
