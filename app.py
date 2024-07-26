@@ -66,6 +66,7 @@ def get_spark_chat_model():
 
 import json
 chat_histories = {}
+
 historynum = {}
 
 def create_chat_history(username):
@@ -265,7 +266,7 @@ def ask():
     username = session['username']
     user_message = request.json.get('question')
 
-    #chat_histories[username][historynum[username]].append(HumanMessage(content=user_message))
+    chat_histories[username][historynum[username]].append(HumanMessage(content=user_message))
 
     """def generate():
         ai_message = get_qa_chain(username, user_message)
