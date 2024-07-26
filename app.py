@@ -65,7 +65,6 @@ def get_spark_chat_model():
     return chat_model_spark
 
 import json
-chat_histories = {}
 def load_historynum():
     try:
         with open('historynum.json', 'r', encoding='utf-8') as f:
@@ -100,6 +99,43 @@ def save_chat_history(username, chat_history):
     # 保存 historynum
     with open('historynum.json', 'w', encoding='utf-8') as f:
         json.dump(historynum, f, ensure_ascii=False, indent=4)
+
+def load_all_histories():
+    # 初始化全局聊天历史和最大 historynum
+    global chat_histories, historynum
+    chat_histories = {}
+    historynum = {}
+
+    # 遍历 chat_history 文件夹中的所有文件
+    for filename in os.listdir('chat_history'):
+        # 检查文件名是否符合格式
+        if "_" in filename and filename.endswith(".json"):
+            try:
+                # 提取用户名和 historynum
+                username, history_num_str = filename.split('_')
+                history_num = int(history_num_str[:-5])
+
+                # 初始化该用户的聊天历史
+                if username not in chat_histories:
+                    chat_histories[username] = {}
+                    historynum[username] = -1
+
+                # 更新最大 historynum
+                historynum[username] = max(historynum[username], history_num)
+
+                # 加载聊天记录
+                with open(os.path.join('chat_history', filename), 'r', encoding='utf-8') as f:
+                    messages = json.load(f)
+                    chat_histories[username][history_num] = [
+                        HumanMessage(**msg) if msg['type'] == 'human' else AIMessage(**msg)
+                        for msg in messages
+                    ]
+            except (ValueError, json.JSONDecodeError):
+                # 忽略无法解析的文件
+                continue
+
+
+
 
 def load_chat_history(username, history_num=None):
     if history_num is None:
@@ -255,13 +291,14 @@ def login():
         return jsonify({"message": "用户名或密码错误"}), 401
 
     session['username'] = username
-
+    load_all_histories()
     if username not in chat_histories:
         chat_histories[username] = {}
         historynum[username] = 0
         chat_histories[username][historynum[username]] = []
 
     current_historynum = historynum.get(username, 0)
+
     chat_histories[username][current_historynum] = load_chat_history(username,current_historynum)  # 加载聊天记录
     return jsonify({"message": "登录成功"}), 200
 
