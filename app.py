@@ -66,26 +66,35 @@ def get_spark_chat_model():
 
 import json
 chat_histories = {}
+def load_historynum():
+    try:
+        with open('historynum.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
 
-historynum = {}
+historynum = load_historynum()
+
 
 def create_chat_history(username):
+
     if username not in historynum:
         historynum[username] = 0
-    else:
-        historynum[username] += 1
-
+        chat_histories[username][historynum[username]] = []
     if username not in chat_histories:
         chat_histories[username] = {}
 
-    chat_histories[username][historynum[username]] = []
 
-    save_chat_history(username, chat_histories[username][historynum[username]])
 
 def save_chat_history(username, chat_history):
+    # 保存聊天记录
     file_path = f"chat_history/{username}_{historynum[username]}.json"
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump([message.dict() for message in chat_history], f, ensure_ascii=False, indent=4)
+
+    # 保存 historynum
+    with open('historynum.json', 'w', encoding='utf-8') as f:
+        json.dump(historynum, f, ensure_ascii=False, indent=4)
 
 def load_chat_history(username, history_num=None):
     if history_num is None:
@@ -133,7 +142,7 @@ def get_vectordb():
     #/home/vivy/ai/m3e-base;
 
 
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     from langchain_community.vectorstores import Qdrant
     vectorstore = Qdrant.from_documents(
