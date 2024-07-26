@@ -77,9 +77,17 @@ historynum = load_historynum()
 
 
 def create_chat_history(username):
+    # 获取当前用户的最大 historynum
+    if username in chat_histories:
+        max_history_num = max(chat_histories[username].keys(), default=-1)
+        historynum[username] = max_history_num + 1
+    else:
+        historynum[username] = 0
+        chat_histories[username] = {}
 
-    historynum[username] += 1
+    # 确保创建新的聊天历史列表
     chat_histories[username][historynum[username]] = []
+
     save_chat_history(username, chat_histories[username][historynum[username]])
 
 
