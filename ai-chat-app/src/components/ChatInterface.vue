@@ -77,6 +77,8 @@ export default {
     // 组件挂载时加载聊天历史记录并滚动到底部
     this.loadConversations();
     this.switchConversation(0);
+    this.loadConversations();
+    this.switchConversation(0);
     this.scrollToBottom();
   },
   methods: {
@@ -185,6 +187,7 @@ export default {
         // 将获取到的会话赋值给conversations数组
         this.conversations = response.data.conversations;
         console.log('Conversations:', this.conversations);
+        console.log('Conversations:', this.conversations);
       } catch (error) {
         // 如果加载会话时发生错误，打印错误信息
         console.error('Error loading conversations:', error);
@@ -199,8 +202,9 @@ export default {
         // 将新会话的编号添加到conversations数组
         this.conversations.push(response.data.history_num);
         // 切换到新会话
-        console.log('num conunt', response.data.history_num);
-        this.switchConversation(response.data.history_num - 1);
+        console.log('Conversations:', this.conversations);
+        this.currentConversationIndex = response.data.history_num
+        this.switchConversation(response.data.history_num);
       } catch (error) {
         // 如果创建新会话时发生错误，打印错误信息
         console.error('Error creating new conversation:', error);
