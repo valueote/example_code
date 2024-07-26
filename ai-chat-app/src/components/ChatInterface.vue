@@ -199,9 +199,8 @@ export default {
         // 将新会话的编号添加到conversations数组
         this.conversations.push(response.data.history_num);
         // 切换到新会话
-        console.log('Conversations:', this.conversations);
-        this.currentConversationIndex = response.data.history_num
-        this.switchConversation(response.data.history_num);
+        console.log('num conunt', response.data.history_num);
+        this.switchConversation(response.data.history_num - 1);
       } catch (error) {
         // 如果创建新会话时发生错误，打印错误信息
         console.error('Error creating new conversation:', error);
