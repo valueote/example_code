@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import 'highlight.js/styles/github-dark.css';
+import 'highlight.js/styles/atom-one-dark.css';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 
