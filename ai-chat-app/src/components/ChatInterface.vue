@@ -54,6 +54,7 @@
   </div>
 </template>
 
+```javascript
 <script>
 import ChatMessageComponent from './ChatMessageComponent.vue';
 import axios from 'axios';
@@ -65,55 +66,62 @@ export default {
   },
   data() {
     return {
-      messages: [],
-      userInput: '',
-      conversations: [],
-      currentConversationIndex: 0,
-      isLoading: false
+      messages: [], // 存储消息的数组
+      userInput: '', // 用户输入的消息
+      conversations: [], // 存储会话的数组
+      currentConversationIndex: 0, // 当前会话的索引
+      isLoading: false // 是否正在加载消息
     };
   },
   mounted() {
+    // 组件挂载时加载聊天历史记录并滚动到底部
     this.loadChatHistory();
     this.scrollToBottom();
   },
   methods: {
     async sendMessage() {
-  if (this.userInput.trim() === '') return;
-  
-  const userMessage = { sender: 'user', content: this.userInput };
-  this.messages.push(userMessage);
-  this.userInput = '';
-  this.scrollToBottom();
+      // 如果用户输入为空，则不发送消息
+      if (this.userInput.trim() === '') return;
+      
+      // 创建用户消息对象并添加到消息数组中
+      const userMessage = { sender: 'user', content: this.userInput };
+      this.messages.push(userMessage);
+      this.userInput = '';
+      this.scrollToBottom();
 
-  this.isLoading = true;
-  try {
-    const response = await fetch('/ask', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: userMessage.content }),
-    });
+      this.isLoading = true;
+      try {
+        // 发送用户消息到后端
+        const response = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: userMessage.content }),
+        });
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let aiResponse = '';
-    //eslint-disable-next-line no-constant-condition
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value);
-      aiResponse += chunk;
-      this.updateLastAIMessage(aiResponse);
-    }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let aiResponse = '';
+        // 持续读取后端返回的流数据
+        // eslint-disable-next-line
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          aiResponse += chunk;
+          this.updateLastAIMessage(aiResponse);
+        }
 
-  } catch (error) {
-    console.error('Error:', error);
-  } finally {
-    this.isLoading = false;
-    this.conversations[this.currentConversationIndex] = [...this.messages];
-    this.scrollToBottom();
-  }
-},
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        this.isLoading = false;
+        // 更新当前会话的消息数组
+        this.conversations[this.currentConversationIndex] = [...this.messages];
+        this.scrollToBottom();
+      }
+    },
     updateLastAIMessage(content) {
+      // 更新最后一条AI消息的内容
       const lastMessage = this.messages[this.messages.length - 1];
       if (lastMessage.sender === 'ai') {
         lastMessage.content = content;
@@ -122,12 +130,14 @@ export default {
       }
     },
     scrollToBottom() {
+      // 滚动到聊天消息的底部
       this.$nextTick(() => {
         const chatMessages = this.$refs.chatMessages;
         chatMessages.scrollTop = chatMessages.scrollHeight;
       });
     },
     logout() {
+      // 用户登出
       axios.get('/logout')
         .then(() => {
           this.$emit('logout');
@@ -137,70 +147,106 @@ export default {
         });
     },
     async loadChatHistory() {
+      // 加载聊天历史记录
       try {
+        // 发送GET请求到'/get_chat_history'端点以获取聊天历史记录
         const response = await axios.get('/get_chat_history');
+        // 将获取到的聊天历史记录赋值给messages数组
         this.messages = response.data.chat_history;
+        // 将messages数组复制到conversations数组的第一个元素
         this.conversations[0] = [...this.messages];
       } catch (error) {
+        // 如果加载聊天历史记录时发生错误，打印错误信息
         console.error('Error loading chat history:', error);
       }
     },
+
     async clearHistory() {
+      // 清除聊天历史记录
       try {
+        // 发送POST请求到'/clear_chat_history'端点以清除聊天历史记录
         await axios.post('/clear_chat_history');
+        // 清空messages数组
         this.messages = [];
+        // 清空当前会话的messages数组
         this.conversations[this.currentConversationIndex] = [];
       } catch (error) {
+        // 如果清除聊天历史记录时发生错误，打印错误信息
         console.error('Error clearing chat history:', error);
       }
     },
+
     async loadConversations() {
+      // 加载所有会话
       try {
+        // 发送GET请求到'/get_conversations'端点以获取所有会话
         const response = await axios.get('/get_conversations');
+        // 将获取到的会话赋值给conversations数组
         this.conversations = response.data.conversations;
+        // 如果会话数组不为空，切换到最后一个会话
         if (this.conversations.length > 0) {
           this.switchConversation(this.conversations[this.conversations.length - 1]);
         }
       } catch (error) {
+        // 如果加载会话时发生错误，打印错误信息
         console.error('Error loading conversations:', error);
       }
     },
+
     async newConversation() {
+      // 创建新会话
       try {
+        // 发送POST请求到'/new_conversation'端点以创建新会话
         const response = await axios.post('/new_conversation');
+        // 将新会话的编号添加到conversations数组
         this.conversations.push(response.data.history_num);
+        // 切换到新会话
         this.switchConversation(response.data.history_num);
       } catch (error) {
+        // 如果创建新会话时发生错误，打印错误信息
         console.error('Error creating new conversation:', error);
       }
     },
+
     async switchConversation(index) {
+      // 切换会话
+      // 设置当前会话的索引为传入的index
       this.currentConversationIndex = index;
       try {
+        // 发送POST请求到'/switch_conversation'端点以切换会话
         const response = await axios.post('/switch_conversation', { history_num: index });
+        // 如果响应中包含聊天历史记录，将其转换为messages数组
         if (response.data.chat_history) {
           this.messages = response.data.chat_history.map(message => ({
             sender: message.type === 'HumanMessage' ? 'user' : 'ai',
             content: message.content
           }));
         } else {
+          // 否则，清空messages数组
           this.messages = [];
         }
+        // 滚动到聊天消息的底部
         this.scrollToBottom();
       } catch (error) {
+        // 如果切换会话时发生错误，打印错误信息
         console.error('Error switching conversation:', error);
       }
     },
 
     async getConversations() {
+      // 获取所有会话
       try {
+        // 发送GET请求到'/get_conversations'端点以获取所有会话
         const response = await axios.get('/get_conversations');
+        // 将获取到的会话赋值给conversations数组
         this.conversations = response.data.conversations;
       } catch (error) {
+        // 如果获取会话时发生错误，打印错误信息
         console.error('Error fetching conversations:', error);
       }
     },
     async handleFileUpload() {
+      // 处理文件上传
       const files = this.$refs.fileInput.files;
       if (files.length === 0) return;
 
@@ -223,6 +269,7 @@ export default {
   }
 };
 </script>
+```
 <style scoped>
 html, body {
   height: 100%;
