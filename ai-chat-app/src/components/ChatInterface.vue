@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen w-screen">
     <!-- 侧边栏 -->
-    <div class="w-1/4 bg-white border-r border-gray-200 shadow-md flex flex-col">
+    <div class="w-1/5 bg-gray-800 text-white flex flex-col">
       <div class="p-4">
         <button @click="newConversation" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300">
           New Conversation
@@ -10,22 +10,22 @@
       <div class="flex-1 overflow-y-auto">
         <div v-for="(conversation, index) in conversations" :key="index" 
              @click="switchConversation(index)"
-             class="p-3 hover:bg-gray-100 cursor-pointer"
-             :class="{ 'bg-indigo-100': currentConversationIndex === index }">
+             class="p-3 hover:bg-gray-700 cursor-pointer transition duration-300"
+             :class="{ 'bg-gray-700': currentConversationIndex === index }">
           Conversation {{ index + 1 }}
         </div>
       </div>
     </div>
 
     <!-- 主聊天界面 -->
-    <div class="w-3/4 flex flex-col bg-gray-100">
-      <div class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-semibold">Chat with AI</h1>
+    <div class="w-4/5 flex flex-col bg-gray-100">
+      <div class="bg-indigo-600 text-white px-6 py-3 flex justify-between items-center">
+        <h1 class="text-lg font-semibold">Chat Bot</h1>
         <div class="space-x-4">
-          <button @click="logout" class="px-4 py-2 border border-white rounded-full hover:bg-white hover:text-indigo-600 transition duration-300">
+          <button @click="logout" class="px-3 py-1 border border-white rounded-full text-sm hover:bg-white hover:text-indigo-600 transition duration-300">
             <i class="fas fa-sign-out-alt mr-2"></i> Logout
           </button>
-          <button @click="clearHistory" class="px-4 py-2 border border-white rounded-full hover:bg-white hover:text-indigo-600 transition duration-300">
+          <button @click="clearHistory" class="px-3 py-1 border border-white rounded-full text-sm hover:bg-white hover:text-indigo-600 transition duration-300">
             <i class="fas fa-trash-alt mr-2"></i> Clear History
           </button>
         </div>
@@ -63,7 +63,7 @@ export default {
     return {
       messages: [],
       userInput: '',
-      conversations: [[]],
+      conversations: [],
       currentConversationIndex: 0,
       isLoading: false
     };
@@ -74,41 +74,41 @@ export default {
   },
   methods: {
     async sendMessage() {
-      if (this.userInput.trim() === '') return;
-      
-      const userMessage = { sender: 'user', content: this.userInput };
-      this.messages.push(userMessage);
-      this.userInput = '';
-      this.scrollToBottom();
+  if (this.userInput.trim() === '') return;
+  
+  const userMessage = { sender: 'user', content: this.userInput };
+  this.messages.push(userMessage);
+  this.userInput = '';
+  this.scrollToBottom();
 
-      this.isLoading = true;
-      try {
-        const response = await fetch('/ask', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: userMessage.content }),
-        });
+  this.isLoading = true;
+  try {
+    const response = await fetch('/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: userMessage.content }),
+    });
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let aiResponse = '';
-        //eslint-disable-next-line no-constant-condition
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value);
-          aiResponse += chunk;
-          this.updateLastAIMessage(aiResponse);
-        }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let aiResponse = '';
+    //eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      aiResponse += chunk;
+      this.updateLastAIMessage(aiResponse);
+    }
 
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        this.isLoading = false;
-        this.conversations[this.currentConversationIndex] = [...this.messages];
-        this.scrollToBottom();
-      }
-    },
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    this.isLoading = false;
+    this.conversations[this.currentConversationIndex] = [...this.messages];
+    this.scrollToBottom();
+  }
+},
     updateLastAIMessage(content) {
       const lastMessage = this.messages[this.messages.length - 1];
       if (lastMessage.sender === 'ai') {
@@ -150,15 +150,51 @@ export default {
         console.error('Error clearing chat history:', error);
       }
     },
-    newConversation() {
-      this.conversations.push([]);
-      this.currentConversationIndex = this.conversations.length - 1;
-      this.messages = [];
+    async loadConversations() {
+      try {
+        const response = await axios.get('/get_conversations');
+        this.conversations = response.data.conversations;
+        if (this.conversations.length > 0) {
+          this.switchConversation(this.conversations[this.conversations.length - 1]);
+        }
+      } catch (error) {
+        console.error('Error loading conversations:', error);
+      }
     },
-    switchConversation(index) {
+    async newConversation() {
+      try {
+        const response = await axios.post('/new_conversation');
+        this.conversations.push(response.data.history_num);
+        this.switchConversation(response.data.history_num);
+      } catch (error) {
+        console.error('Error creating new conversation:', error);
+      }
+    },
+    async switchConversation(index) {
       this.currentConversationIndex = index;
-      this.messages = this.conversations[index];
-      this.scrollToBottom();
+      try {
+        const response = await axios.post('/switch_conversation', { history_num: index });
+        if (response.data.chat_history) {
+          this.messages = response.data.chat_history.map(message => ({
+            sender: message.type === 'HumanMessage' ? 'user' : 'ai',
+            content: message.content
+          }));
+        } else {
+          this.messages = [];
+        }
+        this.scrollToBottom();
+      } catch (error) {
+        console.error('Error switching conversation:', error);
+      }
+    },
+
+    async getConversations() {
+      try {
+        const response = await axios.get('/get_conversations');
+        this.conversations = response.data.conversations;
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+      }
     },
     async handleFileUpload() {
       const files = this.$refs.fileInput.files;

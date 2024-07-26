@@ -41,16 +41,6 @@ from langchain.schema import (
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
-# Chat model config
-chat_model = ChatSparkLLM(
-    spark_app_id="8ec6da98",
-    spark_api_key="905cda25181eecd10ccf47f3c768d22f",
-    spark_api_secret="MzBlMzVhMTY3NGI1NjJiMzI3NzRiYWRm",
-    spark_api_url="wss://spark-api.xf-yun.com/v3.5/chat",
-    spark_llm_domain="generalv3.5",
-    timeout=90
-)
-
 
 ################################# retrieval chain #################################
 
@@ -68,7 +58,8 @@ def get_spark_chat_model():
         spark_api_secret="MzBlMzVhMTY3NGI1NjJiMzI3NzRiYWRm",
         spark_api_url="wss://spark-api.xf-yun.com/v3.5/chat",
         spark_llm_domain="generalv3.5",
-        timeout=90
+        timeout=90,
+        streaming=True
     )
 
     return chat_model_spark
@@ -95,24 +86,20 @@ def save_chat_history(username, chat_history):
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump([message.dict() for message in chat_history], f, ensure_ascii=False, indent=4)
 
-
 def load_chat_history(username, history_num=None):
-    # 使用用户提供的 history_num 或当前的 historynum[username]
     if history_num is None:
         history_num = historynum.get(username, 0)
 
-    # 更新当前的 historynum[username]
     historynum[username] = history_num
 
-    # 构建文件路径
     file_path = f"chat_history/{username}_{history_num}.json"
 
-    # 加载聊天记录
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             messages = json.load(f)
             return [HumanMessage(**msg) if msg['type'] == 'human' else AIMessage(**msg) for msg in messages]
     return []
+
 
 
 def get_vectordb():
@@ -278,20 +265,20 @@ def ask():
     username = session['username']
     user_message = request.json.get('question')
 
-    chat_histories[username][historynum[username]].append(HumanMessage(content=user_message))
+    #chat_histories[username][historynum[username]].append(HumanMessage(content=user_message))
 
-    def generate():
+    """def generate():
         ai_message = get_qa_chain(username, user_message)
         for char in ai_message:
             yield char
-
             time.sleep(0.05)
-
-
-    ai_message = get_qa_chain(username, user_message)
-    chat_histories[username][historynum[username]].append(AIMessage(content=ai_message))
-
-    save_chat_history(username, chat_histories[username][historynum[username]])
+        chat_histories[username][historynum[username]].append(AIMessage(content=ai_message))
+        save_chat_history(username, chat_histories[username][historynum[username]])"""
+    def generate():
+        response = get_qa_chain(username, user_message)
+        chat_histories[username][historynum[username]].append(AIMessage(content=response))
+        save_chat_history(username, chat_histories[username][historynum[username]])
+        yield response
 
     return Response(generate(), mimetype='text/event-stream')
 
@@ -323,7 +310,6 @@ def get_chat_history():
     if 'username' not in session:
         return jsonify({"message": "请先登录"}), 401
 
-
     username = session['username']
     current_historynum = historynum.get(username, 0)
     chat_history = load_chat_history(username,current_historynum)
@@ -349,7 +335,39 @@ def clear_chat_history():
 
     return jsonify({"message": "Chat history cleared"}), 200
 
-# 其他路由和逻辑保持不变...
+@app.route('/new_conversation', methods=['POST'])
+def new_conversation():
+    username = session.get('username')
+    if not username:
+        return jsonify({"message": "User not logged in"}), 401
+    
+    create_chat_history(username)
+    return jsonify({"message": "New conversation created", "history_num": historynum[username]}), 200
+
+@app.route('/switch_conversation', methods=['POST'])
+def switch_conversation():
+    username = session.get('username')
+    if not username:
+        return jsonify({"message": "User not logged in"}), 401
+    
+    history_num = request.json.get('history_num')
+    chat_history = load_chat_history(username, history_num)
+    chat_history_dicts = [
+        {"type": "HumanMessage", "content": message.content} if isinstance(message, HumanMessage)
+        else {"type": "AIMessage", "content": message.content}
+        for message in chat_history
+    ]
+    return jsonify({"message": "Conversation switched", "chat_history": chat_history_dicts}), 200
+
+@app.route('/get_conversations', methods=['GET'])
+def get_conversations():
+    username = session.get('username')
+    if not username:
+        return jsonify({"message": "User not logged in"}), 401
+    
+    conversations = list(range(historynum[username] + 1))
+    return jsonify({"conversations": conversations}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

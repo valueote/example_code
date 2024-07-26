@@ -37,6 +37,16 @@ export default {
       return this.message.content;
     }
   },
+  renderedContent() {
+      marked.setOptions({
+        highlight: function (code, language) {
+          const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+          return hljs.highlight(validLanguage, code).value;
+        },
+        breaks: true
+      });
+      return marked(this.message.content);
+  },
   mounted() {
     if (this.message.sender === 'ai') {
       this.$nextTick(() => {
