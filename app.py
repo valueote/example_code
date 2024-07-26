@@ -74,14 +74,40 @@ def get_spark_chat_model():
     return chat_model_spark
 
 import json
+chat_histories = {}
+historynum = {}
+
+def create_chat_history(username):
+    if username not in historynum:
+        historynum[username] = 0
+    else:
+        historynum[username] += 1
+
+    if username not in chat_histories:
+        chat_histories[username] = {}
+
+    chat_histories[username][historynum[username]] = []
+
+    save_chat_history(username, chat_histories[username][historynum[username]])
 
 def save_chat_history(username, chat_history):
-    file_path = f"chat_history/{username}.json" #do not change the path
+    file_path = f"chat_history/{username}_{historynum[username]}.json"
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump([message.dict() for message in chat_history], f, ensure_ascii=False, indent=4)
 
-def load_chat_history(username):
-    file_path = f"chat_history/{username}.json" #do not change the path
+
+def load_chat_history(username, history_num=None):
+    # 使用用户提供的 history_num 或当前的 historynum[username]
+    if history_num is None:
+        history_num = historynum.get(username, 0)
+
+    # 更新当前的 historynum[username]
+    historynum[username] = history_num
+
+    # 构建文件路径
+    file_path = f"chat_history/{username}_{history_num}.json"
+
+    # 加载聊天记录
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             messages = json.load(f)
@@ -117,6 +143,8 @@ def get_vectordb():
     # 指定运算|计算设备
     EMBEDDING_DEVICE = "cpu"
     #/home/vivy/ai/m3e-base;
+
+
     embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     from langchain_community.vectorstores import Qdrant
@@ -127,7 +155,6 @@ def get_vectordb():
         collection_name="my_documents",  # 指定 类似 数据库的 名称
     )
     return vectorstore
-
 
 def get_qa_chain(username, user_message):
     retriever = get_vectordb().as_retriever()
@@ -157,7 +184,7 @@ def get_qa_chain(username, user_message):
     # 实例化一个RetrievalQA链
 
     response = conversation_chain.invoke({
-        "chat_history": chat_histories[username],
+        "chat_history": chat_histories[username][historynum[username]],
         "input": user_message,
         "question": user_message
     })
@@ -211,7 +238,6 @@ def register():
     connection.close()
     return jsonify({"message": "注册成功"}), 201
 
-
 @app.route('/login', methods=['POST'])
 def login():
     username = request.json.get('username')
@@ -227,21 +253,22 @@ def login():
         return jsonify({"message": "用户名或密码错误"}), 401
 
     session['username'] = username
-    chat_histories[username] = load_chat_history(username)  # 加载聊天记录
+
+    if username not in chat_histories:
+        chat_histories[username] = {}
+        create_chat_history(username)
+    elif historynum[username] not in chat_histories[username]:
+        create_chat_history(username)
+
+    current_historynum = historynum.get(username, 0)
+    chat_histories[username][current_historynum] = load_chat_history(username,current_historynum)  # 加载聊天记录
     return jsonify({"message": "登录成功"}), 200
-
-
 
 @app.route('/logout')
 def logout():
     session.pop('username', None)
     return jsonify({"message": "已登出"}), 200
 
-
-chat_histories = {}
-
-from flask import Response
-import time
 
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -251,24 +278,23 @@ def ask():
     username = session['username']
     user_message = request.json.get('question')
 
-    if username not in chat_histories:
-        chat_histories[username] = []
-
-    chat_histories[username].append(HumanMessage(content=user_message))
+    chat_histories[username][historynum[username]].append(HumanMessage(content=user_message))
 
     def generate():
         ai_message = get_qa_chain(username, user_message)
         for char in ai_message:
             yield char
-            time.sleep(0.05) 
+
+            time.sleep(0.05)
 
 
     ai_message = get_qa_chain(username, user_message)
-    chat_histories[username].append(AIMessage(content=ai_message))
+    chat_histories[username][historynum[username]].append(AIMessage(content=ai_message))
 
-    save_chat_history(username, chat_histories[username])
+    save_chat_history(username, chat_histories[username][historynum[username]])
 
     return Response(generate(), mimetype='text/event-stream')
+
 
 
 UPLOAD_FOLDER = './doc'
@@ -292,14 +318,15 @@ def upload_file():
             return jsonify({"message": "Invalid file type"}), 400
     return jsonify({"message": "Files uploaded successfully"}), 200
 
-
 @app.route('/get_chat_history', methods=['GET'])
 def get_chat_history():
     if 'username' not in session:
         return jsonify({"message": "请先登录"}), 401
 
+
     username = session['username']
-    chat_history = load_chat_history(username)
+    current_historynum = historynum.get(username, 0)
+    chat_history = load_chat_history(username,current_historynum)
     history_with_sender = [{"sender": "ai" if isinstance(message, AIMessage) else "user", "content": message.content} for message in chat_history]
     return jsonify({"chat_history": history_with_sender}), 200
 
@@ -309,17 +336,20 @@ def clear_chat_history():
         return jsonify({"message": "请先登录"}), 401
 
     username = session['username']
-    
+    current_historynum = historynum.get(username, 0)
+
     # Clear the chat history in memory
-    if username in chat_histories:
-        chat_histories[username] = []
-    
+    if username in chat_histories and current_historynum in chat_histories[username]:
+        chat_histories[username][current_historynum] = []
+
     # Clear the chat history file
-    file_path = f"chat_history/{username}.json"
+    file_path = f"chat_history/{username}_{current_historynum}.json"
     if os.path.exists(file_path):
         os.remove(file_path)
-    
+
     return jsonify({"message": "Chat history cleared"}), 200
+
+# 其他路由和逻辑保持不变...
 
 if __name__ == '__main__':
     app.run(debug=True)
