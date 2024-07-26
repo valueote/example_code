@@ -15,6 +15,7 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import Qdrant
 from langchain.chains import create_retrieval_chain
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
@@ -82,7 +83,6 @@ def load_historynum():
         return {}
 
 historynum = load_historynum()
-
 
 def create_chat_history(username):
     # 获取当前用户的最大 historynum
@@ -200,7 +200,7 @@ def get_vectordb():
 
     # 嵌入模型
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     # 创建向量数据库
     vectorstore = Qdrant.from_documents(
@@ -477,7 +477,10 @@ def get_conversations():
     if not username:
         return jsonify({"message": "User not logged in"}), 401
     
-    conversations = list(range(historynum[username] + 1))
+    conversations = [0, 1, 2]
+    print(conversations)
+
+
     return jsonify({"conversations": conversations}), 200
 
 

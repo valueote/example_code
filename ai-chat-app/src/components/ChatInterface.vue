@@ -75,7 +75,8 @@ export default {
   },
   mounted() {
     // 组件挂载时加载聊天历史记录并滚动到底部
-    this.loadChatHistory();
+    this.loadConversations();
+    this.switchConversation(0);
     this.scrollToBottom();
   },
   methods: {
@@ -183,10 +184,7 @@ export default {
         const response = await axios.get('/get_conversations');
         // 将获取到的会话赋值给conversations数组
         this.conversations = response.data.conversations;
-        // 如果会话数组不为空，切换到最后一个会话
-        if (this.conversations.length > 0) {
-          this.switchConversation(this.conversations[this.conversations.length - 1]);
-        }
+        console.log('Conversations:', this.conversations);
       } catch (error) {
         // 如果加载会话时发生错误，打印错误信息
         console.error('Error loading conversations:', error);
@@ -201,6 +199,8 @@ export default {
         // 将新会话的编号添加到conversations数组
         this.conversations.push(response.data.history_num);
         // 切换到新会话
+        console.log('Conversations:', this.conversations);
+        this.currentConversationIndex = response.data.history_num
         this.switchConversation(response.data.history_num);
       } catch (error) {
         // 如果创建新会话时发生错误，打印错误信息
