@@ -78,12 +78,9 @@ historynum = load_historynum()
 
 def create_chat_history(username):
 
-    if username not in historynum:
-        historynum[username] = 0
-        chat_histories[username][historynum[username]] = []
-    if username not in chat_histories:
-        chat_histories[username] = {}
-
+    historynum[username] += 1
+    chat_histories[username][historynum[username]] = []
+    save_chat_history(username, chat_histories[username][historynum[username]])
 
 
 def save_chat_history(username, chat_history):
@@ -253,9 +250,8 @@ def login():
 
     if username not in chat_histories:
         chat_histories[username] = {}
-        create_chat_history(username)
-    elif historynum[username] not in chat_histories[username]:
-        create_chat_history(username)
+        historynum[username] = 0
+        chat_histories[username][historynum[username]] = []
 
     current_historynum = historynum.get(username, 0)
     chat_histories[username][current_historynum] = load_chat_history(username,current_historynum)  # 加载聊天记录
