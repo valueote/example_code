@@ -318,57 +318,43 @@ html, body {
   margin: 0;
 }
 
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
 }
 
-.list-enter-from,
-.list-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
-  transform: translateX(-30px);
 }
 
-.message-enter-active,
-.message-leave-active {
-  transition: all 0.5s ease;
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
 }
 
-.message-enter-from,
-.message-leave-to {
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(-10px);
   opacity: 0;
-  transform: translateY(30px);
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+button {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 3px;
+button:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+.flex-1.flex.flex-col {
+  transition: margin-left 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 30s;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
 </style>

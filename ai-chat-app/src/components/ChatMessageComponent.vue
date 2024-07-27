@@ -1,13 +1,16 @@
 <template>
   <div class="mb-6">
-    <div class="flex" :class="{'justify-end': message.sender === 'user'}">
-      <div class="max-w-2xl rounded-lg p-3 shadow" 
-           :class="message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-black'">
-        <div class="message-content" v-html="formattedMessage"></div>
+    <transition name="fade">
+      <div class="flex" :class="{'justify-end': message.sender === 'user'}">
+        <div class="max-w-2xl rounded-lg p-3 shadow" 
+             :class="message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-black'">
+          <div class="message-content" v-html="formattedMessage"></div>
+        </div>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
+
 
 <script>
 import 'highlight.js/styles/github-dark.css';
@@ -74,4 +77,17 @@ export default {
   @apply bg-transparent;
   color: #e0e0e0;
 }
+
+/* Add these new styles */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
 </style>
