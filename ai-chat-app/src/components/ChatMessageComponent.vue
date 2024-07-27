@@ -11,11 +11,11 @@
   </div>
 </template>
 
-
 <script>
 import 'highlight.js/styles/github-dark.css';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
+import ClipboardJS from 'clipboard';
 
 export default {
   name: 'ChatMessageComponent',
@@ -46,6 +46,17 @@ export default {
     this.$nextTick(() => {
       this.$el.querySelectorAll('pre code').forEach(block => {
         hljs.highlightElement(block);
+        const pre = block.parentNode;
+        const button = document.createElement('button');
+        button.className = 'copy-btn';
+        button.textContent = 'Copy';
+        pre.appendChild(button);
+      });
+
+      new ClipboardJS('.copy-btn', {
+        target: function(trigger) {
+          return trigger.parentNode.querySelector('code');
+        }
       });
     });
   }
@@ -54,7 +65,7 @@ export default {
 
 <style scoped>
 :deep(.message-content pre) {
-  @apply bg-gray-800 rounded-md p-3 overflow-x-auto max-w-full my-2;
+  @apply bg-gray-800 rounded-md p-3 overflow-x-auto max-w-full my-2 relative;
 }
 
 :deep(.message-content code) {
@@ -90,4 +101,7 @@ export default {
   transform: translateY(20px);
 }
 
+:deep(.copy-btn) {
+  @apply absolute top-2 right-2 bg-gray-600 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity duration-200;
+}
 </style>
