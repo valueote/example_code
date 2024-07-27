@@ -1,11 +1,16 @@
 <template>
-  <div :class="['mb-4', message.sender === 'user' ? 'text-right' : 'text-left']">
-    <div :class="['inline-block max-w-[70%] rounded-lg px-4 py-2', 
-                  message.sender === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800']">
-      <div class="message-content" v-html="formattedMessage"></div>
-    </div>
+  <div class="mb-6">
+    <transition name="fade">
+      <div class="flex" :class="{'justify-end': message.sender === 'user'}">
+        <div class="max-w-2xl rounded-lg p-3 shadow" 
+             :class="message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-black'">
+          <div class="message-content" v-html="formattedMessage"></div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
+
 
 <script>
 import 'highlight.js/styles/github-dark.css';
@@ -26,7 +31,7 @@ export default {
         marked.setOptions({
           highlight: function (code, lang) {
             if (lang && hljs.getLanguage(lang)) {
-              return hljs.highlight(code, { language: lang }).value;
+              return hljs.highlight(lang, code).value;
             }
             return hljs.highlightAuto(code).value;
           },
@@ -38,13 +43,11 @@ export default {
     }
   },
   mounted() {
-    if (this.message.sender === 'ai') {
-      this.$nextTick(() => {
-        this.$el.querySelectorAll('pre code').forEach(block => {
-          hljs.highlightElement(block);
-        });
+    this.$nextTick(() => {
+      this.$el.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block);
       });
-    }
+    });
   }
 };
 </script>
@@ -58,7 +61,6 @@ export default {
   @apply font-mono text-sm;
 }
 
-/* Remove extra padding in message bubbles */
 :deep(.message-content > *:first-child) {
   @apply mt-0;
 }
@@ -67,8 +69,25 @@ export default {
   @apply mb-0;
 }
 
-/* Style for inline code */
 :deep(.message-content :not(pre) > code) {
-  @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono;
+  @apply bg-gray-200 text-gray-800 px-1 py-0.5 rounded text-sm font-mono;
 }
+
+:deep(.hljs) {
+  @apply bg-transparent;
+  color: #e0e0e0;
+}
+
+/* Add these new styles */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
 </style>

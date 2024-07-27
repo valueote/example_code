@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex items-center justify-center">
-      <transition name="fade" mode="out-in">
-        <Login v-if="currentView === 'login'" @login-success="onLoginSuccess" @show-register="showRegister" />
-        <Register v-else-if="currentView === 'register'" @show-login="showLogin" />
-        <ChatInterface v-else @logout="logout" />
-      </transition>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+    <transition name="fade" mode="out-in">
+      <Login v-if="currentView === 'login'" @login-success="onLoginSuccess" @show-register="showRegister" />
+      <Register v-else-if="currentView === 'register'" @show-login="showLogin" />
+      <ChatInterface v-else @logout="logout" />
+    </transition>
   </div>
 </template>
 
@@ -50,6 +50,10 @@ export default {
 @tailwind components;
 @tailwind utilities;
 
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f7fafc;
+}
 
 .fade-enter-active,
 .fade-leave-active {
@@ -59,25 +63,5 @@ export default {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
-}
-
-
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f7fafc;
-}
-
-.rounded-lg {
-  border-radius: 1rem;
-}
-
-.shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.transition {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-  transition-duration: 300ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>
