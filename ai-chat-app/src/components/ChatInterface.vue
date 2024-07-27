@@ -14,17 +14,18 @@
         <div class="flex-1 overflow-y-auto">
           <transition-group name="conversation">
           <div v-for="(conversation, index) in conversations" :key="index" 
-               class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-               :class="{ 'bg-gray-200': currentConversationIndex === index }">
-               <div @click="switchConversation(index)" :disabled="isLoading" class="flex items-center flex-grow">
+              class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
+              :class="{ 'bg-gray-200': currentConversationIndex === index }"
+              @click="switchConversation(index)" :disabled="isLoading">
+            <div class="flex items-center flex-grow">
               <i class="far fa-comment-alt mr-3"></i>
               <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
             </div>
-            <button @click="deleteConversation(index)" class="text-red-500 hover:text-red-700">
+            <button @click.stop="deleteConversation(index)" class="text-red-500 hover:text-red-700">
               <i class="fas fa-trash-alt"></i>
             </button>
-          </div>
-        </transition-group>
+    </div>
+  </transition-group>
         </div>
         
         <!-- 用户信息和设置 -->
@@ -233,7 +234,8 @@ export default {
 
     async switchConversation(index) {
       if (this.currentConversationIndex === index && this.messages.length > 0) return;
-      
+      console.log("switch form", this.currentConversationIndex)
+      console.log("switch to", index)
       this.currentConversationIndex = index;
       this.isLoading = true;
       
