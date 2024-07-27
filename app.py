@@ -477,7 +477,7 @@ def get_conversations():
     if not username:
         return jsonify({"message": "User not logged in"}), 401
     
-    conversations = [0, 1, 2]
+    conversations = list(range(historynum[username] + 1))
     print(conversations)
 
 

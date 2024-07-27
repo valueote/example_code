@@ -1,69 +1,68 @@
 <template>
-  <div class="flex h-screen w-screen">
+  <div class="flex h-screen w-screen bg-gray-50">
     <!-- 侧边栏 -->
-    <div class="w-1/5 bg-gray-800 text-white flex flex-col transition-all duration-300 ease-in-out">
+    <div class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
+      <!-- 新建对话按钮 -->
       <div class="p-4">
-        <button @click="newConversation" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300 transform hover:-translate-y-1 hover:shadow-md animate-pulse">
-          New Conversation
+        <button @click="newConversation" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+          <i class="fas fa-plus mr-2"></i> New Chat
         </button>
       </div>
+      
+      <!-- 对话列表 -->
       <div class="flex-1 overflow-y-auto">
-        <transition-group name="list" tag="div">
-          <div v-for="(conversation, index) in conversations" :key="index" 
-               @click="switchConversation(index)"
-               class="p-3 hover:bg-gray-700 cursor-pointer transition duration-300"
-               :class="{ 'bg-gray-700': currentConversationIndex === index }">
-            Conversation {{ index + 1 }}
-          </div>
-        </transition-group>
+        <div v-for="(conversation, index) in conversations" :key="index" 
+             @click="switchConversation(index)"
+             class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center"
+             :class="{ 'bg-gray-100': currentConversationIndex === index }">
+          <i class="far fa-comment-alt mr-3"></i>
+          <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
+        </div>
+      </div>
+      
+      <!-- 用户信息和设置 -->
+      <div class="p-4 border-t border-gray-200">
+        <button @click="logout" class="w-full text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center">
+          <i class="fas fa-sign-out-alt mr-2"></i> Log out
+        </button>
       </div>
     </div>
 
     <!-- 主聊天界面 -->
-    <div class="w-4/5 flex flex-col bg-gray-100 transition-all duration-300 ease-in-out">
-      <div class="bg-indigo-600 text-white px-6 py-3 flex justify-between items-center">
-        <h1 class="text-lg font-semibold animate-fade-in">Chat Bot</h1>
-        <div class="space-x-4">
-          <button @click="logout" class="px-3 py-1 border border-white rounded-full text-sm hover:bg-white hover:text-indigo-600 transition duration-300 transform hover:-translate-y-1">
-            <i class="fas fa-sign-out-alt mr-2"></i> Logout
-          </button>
-          <button @click="clearHistory" class="px-3 py-1 border border-white rounded-full text-sm hover:bg-white hover:text-indigo-600 transition duration-300 transform hover:-translate-y-1">
-            <i class="fas fa-trash-alt mr-2"></i> Clear History
-          </button>
+    <div class="w-5/4 flex-1 flex flex-col">
+      <!-- 聊天消息区域 -->
+      <div class="flex-1 overflow-y-auto px-4 py-6" ref="chatMessages">
+        <div v-for="(message, index) in messages" :key="index" class="mb-6">
+          <div class="flex items-start" :class="{'justify-end': message.sender === 'user'}">
+            <div class="bg-white rounded-lg p-3 shadow max-w-2xl" :class="{'bg-blue-500 text-black': message.sender === 'user'}">
+              {{ message.content }}
+            </div>
+          </div>
         </div>
       </div>
-      <div class="flex-1 overflow-y-auto px-6 py-4" ref="chatMessages">
-        <transition-group name="message" tag="div">
-          <ChatMessageComponent v-for="(message, index) in messages" :key="index" :message="message" />
-        </transition-group>
-      </div>
-      <div class="bg-white px-6 py-4 border-t border-gray-200">
-        <div class="flex items-center space-x-2">
-          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your message..."
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition duration-300"></textarea>
-          <button @click="sendMessage" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-300 transform hover:-translate-y-1 hover:shadow-md">
+      
+      <!-- 输入区域 -->
+      <div class="border-t border-gray-200 p-4">
+        <div class="flex items-center bg-white rounded-lg shadow-sm">
+          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Send a message..."
+                    class="flex-1 px-4 py-2 focus:outline-none resize-none" rows="1"></textarea>
+          <button @click="sendMessage" class="p-2 text-gray-500 hover:text-gray-700">
             <i class="fas fa-paper-plane"></i>
           </button>
-          <input type="file" @change="handleFileUpload" multiple accept=".txt,.pdf,.docx" ref="fileInput" class="hidden">
-          <button @click="$refs.fileInput.click()" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-300 transform hover:-translate-y-1 hover:shadow-md">
-            <i class="fas fa-upload"></i>
-          </button>
+        </div>
+        <div class="text-xs text-gray-500 mt-2 text-center">
+          ChatGPT may produce inaccurate information about people, places, or facts.
         </div>
       </div>
     </div>
   </div>
 </template>
 
-```javascript
 <script>
-import ChatMessageComponent from './ChatMessageComponent.vue';
 import axios from 'axios';
 
 export default {
   name: 'ChatInterface',
-  components: {
-    ChatMessageComponent
-  },
   data() {
     return {
       messages: [], // 存储消息的数组
@@ -75,8 +74,6 @@ export default {
   },
   mounted() {
     // 组件挂载时加载聊天历史记录并滚动到底部
-    this.loadConversations();
-    this.switchConversation(0);
     this.loadConversations();
     this.switchConversation(0);
     this.scrollToBottom();
@@ -298,6 +295,23 @@ html, body {
 .message-leave-to {
   opacity: 0;
   transform: translateY(30px);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 @keyframes fadeIn {

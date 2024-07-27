@@ -1,14 +1,16 @@
 <template>
-  <div :class="['mb-4', message.sender === 'user' ? 'text-right' : 'text-left']">
-    <div :class="['inline-block max-w-[70%] rounded-lg px-4 py-2', 
-                  message.sender === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800']">
-      <div class="message-content" v-html="formattedMessage"></div>
+  <div class="mb-6">
+    <div class="flex" :class="{'justify-end': message.sender === 'user'}">
+      <div class="max-w-2xl rounded-lg p-3 shadow" 
+           :class="message.sender === 'user' ? 'bg-blue-500 text-black' : 'bg-white text-black'">
+        <div class="message-content" v-html="formattedMessage"></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import 'highlight.js/styles/atom-one-dark.css';
+import 'highlight.js/styles/github-dark.css';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 
@@ -37,24 +39,12 @@ export default {
       return this.message.content;
     }
   },
-  renderedContent() {
-      marked.setOptions({
-        highlight: function (code, language) {
-          const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
-          return hljs.highlight(validLanguage, code).value;
-        },
-        breaks: true
-      });
-      return marked(this.message.content);
-  },
   mounted() {
-    if (this.message.sender === 'ai') {
-      this.$nextTick(() => {
-        this.$el.querySelectorAll('pre code').forEach(block => {
-          hljs.highlightElement(block);
-        });
+    this.$nextTick(() => {
+      this.$el.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block);
       });
-    }
+    });
   }
 };
 </script>
@@ -68,7 +58,6 @@ export default {
   @apply font-mono text-sm;
 }
 
-/* Remove extra padding in message bubbles */
 :deep(.message-content > *:first-child) {
   @apply mt-0;
 }
@@ -77,8 +66,11 @@ export default {
   @apply mb-0;
 }
 
-/* Style for inline code */
 :deep(.message-content :not(pre) > code) {
-  @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono;
+  @apply bg-gray-200 text-gray-800 px-1 py-0.5 rounded text-sm font-mono;
+}
+
+:deep(.hljs) {
+  @apply bg-transparent;
 }
 </style>
