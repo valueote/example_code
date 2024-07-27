@@ -48,20 +48,33 @@ export default {
         hljs.highlightElement(block);
         const pre = block.parentNode;
         const lang = block.classList[0].split('-')[1];
+
+        // Create toolbar
+        const toolbar = document.createElement('div');
+        toolbar.className = 'code-toolbar';
+
+        // Create language tag
         const langTag = document.createElement('span');
         langTag.className = 'lang-tag';
         langTag.textContent = lang;
-        pre.insertBefore(langTag, pre.firstChild);
+        toolbar.appendChild(langTag);
 
+        // Create copy button
         const button = document.createElement('button');
         button.className = 'copy-btn';
         button.textContent = 'Copy';
-        pre.appendChild(button);
+        toolbar.appendChild(button);
+
+        // Insert toolbar before the code block
+        pre.insertBefore(toolbar, pre.firstChild);
+
+        // Adjust padding to avoid遮挡
+        pre.style.paddingTop = '30px';
       });
 
       new ClipboardJS('.copy-btn', {
         target: function(trigger) {
-          return trigger.parentNode.querySelector('code');
+          return trigger.parentNode.parentNode.querySelector('code');
         }
       });
     });
@@ -71,7 +84,7 @@ export default {
 
 <style scoped>
 :deep(.message-content pre) {
-  @apply bg-gray-800 rounded-md p-3 overflow-x-auto max-w-full my-2 relative;
+  @apply bg-gray-800 rounded-md overflow-x-auto max-w-full my-2 relative;
 }
 
 :deep(.message-content code) {
@@ -108,10 +121,15 @@ export default {
 }
 
 :deep(.copy-btn) {
-  @apply absolute top-2 right-2 bg-gray-600 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity duration-200;
+  @apply bg-gray-600 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity duration-200;
 }
 
 :deep(.lang-tag) {
-  @apply absolute top-2 left-2 bg-gray-600 text-white text-xs px-2 py-1 rounded opacity-75;
+  @apply bg-gray-700 text-white text-xs px-2 py-1 rounded opacity-75;
+}
+
+:deep(.code-toolbar) {
+  @apply flex justify-between items-center absolute top-0 left-0 w-full p-2 bg-gray-700 rounded-t-md;
+  height: 30px; /* Adjust height to avoid遮挡 */
 }
 </style>
