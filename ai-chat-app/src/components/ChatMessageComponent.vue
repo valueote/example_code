@@ -47,6 +47,12 @@ export default {
       this.$el.querySelectorAll('pre code').forEach(block => {
         hljs.highlightElement(block);
         const pre = block.parentNode;
+        const lang = block.classList[0].split('-')[1];
+        const langTag = document.createElement('span');
+        langTag.className = 'lang-tag';
+        langTag.textContent = lang;
+        pre.insertBefore(langTag, pre.firstChild);
+
         const button = document.createElement('button');
         button.className = 'copy-btn';
         button.textContent = 'Copy';
@@ -103,5 +109,9 @@ export default {
 
 :deep(.copy-btn) {
   @apply absolute top-2 right-2 bg-gray-600 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity duration-200;
+}
+
+:deep(.lang-tag) {
+  @apply absolute top-2 left-2 bg-gray-600 text-white text-xs px-2 py-1 rounded opacity-75;
 }
 </style>
