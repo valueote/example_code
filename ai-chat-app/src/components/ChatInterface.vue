@@ -33,11 +33,7 @@
       <!-- 聊天消息区域 -->
       <div class="flex-1 overflow-y-auto px-4 py-6" ref="chatMessages">
         <div v-for="(message, index) in messages" :key="index" class="mb-6">
-          <div class="flex items-start" :class="{'justify-end': message.sender === 'user'}">
-            <div class="bg-white rounded-lg p-3 shadow max-w-2xl" :class="{'bg-blue-500 text-black': message.sender === 'user'}">
-              {{ message.content }}
-            </div>
-          </div>
+          <ChatMessageComponent v-for="(message, index) in messages" :key="index" :message="message" />
         </div>
       </div>
       
@@ -60,6 +56,7 @@
 
 <script>
 import axios from 'axios';
+import ChatMessageComponent from './ChatMessageComponent.vue';
 
 export default {
   name: 'ChatInterface',
@@ -71,6 +68,9 @@ export default {
       currentConversationIndex: 0, // 当前会话的索引
       isLoading: false // 是否正在加载消息
     };
+  },
+  components: {
+    ChatMessageComponent,
   },
   mounted() {
     // 组件挂载时加载聊天历史记录并滚动到底部

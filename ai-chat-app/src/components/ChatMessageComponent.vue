@@ -2,7 +2,7 @@
   <div class="mb-6">
     <div class="flex" :class="{'justify-end': message.sender === 'user'}">
       <div class="max-w-2xl rounded-lg p-3 shadow" 
-           :class="message.sender === 'user' ? 'bg-blue-500 text-black' : 'bg-white text-black'">
+           :class="message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-black'">
         <div class="message-content" v-html="formattedMessage"></div>
       </div>
     </div>
@@ -28,7 +28,7 @@ export default {
         marked.setOptions({
           highlight: function (code, lang) {
             if (lang && hljs.getLanguage(lang)) {
-              return hljs.highlight(code, { language: lang }).value;
+              return hljs.highlight(lang, code).value;
             }
             return hljs.highlightAuto(code).value;
           },
@@ -72,5 +72,6 @@ export default {
 
 :deep(.hljs) {
   @apply bg-transparent;
+  color: #e0e0e0;
 }
 </style>
