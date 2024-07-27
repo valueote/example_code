@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen w-screen bg-gray-50">
     <!-- 侧边栏 -->
-    <transition name="slide-fade">
+    <transition name="slide-fade-show">
       <div v-show="showSidebar" class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
         <!-- 新建对话按钮 -->
         <div class="p-4">
@@ -12,6 +12,7 @@
         
         <!-- 对话列表 -->
         <div class="flex-1 overflow-y-auto">
+          <transition-group name="conversation">
           <div v-for="(conversation, index) in conversations" :key="index" 
                class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
                :class="{ 'bg-gray-200': currentConversationIndex === index }">
@@ -23,6 +24,7 @@
               <i class="fas fa-trash-alt"></i>
             </button>
           </div>
+        </transition-group>
         </div>
         
         <!-- 用户信息和设置 -->
@@ -39,21 +41,24 @@
 
     <!-- 主聊天界面 -->
     <div class="flex-1 flex flex-col" :class="{ 'w-full': !showSidebar, 'w-4/5': showSidebar }">
-      <!-- 侧边栏切换按钮（当侧边栏隐藏时显示） -->
-      <button v-if="!showSidebar" @click="toggleSidebar" class="absolute top-4 left-4 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition duration-300">
-        <i class="fas fa-bars"></i>
-      </button>
 
       <!-- 聊天消息区域 -->
       <div class="flex-1 overflow-y-auto px-4 py-6" ref="chatMessages">
+        <transition-group name="message-fade" tag="div">
         <div v-for="(message, index) in messages" :key="index" class="mb-6">
           <ChatMessageComponent :message="message" />
         </div>
+        </transition-group>
       </div>
       
       <!-- 输入区域 -->
       <div class="border-t border-gray-200 p-4">
         <div class="flex items-center bg-white rounded-lg shadow-sm">
+          <!-- 侧边栏切换按钮 -->
+          <button @click="toggleSidebar" class="p-2 text-gray-500 hover:text-gray-700 transition-transform duration-300 ease-in-out" :class="{ 'transform rotate-180': showSidebar }">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          
           <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Send a message..."
                     class="flex-1 px-4 py-2 focus:outline-none resize-none" rows="1"></textarea>
           <button @click="sendMessage" class="p-2 text-gray-500 hover:text-gray-700">
@@ -284,9 +289,6 @@ export default {
         this.messages.push({ sender: 'system', content: 'File upload failed' });
       }
     },
-    toggleSidebar() {
-      this.showSidebar = !this.showSidebar;
-    },
     async deleteConversation(index) {
       try {
         // 发送请求到后端删除对话
@@ -312,6 +314,17 @@ export default {
         console.error('Error deleting conversation:', error);
       }
     },
+    toggleSidebar() {
+      if (!this.showSidebar) {
+        // 显示侧边栏时，使用 Vue 的 nextTick 来确保 DOM 更新后再设置 showSidebar
+        this.$nextTick(() => {
+          this.showSidebar = true;
+        });
+      } else {
+        // 隐藏侧边栏时，立即设置 showSidebar 为 false
+        this.showSidebar = false;
+      }
+    }
   }
   
 };
@@ -323,50 +336,8 @@ html, body {
   margin: 0;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(-10px);
-  opacity: 0;
-}
-
 .flex-1.flex.flex-col {
-  transition: margin-left 0.3s ease;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(-100%);
-  opacity: 0;
+  transition: width 0.3s ease;
 }
 
 button {
@@ -383,8 +354,36 @@ button:active {
   box-shadow: none;
 }
 
-.flex-1.flex.flex-col {
-  transition: margin-left 0.3s ease, width 0.3s ease;
-  width: 100%;
+/* Animation for messages when switching conversations */
+.message-fade-enter-active,
+.message-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.message-fade-enter-from,
+.message-fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Animation for conversation items in the sidebar */
+.conversation-enter-active,
+.conversation-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.conversation-enter-from,
+.conversation-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.slide-fade-show-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-show-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
 }
 </style>
