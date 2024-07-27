@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen w-screen bg-gray-50">
     <!-- 侧边栏 -->
-    <div class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
+    <div v-show="showSidebar" class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
       <!-- 新建对话按钮 -->
       <div class="p-4">
         <button @click="newConversation" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
@@ -12,11 +12,15 @@
       <!-- 对话列表 -->
       <div class="flex-1 overflow-y-auto">
         <div v-for="(conversation, index) in conversations" :key="index" 
-             @click="switchConversation(index)"
-             class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center"
+             class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between"
              :class="{ 'bg-gray-100': currentConversationIndex === index }">
-          <i class="far fa-comment-alt mr-3"></i>
-          <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
+          <div @click="switchConversation(index)" class="flex items-center flex-grow">
+            <i class="far fa-comment-alt mr-3"></i>
+            <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
+          </div>
+          <button @click="deleteConversation(index)" class="text-red-500 hover:text-red-700">
+            <i class="fas fa-trash-alt"></i>
+          </button>
         </div>
       </div>
       
@@ -28,12 +32,17 @@
       </div>
     </div>
 
+    <!-- 侧边栏切换按钮 -->
+    <button @click="toggleSidebar" class="fixed top-4 left-4 z-10 bg-white p-2 rounded-full shadow-md">
+      <i :class="showSidebar ? 'fas fa-times' : 'fas fa-bars'"></i>
+    </button>
+
     <!-- 主聊天界面 -->
-    <div class="w-5/4 flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col">
       <!-- 聊天消息区域 -->
       <div class="flex-1 overflow-y-auto px-4 py-6" ref="chatMessages">
         <div v-for="(message, index) in messages" :key="index" class="mb-6">
-          <ChatMessageComponent v-for="(message, index) in messages" :key="index" :message="message" />
+          <ChatMessageComponent :message="message" />
         </div>
       </div>
       
@@ -45,6 +54,10 @@
           <button @click="sendMessage" class="p-2 text-gray-500 hover:text-gray-700">
             <i class="fas fa-paper-plane"></i>
           </button>
+          <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
+          <button @click="$refs.fileInput.click()" class="p-2 text-gray-500 hover:text-gray-700">
+            <i class="fas fa-paperclip"></i>
+          </button>
         </div>
         <div class="text-xs text-gray-500 mt-2 text-center">
           ChatGPT may produce inaccurate information about people, places, or facts.
@@ -53,6 +66,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -66,6 +80,7 @@ export default {
       userInput: '', // 用户输入的消息
       conversations: [], // 存储会话的数组
       currentConversationIndex: 0, // 当前会话的索引
+      showSidebar: true,
       isLoading: false // 是否正在加载消息
     };
   },
@@ -245,7 +260,6 @@ export default {
       }
     },
     async handleFileUpload() {
-      // 处理文件上传
       const files = this.$refs.fileInput.files;
       if (files.length === 0) return;
 
@@ -264,8 +278,37 @@ export default {
         console.error('Error uploading files:', error);
         this.messages.push({ sender: 'system', content: 'File upload failed' });
       }
-    }
+    },
+    toggleSidebar() {
+      this.showSidebar = !this.showSidebar;
+    },
+    async deleteConversation(index) {
+      try {
+        // 发送请求到后端删除对话
+        await axios.post('/delete_conversation', { history_num: index });
+        
+        // 从前端数组中删除对话
+        this.conversations.splice(index, 1);
+        
+        // 如果删除的是当前对话，切换到第一个对话或清空消息
+        if (index === this.currentConversationIndex) {
+          if (this.conversations.length > 0) {
+            this.switchConversation(0);
+          } else {
+            this.messages = [];
+            this.currentConversationIndex = -1;
+          }
+        }
+        // 如果删除的对话在当前对话之前，更新当前对话索引
+        else if (index < this.currentConversationIndex) {
+          this.currentConversationIndex--;
+        }
+      } catch (error) {
+        console.error('Error deleting conversation:', error);
+      }
+    },
   }
+  
 };
 </script>
 ```
