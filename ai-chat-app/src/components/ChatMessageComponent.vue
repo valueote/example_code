@@ -93,7 +93,7 @@ export default {
       });
 
       const handleRunCode = (code) => {
-        this.showPythonInterpreter = true;
+        this.showPythonInterpreter.value = true;
         this.runPythonCode(code);
       };
 

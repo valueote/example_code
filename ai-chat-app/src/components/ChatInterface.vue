@@ -96,25 +96,20 @@
     </div>
 
     <!-- Python解释器 -->
-    <div v-if="showPythonInterpreter" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-      <div class="bg-white p-5 rounded-lg shadow-xl w-3/4 h-3/4 flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold">Python Interpreter</h2>
-          <button @click="closePythonInterpreter" class="text-gray-500 hover:text-gray-700">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div id="python-terminal" class="flex-grow bg-black text-white p-4 rounded overflow-auto"></div>
-      </div>
-    </div>
+    <PythonInterpreter 
+      :show="showPythonInterpreter" 
+      @close="closePythonInterpreter"
+      ref="pythonInterpreter"
+    />
   </div>
 </template>
 
 
 <script>
-/* global loadPyodide */
+
 import axios from 'axios';
 import ChatMessageComponent from './ChatMessageComponent.vue';
+import PythonInterpreter from './PythonInterpreter.vue';
 
 export default {
   name: 'ChatInterface',
@@ -134,12 +129,13 @@ export default {
   provide() {
     return {
       runPythonCode: this.runPythonCode,
-      showPythonInterpreter: this.showPythonInterpreter
+      showPythonInterpreter: () => this.showPythonInterpreter
     };
   },
 
   components: {
     ChatMessageComponent,
+    PythonInterpreter,
   },
   mounted() {
     // 组件挂载时加载聊天历史记录并滚动到底部
@@ -376,100 +372,21 @@ export default {
     closeSettings() {
       this.showSettings = false;
     },
-    async loadPyodide() {
-      if (!this.pyodide) {
-        const terminal = document.getElementById('python-terminal');
-        terminal.innerHTML += 'Loading Pyodide...<br>';
-        this.pyodide = await loadPyodide();
-      }
-    },
-
-    async runPythonInterpreter() {
-      this.showPythonInterpreter = true;
-      await this.$nextTick();
-      const terminal = document.getElementById('python-terminal');
-      
-      if (!this.pyodide) {
-        await this.loadPyodide();
-      }
-
-      terminal.innerHTML += 'Python 3.9.5 (default, May 3 2021, 19:12:05)<br>';
-      terminal.innerHTML += '[Pyodide] on WebAssembly/JavaScript<br>';
-      terminal.innerHTML += 'Type "help", "copyright", "credits" or "license" for more information.<br>';
-      terminal.innerHTML += '>>> ';
-
-      const createInputElement = () => {
-        const inputElement = document.createElement('input');
-        inputElement.type = 'text';
-        inputElement.style.background = 'transparent';
-        inputElement.style.border = 'none';
-        inputElement.style.outline = 'none';
-        inputElement.style.color = 'white';
-        inputElement.style.width = '90%';
-        terminal.appendChild(inputElement);
-        inputElement.focus();
-
-        inputElement.addEventListener('keydown', async (event) => {
-          if (event.key === 'Enter') {
-            const command = inputElement.value;
-            terminal.removeChild(inputElement);
-            terminal.innerHTML += command + '<br>';
-            try {
-              // 捕获并显示输出
-              const result = await this.pyodide.runPythonAsync(`
-                import sys
-                from io import StringIO
-                old_stdout = sys.stdout
-                sys.stdout = mystdout = StringIO()
-                ${command}
-                sys.stdout = old_stdout
-                mystdout.getvalue()
-              `);
-              if (result !== undefined && result.trim() !== '') {
-                terminal.innerHTML += result.toString() + '<br>';
-              } else {
-                // 检查是否有变量需要输出
-                const variableName = command.trim();
-                if (variableName && !variableName.includes(' ')) {
-                  const variableValue = await this.pyodide.runPythonAsync(`str(${variableName})`);
-                  if (variableValue !== undefined) {
-                    terminal.innerHTML += variableValue.toString() + '<br>';
-                  }
-                }
-              }
-            } catch (error) {
-              terminal.innerHTML += error.toString() + '<br>';
-            }
-            terminal.innerHTML += '>>> ';
-            createInputElement();
-          }
-        });
-      };
-
-      createInputElement();
-    },
     
-    async runPythonCode(code) {
-      if (!this.pyodide) {
-        await this.loadPyodide();
-      }
-      if(!this.showPythonInterpreter){
-        this.showPythonInterpreter = true;
-      }
-      const terminal = document.getElementById('python-terminal');
-      terminal.innerHTML += '>>> ' + code + '<br>';
-
-      try {
-        const result = await this.pyodide.runPythonAsync(code);
-        terminal.innerHTML += result + '<br>';
-      } catch (error) {
-        terminal.innerHTML += 'Error: ' + error.message + '<br>';
-      }
-
-      terminal.innerHTML += '>>> ';
-      terminal.scrollTop = terminal.scrollHeight;
+    runPythonInterpreter() {
+      this.showPythonInterpreter = true;
+      this.$nextTick(() => {
+        this.$refs.pythonInterpreter.runPythonInterpreter();
+      });
     },
 
+    runPythonCode(code) {
+      this.showPythonInterpreter = true;
+      this.$nextTick(() => {
+        this.$refs.pythonInterpreter.runCode(code);
+      });
+    },
+        
     closePythonInterpreter(){
       this.showPythonInterpreter = false;
     }
@@ -477,6 +394,7 @@ export default {
   
 };
 </script>
+
 
 <style scoped>
 html, body {
@@ -535,7 +453,4 @@ button:active {
   opacity: 0;
 }
 
-#python-terminal {
-  font-family: monospace;
-}
 </style>
