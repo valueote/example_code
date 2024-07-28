@@ -56,8 +56,8 @@
       <div class="border-t border-gray-200 p-4">
         <div class="flex items-center bg-white rounded-lg shadow-sm">
           <!-- 侧边栏切换按钮 -->
-          <button @click="toggleSidebar" class="p-2 text-gray-500 hover:text-gray-700 transition-transform duration-300 ease-in-out" :class="{ 'transform rotate-180': showSidebar }">
-            <i class="fas fa-chevron-left"></i>
+          <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-gray-500" :class="{ 'transform rotate-180': !showSidebar }">
+              <i class="fas fa-chevron-left"></i>
           </button>
           
           <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Send a message..."
