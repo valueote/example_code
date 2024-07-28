@@ -157,5 +157,26 @@
         "tool_calls": [],
         "invalid_tool_calls": [],
         "usage_metadata": null
+    },
+    {
+        "content": "give me a short python code\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "Sure, here is a simple Python code that prints \"Hello, World!\" to the console:\n\n```python\nprint(\"Hello, World!\")\n```",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
     }
 ]

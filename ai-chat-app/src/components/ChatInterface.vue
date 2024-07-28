@@ -111,10 +111,16 @@ export default {
       currentConversationIndex: 0, // 当前会话的索引
       showPythonInterpreter: false,
       showSidebar: true,
-      isLoading: false // 是否正在加载消息
-
+      isLoading: false, // 是否正在加载消息
     };
   },
+  
+  provide() {
+    return {
+      runPythonCode: this.runPythonCode
+    };
+  },
+
   components: {
     ChatMessageComponent,
   },
@@ -354,71 +360,81 @@ export default {
     },
 
     async runPythonInterpreter() {
-  this.showPythonInterpreter = true;
-  await this.$nextTick();
-  const terminal = document.getElementById('python-terminal');
-  
-  if (!this.pyodide) {
-    terminal.innerHTML += 'Loading Pyodide...<br>';
-    await this.loadPyodide();
-  }
-
-  terminal.innerHTML += 'Python 3.9.5 (default, May 3 2021, 19:12:05)<br>';
-  terminal.innerHTML += '[Pyodide] on WebAssembly/JavaScript<br>';
-  terminal.innerHTML += 'Type "help", "copyright", "credits" or "license" for more information.<br>';
-  terminal.innerHTML += '>>> ';
-
-  const createInputElement = () => {
-    const inputElement = document.createElement('input');
-    inputElement.type = 'text';
-    inputElement.style.background = 'transparent';
-    inputElement.style.border = 'none';
-    inputElement.style.outline = 'none';
-    inputElement.style.color = 'white';
-    inputElement.style.width = '90%';
-    terminal.appendChild(inputElement);
-    inputElement.focus();
-
-    inputElement.addEventListener('keydown', async (event) => {
-      if (event.key === 'Enter') {
-        const command = inputElement.value;
-        terminal.removeChild(inputElement);
-        terminal.innerHTML += command + '<br>';
-        try {
-          // 捕获并显示输出
-          const result = await this.pyodide.runPythonAsync(`
-            import sys
-            from io import StringIO
-            old_stdout = sys.stdout
-            sys.stdout = mystdout = StringIO()
-            ${command}
-            sys.stdout = old_stdout
-            mystdout.getvalue()
-          `);
-          if (result !== undefined && result.trim() !== '') {
-            terminal.innerHTML += result.toString() + '<br>';
-          } else {
-            // 检查是否有变量需要输出
-            const variableName = command.trim();
-            if (variableName && !variableName.includes(' ')) {
-              const variableValue = await this.pyodide.runPythonAsync(`str(${variableName})`);
-              if (variableValue !== undefined) {
-                terminal.innerHTML += variableValue.toString() + '<br>';
-              }
-            }
-          }
-        } catch (error) {
-          terminal.innerHTML += error.toString() + '<br>';
-        }
-        terminal.innerHTML += '>>> ';
-        createInputElement();
+      this.showPythonInterpreter = true;
+      await this.$nextTick();
+      const terminal = document.getElementById('python-terminal');
+      
+      if (!this.pyodide) {
+        terminal.innerHTML += 'Loading Pyodide...<br>';
+        await this.loadPyodide();
       }
-    });
-  };
 
-  createInputElement();
-},
+      terminal.innerHTML += 'Python 3.9.5 (default, May 3 2021, 19:12:05)<br>';
+      terminal.innerHTML += '[Pyodide] on WebAssembly/JavaScript<br>';
+      terminal.innerHTML += 'Type "help", "copyright", "credits" or "license" for more information.<br>';
+      terminal.innerHTML += '>>> ';
 
+      const createInputElement = () => {
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.style.background = 'transparent';
+        inputElement.style.border = 'none';
+        inputElement.style.outline = 'none';
+        inputElement.style.color = 'white';
+        inputElement.style.width = '90%';
+        terminal.appendChild(inputElement);
+        inputElement.focus();
+
+        inputElement.addEventListener('keydown', async (event) => {
+          if (event.key === 'Enter') {
+            const command = inputElement.value;
+            terminal.removeChild(inputElement);
+            terminal.innerHTML += command + '<br>';
+            try {
+              // 捕获并显示输出
+              const result = await this.pyodide.runPythonAsync(`
+                import sys
+                from io import StringIO
+                old_stdout = sys.stdout
+                sys.stdout = mystdout = StringIO()
+                ${command}
+                sys.stdout = old_stdout
+                mystdout.getvalue()
+              `);
+              if (result !== undefined && result.trim() !== '') {
+                terminal.innerHTML += result.toString() + '<br>';
+              } else {
+                // 检查是否有变量需要输出
+                const variableName = command.trim();
+                if (variableName && !variableName.includes(' ')) {
+                  const variableValue = await this.pyodide.runPythonAsync(`str(${variableName})`);
+                  if (variableValue !== undefined) {
+                    terminal.innerHTML += variableValue.toString() + '<br>';
+                  }
+                }
+              }
+            } catch (error) {
+              terminal.innerHTML += error.toString() + '<br>';
+            }
+            terminal.innerHTML += '>>> ';
+            createInputElement();
+          }
+        });
+      };
+
+      createInputElement();
+    },
+    async runPythonCode(code) {
+      if (!this.pyodide) {
+        await this.loadPyodide();
+      }
+      try {
+        const result = await this.pyodide.runPythonAsync(code);
+        console.log(result);
+      } catch (error) {
+        console.error('Error running Python code:', error);
+      }
+    },
     closePythonInterpreter() {
       this.showPythonInterpreter = false;
     },
