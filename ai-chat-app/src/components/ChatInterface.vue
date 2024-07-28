@@ -89,7 +89,7 @@
             <div id="python-terminal" class="flex-grow bg-black text-white p-4 rounded overflow-auto"></div>
           </div>
         </div>
-        
+
       </div>
     </div>
   </div>
@@ -368,32 +368,36 @@ export default {
       terminal.innerHTML += 'Type "help", "copyright", "credits" or "license" for more information.<br>';
       terminal.innerHTML += '>>> ';
 
-      const inputElement = document.createElement('input');
-      inputElement.type = 'text';
-      inputElement.style.background = 'transparent';
-      inputElement.style.border = 'none';
-      inputElement.style.outline = 'none';
-      inputElement.style.color = 'white';
-      terminal.appendChild(inputElement);
-      inputElement.focus();
+      const createInputElement = () => {
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.style.background = 'transparent';
+        inputElement.style.border = 'none';
+        inputElement.style.outline = 'none';
+        inputElement.style.color = 'white';
+        terminal.appendChild(inputElement);
+        inputElement.focus();
 
-      inputElement.addEventListener('keydown', async (event) => {
-        if (event.key === 'Enter') {
-          const command = inputElement.value;
-          terminal.innerHTML += command + '<br>';
-          try {
-            const result = await this.pyodide.runPythonAsync(command);
-            if (result !== undefined) {
-              terminal.innerHTML += result.toString() + '<br>';
+        inputElement.addEventListener('keydown', async (event) => {
+          if (event.key === 'Enter') {
+            const command = inputElement.value;
+            terminal.removeChild(inputElement);
+            terminal.innerHTML += command + '<br>';
+            try {
+              const result = await this.pyodide.runPythonAsync(command);
+              if (result !== undefined) {
+                terminal.innerHTML += result.toString() + '<br>';
+              }
+            } catch (error) {
+              terminal.innerHTML += error.toString() + '<br>';
             }
-          } catch (error) {
-            terminal.innerHTML += error.toString() + '<br>';
+            terminal.innerHTML += '>>> ';
+            createInputElement();
           }
-          terminal.innerHTML += '>>> ';
-          inputElement.value = '';
-          terminal.scrollTop = terminal.scrollHeight;
-        }
-      });
+        });
+      };
+
+      createInputElement();
     },
 
     closePythonInterpreter() {
