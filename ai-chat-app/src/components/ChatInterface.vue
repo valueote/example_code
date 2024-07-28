@@ -2,44 +2,48 @@
   <div class="flex h-screen w-screen bg-gray-50">
     <!-- 侧边栏 -->
     <transition name="slide-fade-show">
-      <div v-show="showSidebar" class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
-        <!-- 新建对话按钮 -->
-        <div class="p-4">
-          <button @click="newConversation" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-plus mr-2"></i> New Chat
+    <div v-show="showSidebar" class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
+      <!-- 新建对话按钮 -->
+      <div class="p-4">
+        <button @click="newConversation" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+          <i class="fas fa-plus mr-2"></i> New Chat
+        </button>
+      </div>
+      
+      <!-- 对话列表 -->
+      <div class="flex-1 overflow-y-auto">
+        <transition-group name="conversation">
+        <div v-for="(conversation, index) in conversations" :key="index" 
+            class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
+            :class="{ 'bg-gray-200': currentConversationIndex === index }"
+            @click="switchConversation(index)" :disabled="isLoading">
+          <div class="flex items-center flex-grow">
+            <i class="far fa-comment-alt mr-3"></i>
+            <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
+          </div>
+          <button @click.stop="deleteConversation(index)" class="text-red-500 hover:text-red-700">
+            <i class="fas fa-trash-alt"></i>
           </button>
-        </div>
-        
-        <!-- 对话列表 -->
-        <div class="flex-1 overflow-y-auto">
-          <transition-group name="conversation">
-          <div v-for="(conversation, index) in conversations" :key="index" 
-              class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-              :class="{ 'bg-gray-200': currentConversationIndex === index }"
-              @click="switchConversation(index)" :disabled="isLoading">
-            <div class="flex items-center flex-grow">
-              <i class="far fa-comment-alt mr-3"></i>
-              <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
-            </div>
-            <button @click.stop="deleteConversation(index)" class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash-alt"></i>
-            </button>
+      </div>
+      
+    </transition-group>
     </div>
-  </transition-group>
-        </div>
-        
+
         <!-- 用户信息和设置 -->
         <div class="p-4 border-t border-gray-200 flex items-center justify-between">
           <button @click="logout" class="text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center text-sm">
             <i class="fas fa-sign-out-alt mr-2"></i> Log out
           </button>
+          <button @click="runPythonInterpreter" class="text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center text-sm">
+            <i class="fas fa-code mr-2"></i> Run Python Interpreter
+          </button>
           <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-gray-100 transition duration-300">
             <i class="fas fa-chevron-left"></i>
           </button>
-        </div>
-      </div>
-    </transition>
+          </div>
+</div>
 
+    </transition>
     <!-- 主聊天界面 -->
     <div class="flex-1 flex flex-col" :class="{ 'w-full': !showSidebar, 'w-4/5': showSidebar }">
 
@@ -73,6 +77,19 @@
         <div class="text-xs text-gray-500 mt-2 text-center">
           ChatGPT may produce inaccurate information about people, places, or facts.
         </div>
+
+        <div v-if="showPythonInterpreter" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+          <div class="bg-white p-5 rounded-lg shadow-xl w-3/4 h-3/4 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold">Python Interpreter</h2>
+              <button @click="closePythonInterpreter" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div id="python-terminal" class="flex-grow bg-black text-white p-4 rounded overflow-auto"></div>
+          </div>
+        </div>
+        
       </div>
     </div>
   </div>
@@ -80,6 +97,7 @@
 
 
 <script>
+/* global loadPyodide */
 import axios from 'axios';
 import ChatMessageComponent from './ChatMessageComponent.vue';
 
@@ -91,8 +109,10 @@ export default {
       userInput: '', // 用户输入的消息
       conversations: [], // 存储会话的数组
       currentConversationIndex: 0, // 当前会话的索引
+      showPythonInterpreter: false,
       showSidebar: true,
       isLoading: false // 是否正在加载消息
+
     };
   },
   components: {
@@ -326,7 +346,59 @@ export default {
         // 隐藏侧边栏时，立即设置 showSidebar 为 false
         this.showSidebar = false;
       }
-    }
+    },
+    async loadPyodide() {
+      if (!this.pyodide) {
+        this.pyodide = await loadPyodide();
+      }
+    },
+
+    async runPythonInterpreter() {
+      this.showPythonInterpreter = true;
+      await this.$nextTick();
+      const terminal = document.getElementById('python-terminal');
+      
+      if (!this.pyodide) {
+        terminal.innerHTML += 'Loading Pyodide...<br>';
+        await this.loadPyodide();
+      }
+
+      terminal.innerHTML += 'Python 3.9.5 (default, May 3 2021, 19:12:05)<br>';
+      terminal.innerHTML += '[Pyodide] on WebAssembly/JavaScript<br>';
+      terminal.innerHTML += 'Type "help", "copyright", "credits" or "license" for more information.<br>';
+      terminal.innerHTML += '>>> ';
+
+      const inputElement = document.createElement('input');
+      inputElement.type = 'text';
+      inputElement.style.background = 'transparent';
+      inputElement.style.border = 'none';
+      inputElement.style.outline = 'none';
+      inputElement.style.color = 'white';
+      terminal.appendChild(inputElement);
+      inputElement.focus();
+
+      inputElement.addEventListener('keydown', async (event) => {
+        if (event.key === 'Enter') {
+          const command = inputElement.value;
+          terminal.innerHTML += command + '<br>';
+          try {
+            const result = await this.pyodide.runPythonAsync(command);
+            if (result !== undefined) {
+              terminal.innerHTML += result.toString() + '<br>';
+            }
+          } catch (error) {
+            terminal.innerHTML += error.toString() + '<br>';
+          }
+          terminal.innerHTML += '>>> ';
+          inputElement.value = '';
+          terminal.scrollTop = terminal.scrollHeight;
+        }
+      });
+    },
+
+    closePythonInterpreter() {
+      this.showPythonInterpreter = false;
+    },
   }
   
 };
@@ -387,5 +459,9 @@ button:active {
 .slide-fade-show-enter-from {
   transform: translateX(-100%);
   opacity: 0;
+}
+
+#python-terminal {
+  font-family: monospace;
 }
 </style>
