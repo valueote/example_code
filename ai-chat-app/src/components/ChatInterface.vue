@@ -24,29 +24,24 @@
           <button @click.stop="deleteConversation(index)" class="text-red-500 hover:text-red-700">
             <i class="fas fa-trash-alt"></i>
           </button>
+        </div>
+        </transition-group>
       </div>
       
-    </transition-group>
+      <!-- 用户信息和设置 -->
+      <div class="p-4 border-t border-gray-200 flex items-center justify-between">
+        <button @click="openSettings" class="text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center text-sm">
+          <i class="fas fa-cog mr-2"></i> Settings
+        </button>
+        <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-gray-100 transition duration-300">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
     </div>
-
-        <!-- 用户信息和设置 -->
-        <div class="p-4 border-t border-gray-200 flex items-center justify-between">
-          <button @click="logout" class="text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center text-sm">
-            <i class="fas fa-sign-out-alt mr-2"></i> Log out
-          </button>
-          <button @click="runPythonInterpreter" class="text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center text-sm">
-            <i class="fas fa-code mr-2"></i> Run Python Interpreter
-          </button>
-          <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-gray-100 transition duration-300">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          </div>
-</div>
-
     </transition>
+
     <!-- 主聊天界面 -->
     <div class="flex-1 flex flex-col" :class="{ 'w-full': !showSidebar, 'w-4/5': showSidebar }">
-
       <!-- 聊天消息区域 -->
       <div class="flex-1 overflow-y-auto px-4 py-6" ref="chatMessages">
         <transition-group name="message-fade" tag="div">
@@ -77,19 +72,39 @@
         <div class="text-xs text-gray-500 mt-2 text-center">
           ChatGPT may produce inaccurate information about people, places, or facts.
         </div>
+      </div>
+    </div>
 
-        <div v-if="showPythonInterpreter" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-          <div class="bg-white p-5 rounded-lg shadow-xl w-3/4 h-3/4 flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-xl font-bold">Python Interpreter</h2>
-              <button @click="closePythonInterpreter" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            <div id="python-terminal" class="flex-grow bg-black text-white p-4 rounded overflow-auto"></div>
-          </div>
+    <!-- 设置页面 -->
+    <div v-if="showSettings" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+      <div class="bg-white p-5 rounded-lg shadow-xl w-1/3">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Settings</h2>
+          <button @click="closeSettings" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
+        <div class="space-y-4">
+          <button @click="logout" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+            <i class="fas fa-sign-out-alt mr-2"></i> Log out
+          </button>
+          <button @click="runPythonInterpreter" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+            <i class="fas fa-code mr-2"></i> Run Python Interpreter
+          </button>
+        </div>
+      </div>
+    </div>
 
+    <!-- Python解释器 -->
+    <div v-if="showPythonInterpreter" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+      <div class="bg-white p-5 rounded-lg shadow-xl w-3/4 h-3/4 flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Python Interpreter</h2>
+          <button @click="closePythonInterpreter" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div id="python-terminal" class="flex-grow bg-black text-white p-4 rounded overflow-auto"></div>
       </div>
     </div>
   </div>
@@ -111,13 +126,15 @@ export default {
       currentConversationIndex: 0, // 当前会话的索引
       showPythonInterpreter: false,
       showSidebar: true,
+      showSettings: false,
       isLoading: false, // 是否正在加载消息
     };
   },
   
   provide() {
     return {
-      runPythonCode: this.runPythonCode
+      runPythonCode: this.runPythonCode,
+      showPythonInterpreter: this.showPythonInterpreter
     };
   },
 
@@ -353,8 +370,16 @@ export default {
         this.showSidebar = false;
       }
     },
+    openSettings() {
+      this.showSettings = true;
+    },
+    closeSettings() {
+      this.showSettings = false;
+    },
     async loadPyodide() {
       if (!this.pyodide) {
+        const terminal = document.getElementById('python-terminal');
+        terminal.innerHTML += 'Loading Pyodide...<br>';
         this.pyodide = await loadPyodide();
       }
     },
@@ -365,7 +390,6 @@ export default {
       const terminal = document.getElementById('python-terminal');
       
       if (!this.pyodide) {
-        terminal.innerHTML += 'Loading Pyodide...<br>';
         await this.loadPyodide();
       }
 
@@ -424,20 +448,31 @@ export default {
 
       createInputElement();
     },
+    
     async runPythonCode(code) {
       if (!this.pyodide) {
         await this.loadPyodide();
       }
+      if(!this.showPythonInterpreter){
+        this.showPythonInterpreter = true;
+      }
+      const terminal = document.getElementById('python-terminal');
+      terminal.innerHTML += '>>> ' + code + '<br>';
+
       try {
         const result = await this.pyodide.runPythonAsync(code);
-        console.log(result);
+        terminal.innerHTML += result + '<br>';
       } catch (error) {
-        console.error('Error running Python code:', error);
+        terminal.innerHTML += 'Error: ' + error.message + '<br>';
       }
+
+      terminal.innerHTML += '>>> ';
+      terminal.scrollTop = terminal.scrollHeight;
     },
-    closePythonInterpreter() {
+
+    closePythonInterpreter(){
       this.showPythonInterpreter = false;
-    },
+    }
   }
   
 };

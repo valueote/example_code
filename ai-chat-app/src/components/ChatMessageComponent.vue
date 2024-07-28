@@ -26,6 +26,13 @@ export default {
       required: true
     }
   },
+  
+  setup() {
+    const runPythonCode = inject('runPythonCode');
+    const showPythonInterpreter = inject('showPythonInterpreter');
+    return { runPythonCode, showPythonInterpreter };
+  },
+
   computed: {
     formattedMessage() {
       if (this.message.sender === 'ai') {
@@ -85,20 +92,21 @@ export default {
         }
       });
 
+      const handleRunCode = (code) => {
+        this.showPythonInterpreter = true;
+        this.runPythonCode(code);
+      };
+
       // Add event listener for run button
       this.$el.querySelectorAll('.run-btn').forEach(button => {
         button.addEventListener('click', () => {
           const codeBlock = button.parentNode.parentNode.querySelector('code');
           const code = codeBlock.innerText;
-          this.runPythonCode(code);
+          handleRunCode(code);
         });
       });
     });
   },
-  setup() {
-    const runPythonCode = inject('runPythonCode');
-    return { runPythonCode };
-  }
 };
 </script>
 
