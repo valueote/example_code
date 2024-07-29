@@ -62,60 +62,62 @@ export default {
   },
   methods: {
     highlightCodeBlocks() {
-      this.$el.querySelectorAll('pre code').forEach(block => {
-        hljs.highlightElement(block);
-        const pre = block.parentNode;
-        const lang = block.classList[0].split('-')[1];
+    this.$el.querySelectorAll('pre code').forEach(block => {
+      hljs.highlightElement(block);
+      const pre = block.parentNode;
+      const lang = block.classList[0].split('-')[1];
 
-        // Create toolbar
-        const toolbar = document.createElement('div');
-        toolbar.className = 'code-toolbar';
+      // Create toolbar
+      const toolbar = document.createElement('div');
+      toolbar.className = 'code-toolbar';
 
-        // Create language tag
-        const langTag = document.createElement('span');
-        langTag.className = 'lang-tag';
-        langTag.textContent = lang;
-        toolbar.appendChild(langTag);
+      // Create language tag
+      const langTag = document.createElement('span');
+      langTag.className = 'lang-tag';
+      langTag.textContent = lang;
+      toolbar.appendChild(langTag);
 
-        // Create copy button
-        const copyButton = document.createElement('button');
-        copyButton.className = 'copy-btn';
-        copyButton.textContent = 'Copy';
-        toolbar.appendChild(copyButton);
+      // Create copy button
+      const copyButton = document.createElement('button');
+      copyButton.className = 'copy-btn';
+      copyButton.textContent = 'Copy';
+      toolbar.appendChild(copyButton);
 
-        // Create run button
+      // Create run button only if the language is Python
+      if (lang === 'python') {
         const runButton = document.createElement('button');
         runButton.className = 'run-btn';
         runButton.textContent = 'Run';
         toolbar.appendChild(runButton);
+      }
 
-        // Insert toolbar before the code block
-        pre.insertBefore(toolbar, pre.firstChild);
+      // Insert toolbar before the code block
+      pre.insertBefore(toolbar, pre.firstChild);
 
-        // Adjust padding to avoid遮挡
-        pre.style.paddingTop = '30px';
+      // Adjust padding to avoid遮挡
+      pre.style.paddingTop = '30px';
+    });
+
+    new ClipboardJS('.copy-btn', {
+      target: function(trigger) {
+        return trigger.parentNode.parentNode.querySelector('code');
+      }
+    });
+
+    const handleRunCode = (code) => {
+      this.showPythonInterpreter.value = true;
+      this.runPythonCode(code);
+    };
+
+    // Add event listener for run button
+    this.$el.querySelectorAll('.run-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const codeBlock = button.parentNode.parentNode.querySelector('code');
+        const code = codeBlock.innerText;
+        handleRunCode(code);
       });
-
-      new ClipboardJS('.copy-btn', {
-        target: function(trigger) {
-          return trigger.parentNode.parentNode.querySelector('code');
-        }
-      });
-
-      const handleRunCode = (code) => {
-        this.showPythonInterpreter.value = true;
-        this.runPythonCode(code);
-      };
-
-      // Add event listener for run button
-      this.$el.querySelectorAll('.run-btn').forEach(button => {
-        button.addEventListener('click', () => {
-          const codeBlock = button.parentNode.parentNode.querySelector('code');
-          const code = codeBlock.innerText;
-          handleRunCode(code);
-        });
-      });
-    }
+    });
+  }
   }
 };
 </script>
