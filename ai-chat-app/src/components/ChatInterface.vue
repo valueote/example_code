@@ -225,20 +225,6 @@ export default {
       }
     },
 
-    async clearHistory() {
-      // 清除聊天历史记录
-      try {
-        // 发送POST请求到'/clear_chat_history'端点以清除聊天历史记录
-        await axios.post('/clear_chat_history');
-        // 清空messages数组
-        this.messages = [];
-        // 清空当前会话的messages数组
-        this.conversations[this.currentConversationIndex] = [];
-      } catch (error) {
-        // 如果清除聊天历史记录时发生错误，打印错误信息
-        console.error('Error clearing chat history:', error);
-      }
-    },
 
     async loadConversations() {
       try {
@@ -272,31 +258,31 @@ export default {
     },
 
     async switchConversation(index) {
-      if (this.currentConversationIndex === index && this.messages.length > 0) return;
-      console.log("switch form", this.currentConversationIndex)
-      console.log("switch to", index)
-      this.currentConversationIndex = index;
-      this.isLoading = true;
-      
-      try {
-        const response = await axios.post('/switch_conversation', { history_num: index });
-        if (response.data.chat_history) {
-          this.messages = response.data.chat_history.map(message => ({
-            sender: message.type === 'HumanMessage' ? 'user' : 'ai',
-            content: message.content
-          }));
-        } else {
-          this.messages = [];
-        }
-        this.$nextTick(() => {
-          this.scrollToBottom();
-        });
-      } catch (error) {
-        console.error('Error switching conversation:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
+  if (this.currentConversationIndex === index && this.messages.length > 0) return;
+  console.log("switch form", this.currentConversationIndex)
+  console.log("switch to", index)
+  this.currentConversationIndex = index;
+  this.isLoading = true;
+  
+  try {
+    const response = await axios.post('/switch_conversation', { history_num: index });
+    if (response.data.chat_history) {
+      this.messages = response.data.chat_history.map(message => ({
+        sender: message.type === 'HumanMessage' ? 'user' : 'ai',
+        content: message.content
+      }));
+    } else {
+      this.messages = [];
+    }
+    this.$nextTick(() => {
+      this.scrollToBottom();
+    });
+  } catch (error) {
+    console.error('Error switching conversation:', error);
+  } finally {
+    this.isLoading = false;
+  }
+},
 
     async getConversations() {
       // 获取所有会话
@@ -331,30 +317,30 @@ export default {
       }
     },
     async deleteConversation(index) {
-      try {
-        // 发送请求到后端删除对话
-        await axios.post('/delete_conversation', { history_num: index });
-        
-        // 从前端数组中删除对话
-        this.conversations.splice(index, 1);
-        
-        // 如果删除的是当前对话，切换到第一个对话或清空消息
-        if (index === this.currentConversationIndex) {
-          if (this.conversations.length > 0) {
-            this.switchConversation(0);
-          } else {
-            this.messages = [];
-            this.currentConversationIndex = -1;
-          }
-        }
-        // 如果删除的对话在当前对话之前，更新当前对话索引
-        else if (index < this.currentConversationIndex) {
-          this.currentConversationIndex--;
-        }
-      } catch (error) {
-        console.error('Error deleting conversation:', error);
+  try {
+    // 发送请求到后端删除对话
+    await axios.post('/delete_conversation', { history_num: index });
+    
+    // 从前端数组中删除对话
+    this.conversations.splice(index, 1);
+    
+    // 如果删除的是当前对话，切换到第一个对话或清空消息
+    if (index === this.currentConversationIndex) {
+      if (this.conversations.length > 0) {
+        this.switchConversation(0);
+      } else {
+        this.messages = [];
+        this.currentConversationIndex = -1;
       }
-    },
+    }
+    // 如果删除的对话在当前对话之前，更新当前对话索引
+    else if (index < this.currentConversationIndex) {
+      this.currentConversationIndex--;
+    }
+  } catch (error) {
+    console.error('Error deleting conversation:', error);
+  }
+},
     toggleSidebar() {
       if (!this.showSidebar) {
         // 显示侧边栏时，使用 Vue 的 nextTick 来确保 DOM 更新后再设置 showSidebar

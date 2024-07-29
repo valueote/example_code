@@ -435,8 +435,8 @@ def get_chat_history():
     history_with_sender = [{"sender": "ai" if isinstance(message, AIMessage) else "user", "content": message.content} for message in chat_history]
     return jsonify({"chat_history": history_with_sender}), 200
 
-@app.route('/clear_chat_history', methods=['POST'])
-def clear_chat_history():
+@app.route('/delete_conversation', methods=['POST'])
+def delete_conversation():
     """
     清除聊天历史记录
     :return: 清除结果
@@ -444,8 +444,9 @@ def clear_chat_history():
     if 'username' not in session:
         return jsonify({"message": "请先登录"}), 401
 
+    index = request.json.get('history_num')
     username = session['username']
-    current_historynum = historynum.get(username, 0)
+    current_historynum = historynum.get(username, index)
 
     if username in chat_histories and current_historynum in chat_histories[username]:
         chat_histories[username][current_historynum] = []
