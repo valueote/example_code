@@ -61,5 +61,26 @@
         "tool_calls": [],
         "invalid_tool_calls": [],
         "usage_metadata": null
+    },
+    {
+        "content": "give me a short c code\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "```c\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello, World!\n\");\n    return 0;\n}\n```",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
     }
 ]

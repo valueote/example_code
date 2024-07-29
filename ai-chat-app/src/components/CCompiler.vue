@@ -1,9 +1,27 @@
 <template>
     <div v-if="visible" class="c-compiler-modal">
       <div class="c-compiler-content">
-        <button @click="close" class="close-button">×</button>
-        <textarea v-model="code" placeholder="Enter your C code here"></textarea>
-        <button @click="compileAndRun">Compile and Run</button>
+        <button @click="close" class="close-button" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="24" height="24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+        <h2>C Compiler</h2>
+        <div class="editor-wrapper">
+          <textarea
+            ref="codeEditor"
+            v-model="code"
+            @keydown="handleTab"
+            placeholder="Enter your C code here"
+            spellcheck="false"
+          ></textarea>
+        </div>
+        <button @click="compileAndRun" class="run-button">
+          <svg viewBox="0 0 24 24" width="16" height="16">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          Compile and Run
+        </button>
         <div v-if="output" class="output">
           <h3>Output:</h3>
           <pre>{{ output }}</pre>
@@ -51,6 +69,17 @@
       },
       close() {
         this.$emit('close');
+      },
+      handleTab(e) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const start = this.$refs.codeEditor.selectionStart;
+          const end = this.$refs.codeEditor.selectionEnd;
+          this.code = this.code.substring(0, start) + '    ' + this.code.substring(end);
+          this.$nextTick(() => {
+            this.$refs.codeEditor.selectionStart = this.$refs.codeEditor.selectionEnd = start + 4;
+          });
+        }
       }
     }
   };
@@ -67,47 +96,119 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
   }
   
   .c-compiler-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    width: 80%;
-    max-width: 600px;
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     position: relative;
   }
   
   .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 15px;
     background: none;
     border: none;
-    font-size: 20px;
     cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+  }
+  
+  .close-button:hover {
+    transform: scale(1.1);
+  }
+  
+  .close-button svg {
+    fill: #6c757d;
+  }
+  
+  h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #343a40;
+  }
+  
+  .editor-wrapper {
+    position: relative;
+    margin-bottom: 20px;
   }
   
   textarea {
     width: 100%;
-    height: 200px;
-    margin-bottom: 10px;
+    height: 300px;
+    padding: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    resize: vertical;
+    background-color: #fff;
+    color: #212529;
   }
   
-  button {
+  .run-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px 20px;
-    margin-bottom: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+  }
+  
+  .run-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .run-button svg {
+    margin-right: 8px;
+    fill: currentColor;
   }
   
   .output, .error {
-    width: 100%;
-    background-color: #f0f0f0;
-    padding: 10px;
-    border: 1px solid #ccc;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  .output {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
   }
   
   .error {
-    background-color: #ffeeee;
-    border-color: #ffcccc;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+  
+  h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #343a40;
+  }
+  
+  pre {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
   }
   </style>
