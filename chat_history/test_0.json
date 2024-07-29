@@ -1,0 +1,65 @@
+[
+    {
+        "content": "give me a short python code\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "```python\ndef greet(name):\n    print(\"Hello, \" + name + \"!\")\n\ngreet(\"Alice\")\n```",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "give me a short cpp code\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "```cpp\n#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}\n```",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "give me a short example for python class\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "Certainly! Here's a simple example of a Python class:\n\n```python\nclass Car:\n    def __init__(self, brand, model, year):\n        self.brand = brand\n        self.model = model\n        self.year = year\n\n    def start_engine(self):\n        print(f\"The {self.brand} {self.model}'s engine is starting.\")\n\n    def stop_engine(self):\n        print(f\"The {self.brand} {self.model}'s engine is stopping.\")\n\n# Creating an instance of the Car class\nmy_car = Car(\"Toyota\", \"Corolla\", 2020)\n\n# Calling methods on the instance\nmy_car.start_engine()\nmy_car.stop_engine()\n```\n\nThis code defines a `Car` class with a constructor that initializes the `brand`, `model`, and `year` attributes. It also has two methods: `start_engine` and `stop_engine` which print messages to the console. Finally, an instance of the `Car` class is created and its methods are called.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    }
+]
