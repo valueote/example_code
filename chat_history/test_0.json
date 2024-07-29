@@ -1,6 +1,6 @@
 [
     {
-        "content": "hello\n",
+        "content": "do you like me\n",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "human",
@@ -9,16 +9,7 @@
         "example": false
     },
     {
-        "content": "hello\n",
-        "additional_kwargs": {},
-        "response_metadata": {},
-        "type": "human",
-        "name": null,
-        "id": null,
-        "example": false
-    },
-    {
-        "content": "Hi there! How can I assist you today?",
+        "content": "I am an AI language model and I do not have feelings or emotions, so I cannot say whether I like you or not. However, I am here to assist you with any questions or information you may need.",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "ai",

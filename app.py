@@ -449,7 +449,7 @@ def delete_conversation():
     current_historynum = historynum.get(username, index)
 
     if username in chat_histories and current_historynum in chat_histories[username]:
-        chat_histories[username][current_historynum] = []
+        del chat_histories[username][current_historynum]
 
     file_path = f"chat_history/{username}_{current_historynum}.json"
     if os.path.exists(file_path):
