@@ -126,28 +126,32 @@ export default {
     },
 
     async runPythonCommand(command) {
-      const terminal = document.getElementById('python-terminal');
-      try {
-        const processedCommand = this.processIndentation(command);
-        const result = await this.pyodide.runPythonAsync(`
-          import sys
-          from io import StringIO
-          old_stdout = sys.stdout
-          sys.stdout = mystdout = StringIO()
-          try:
-              exec(${JSON.stringify(processedCommand)})
-          except Exception as e:
-              print(str(e))
-          sys.stdout = old_stdout
-          mystdout.getvalue()
-        `);
-        if (result !== undefined && result.trim() !== '') {
-          terminal.innerHTML += result + '<br>';
-        }
-      } catch (error) {
-        terminal.innerHTML += error.toString() + '<br>';
+  const terminal = document.getElementById('python-terminal');
+    try {
+      const processedCommand = this.processIndentation(command);
+      const result = await this.pyodide.runPythonAsync(`
+        import sys
+        from io import StringIO
+        old_stdout = sys.stdout
+        sys.stdout = mystdout = StringIO()
+        try:
+            result = eval(${JSON.stringify(processedCommand)})
+            print(result)
+        except Exception as e:
+            try:
+                exec(${JSON.stringify(processedCommand)})
+            except Exception as e:
+                print(str(e))
+        sys.stdout = old_stdout
+        mystdout.getvalue()
+      `);
+      if (result !== undefined && result.trim() !== '') {
+        terminal.innerHTML += result + '<br>';
       }
-    },
+    } catch (error) {
+      terminal.innerHTML += error.toString() + '<br>';
+    }
+  },
 
     processIndentation(code) {
       return code.replace(/\t/g, '    ');
