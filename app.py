@@ -37,7 +37,7 @@ from langchain.schema import (
     SystemMessage,
     HumanMessage
 )
-
+from flask import stream_with_context
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
@@ -221,6 +221,9 @@ def get_vectordb():
             elif filename.endswith(".txt"):
                 loader = TextLoader(file_path, encoding='utf-8')
                 documents.extend(loader.load())
+            elif filename.endswith(".py") or filename.endswith(".cpp") or filename.endswith(".java"):
+                loader = TextLoader(file_path, encoding='utf-8')
+                documents.extend(loader.load())
 
     # 文本分割
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=10)
@@ -229,7 +232,7 @@ def get_vectordb():
     # 嵌入模型
     # /home/vivy/ai/m3e-base
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     # 创建向量数据库
     vectorstore = Qdrant.from_documents(
@@ -248,6 +251,7 @@ def get_qa_chain(username, user_message):
     :param user_message: 用户消息
     :return: AI响应
     """
+
     retriever = get_vectordb().as_retriever()
     os_setenv()
     chat_model = get_spark_chat_model()
@@ -269,7 +273,6 @@ def get_qa_chain(username, user_message):
     combine_docs_chain = create_stuff_documents_chain(chat_model, combine_prompt)
 
     conversation_chain = create_retrieval_chain(retrieval_chain, combine_docs_chain)
-
     current_historynum = historynum.get(username, 0)
 
     response = conversation_chain.invoke({
@@ -516,4 +519,4 @@ def get_conversations():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,use_reloader=False)
