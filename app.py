@@ -220,6 +220,7 @@ def get_vectordb():
     chunked_documents = text_splitter.split_documents(documents=documents)
 
     # 嵌入模型
+    #/home/vivy/ai/m3e-base
     EMBEDDING_DEVICE = "cpu"
     embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
