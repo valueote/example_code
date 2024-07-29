@@ -105,14 +105,14 @@ def save_chat_history(username, chat_history):
     :param username: 用户名
     :param chat_history: 聊天历史记录
     """
-    # 保存聊天记录
-    file_path = f"chat_history/{username}_{historynum[username]}.json"
+    current_historynum = historynum.get(username, 0)
+    file_path = f"chat_history/{username}_{current_historynum}.json"
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump([message.dict() for message in chat_history], f, ensure_ascii=False, indent=4)
 
     # 保存 historynum
     with open('historynum.json', 'w', encoding='utf-8') as f:
-        json.dump(historynum, f, ensure_ascii=False, indent=4)
+        json.dump({username: current_historynum for username, current_historynum in historynum.items()}, f, ensure_ascii=False, indent=4)
 
 def load_all_histories():
     # 初始化全局聊天历史和最大 historynum
@@ -133,10 +133,7 @@ def load_all_histories():
                 if username not in chat_histories:
                     chat_histories[username] = {}
                     historynum[username] = -1
-
-                # 更新最大 historynum
                 historynum[username] = max(historynum[username], history_num)
-
                 # 加载聊天记录
                 with open(os.path.join('chat_history', filename), 'r', encoding='utf-8') as f:
                     messages = json.load(f)
@@ -171,6 +168,30 @@ def load_chat_history(username, history_num=None):
             return [HumanMessage(**msg) if msg['type'] == 'human' else AIMessage(**msg) for msg in messages]
     return []
 
+def rearrange_chat_histories(username):
+    if username not in chat_histories:
+        return
+
+    # 获取当前用户的所有聊天历史
+    histories = chat_histories[username]
+
+    # 重新排列 historynum
+    new_histories = {}
+    for new_num, (old_num, history) in enumerate(sorted(histories.items())):
+        new_histories[new_num] = history
+        # 重命名文件
+        old_file_path = f"chat_history/{username}_{old_num}.json"
+        new_file_path = f"chat_history/{username}_{new_num}.json"
+        if os.path.exists(old_file_path):
+            os.rename(old_file_path, new_file_path)
+
+    # 更新 chat_histories 和 historynum
+    chat_histories[username] = new_histories
+    historynum[username] = len(new_histories) - 1
+
+    # 保存 historynum
+    with open('historynum.json', 'w', encoding='utf-8') as f:
+        json.dump(historynum, f, ensure_ascii=False, indent=4)
 
 def get_vectordb():
     """
@@ -200,7 +221,7 @@ def get_vectordb():
 
     # 嵌入模型
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     # 创建向量数据库
     vectorstore = Qdrant.from_documents(
@@ -357,13 +378,13 @@ def ask():
 
     username = session['username']
     user_message = request.json.get('question')
-
-    chat_histories[username][historynum[username]].append(HumanMessage(content=user_message))
+    current_historynum = historynum.get(username, 0)
+    chat_histories[username][current_historynum].append(HumanMessage(content=user_message))
 
     def generate():
         response = get_qa_chain(username, user_message)
-        chat_histories[username][historynum[username]].append(AIMessage(content=response))
-        save_chat_history(username, chat_histories[username][historynum[username]])
+        chat_histories[username][current_historynum].append(AIMessage(content=response))
+        save_chat_history(username, chat_histories[username][current_historynum])
         yield response
 
     return Response(generate(), mimetype='text/event-stream')
@@ -432,7 +453,7 @@ def clear_chat_history():
     file_path = f"chat_history/{username}_{current_historynum}.json"
     if os.path.exists(file_path):
         os.remove(file_path)
-
+    rearrange_chat_histories(username)
     return jsonify({"message": "Chat history cleared"}), 200
 
 @app.route('/new_conversation', methods=['POST'])
@@ -448,16 +469,13 @@ def new_conversation():
     create_chat_history(username)
     return jsonify({"message": "New conversation created", "history_num": historynum[username]}), 200
 
+
 @app.route('/switch_conversation', methods=['POST'])
 def switch_conversation():
-    """
-    切换会话
-    :return: 切换结果
-    """
     username = session.get('username')
     if not username:
         return jsonify({"message": "User not logged in"}), 401
-    
+
     history_num = request.json.get('history_num')
     chat_history = load_chat_history(username, history_num)
     chat_history_dicts = [
@@ -467,20 +485,14 @@ def switch_conversation():
     ]
     return jsonify({"message": "Conversation switched", "chat_history": chat_history_dicts}), 200
 
+
 @app.route('/get_conversations', methods=['GET'])
 def get_conversations():
-    """
-    获取所有会话
-    :return: 会话列表
-    """
     username = session.get('username')
     if not username:
         return jsonify({"message": "User not logged in"}), 401
-    
+
     conversations = list(range(historynum[username] + 1))
-    print(conversations)
-
-
     return jsonify({"conversations": conversations}), 200
 
 
