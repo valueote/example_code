@@ -12,7 +12,7 @@
     </div>
   </template>
   
-  <script>
+<script>
   /* global loadPyodide */
   
   export default {
@@ -38,10 +38,7 @@
             const terminal = document.getElementById('python-terminal');
             terminal.innerHTML += 'Loading Pyodide...<br>';
             this.pyodide = await loadPyodide();
-            terminal.innerHTML += 'Python 3.9.5 (default, May 3 2021, 19:12:05)<br>';
-            terminal.innerHTML += '[Pyodide] on WebAssembly/JavaScript<br>';
-            terminal.innerHTML += 'Type "help", "copyright", "credits" or "license" for more information.<br>';
-            terminal.innerHTML += '>>> ';
+            
         }
       },
 
@@ -50,29 +47,36 @@
         if (!this.pyodide) {
           await this.loadPyodide();
         }
+        this.loadTerminalPrompt();
+      },
+
+      loadTerminalPrompt() {
+        const terminal = document.getElementById('python-terminal');
+        terminal.innerHTML += 'Python 3.9.5 (default, May 3 2021, 19:12:05)<br>';
+        terminal.innerHTML += '[Pyodide] on WebAssembly/JavaScript<br>';
+        terminal.innerHTML += 'Type "help", "copyright", "credits" or "license" for more information.<br>';
         this.createInputElement();
       },
 
       createInputElement() {
         const terminal = document.getElementById('python-terminal');
+        terminal.innerHTML += '>>> ';
         const inputElement = document.createElement('input');
         inputElement.type = 'text';
         inputElement.style.background = 'transparent';
         inputElement.style.border = 'none';
         inputElement.style.outline = 'none';
         inputElement.style.color = 'white';
-        inputElement.style.width = '90%';
+        inputElement.style.width = '95%';
         terminal.appendChild(inputElement);
         inputElement.focus();
-  
+
         inputElement.addEventListener('keydown', async (event) => {
           if (event.key === 'Enter') {
             const command = inputElement.value;
             terminal.removeChild(inputElement);
             terminal.innerHTML += command + '<br>';
             await this.runPythonCommand(command);
-            terminal.innerHTML += '>>> ';
-            this.createInputElement();
           }
         });
       },
@@ -105,13 +109,17 @@
         }
         this.createInputElement();
       },
+
       async runCode(code) {
         if (!this.pyodide) {
           await this.loadPyodide();
         }
-        
-       
+        const terminal = document.getElementById('python-terminal');
+        terminal.innerHTML += 'Python 3.9.5 (default, May 3 2021, 19:12:05)<br>';
+        terminal.innerHTML += '[Pyodide] on WebAssembly/JavaScript<br>';
+        terminal.innerHTML += 'Type "help", "copyright", "credits" or "license" for more information.<br>';
+        this.runPythonCommand(code);
       }
-    },
+    }
   }
   </script>
