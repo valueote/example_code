@@ -276,12 +276,16 @@ export default {
     }
     this.$nextTick(() => {
       this.scrollToBottom();
+      this.forceUpdateMessages(); // 强制重新渲染消息组件
     });
   } catch (error) {
     console.error('Error switching conversation:', error);
   } finally {
     this.isLoading = false;
   }
+},
+forceUpdateMessages() {
+  this.messages = this.messages.map(message => ({ ...message }));
 },
 
     async getConversations() {
@@ -317,30 +321,30 @@ export default {
       }
     },
     async deleteConversation(index) {
-  try {
-    // 发送请求到后端删除对话
-    await axios.post('/delete_conversation', { history_num: index });
-    
-    // 从前端数组中删除对话
-    this.conversations.splice(index, 1);
-    
-    // 如果删除的是当前对话，切换到第一个对话或清空消息
-    if (index === this.currentConversationIndex) {
-      if (this.conversations.length > 0) {
-        this.switchConversation(0);
-      } else {
-        this.messages = [];
-        this.currentConversationIndex = -1;
+      try {
+        // 发送请求到后端删除对话
+        await axios.post('/delete_conversation', { history_num: index });
+        
+        // 从前端数组中删除对话
+        this.conversations.splice(index, 1);
+        
+        // 如果删除的是当前对话，切换到第一个对话或清空消息
+        if (index === this.currentConversationIndex) {
+          if (this.conversations.length > 0) {
+            this.switchConversation(0);
+          } else {
+            this.messages = [];
+            this.currentConversationIndex = -1;
+          }
+        }
+        // 如果删除的对话在当前对话之前，更新当前对话索引
+        else if (index < this.currentConversationIndex) {
+          this.currentConversationIndex--;
+        }
+      } catch (error) {
+        console.error('Error deleting conversation:', error);
       }
-    }
-    // 如果删除的对话在当前对话之前，更新当前对话索引
-    else if (index < this.currentConversationIndex) {
-      this.currentConversationIndex--;
-    }
-  } catch (error) {
-    console.error('Error deleting conversation:', error);
-  }
-},
+    },
     toggleSidebar() {
       if (!this.showSidebar) {
         // 显示侧边栏时，使用 Vue 的 nextTick 来确保 DOM 更新后再设置 showSidebar
