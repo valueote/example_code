@@ -70,7 +70,10 @@ def get_spark_chat_model():
 
     return chat_model_spark
 
+
 import json
+
+
 def load_historynum():
     """
     加载历史会话编号
@@ -82,7 +85,9 @@ def load_historynum():
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
+
 historynum = load_historynum()
+
 
 def create_chat_history(username):
     # 获取当前用户的最大 historynum
@@ -112,7 +117,9 @@ def save_chat_history(username, chat_history):
 
     # 保存 historynum
     with open('historynum.json', 'w', encoding='utf-8') as f:
-        json.dump({username: current_historynum for username, current_historynum in historynum.items()}, f, ensure_ascii=False, indent=4)
+        json.dump({username: current_historynum for username, current_historynum in historynum.items()}, f,
+                  ensure_ascii=False, indent=4)
+
 
 def load_all_histories():
     # 初始化全局聊天历史和最大 historynum
@@ -146,8 +153,6 @@ def load_all_histories():
                 continue
 
 
-
-
 def load_chat_history(username, history_num=None):
     """
     加载聊天历史记录
@@ -167,6 +172,7 @@ def load_chat_history(username, history_num=None):
             messages = json.load(f)
             return [HumanMessage(**msg) if msg['type'] == 'human' else AIMessage(**msg) for msg in messages]
     return []
+
 
 def rearrange_chat_histories(username):
     if username not in chat_histories:
@@ -192,6 +198,7 @@ def rearrange_chat_histories(username):
     # 保存 historynum
     with open('historynum.json', 'w', encoding='utf-8') as f:
         json.dump(historynum, f, ensure_ascii=False, indent=4)
+
 
 def get_vectordb():
     """
@@ -220,7 +227,7 @@ def get_vectordb():
     chunked_documents = text_splitter.split_documents(documents=documents)
 
     # 嵌入模型
-    #/home/vivy/ai/m3e-base
+    # /home/vivy/ai/m3e-base
     EMBEDDING_DEVICE = "cpu"
     embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
@@ -232,6 +239,7 @@ def get_vectordb():
         collection_name="my_documents",
     )
     return vectorstore
+
 
 def get_qa_chain(username, user_message):
     """
@@ -262,8 +270,10 @@ def get_qa_chain(username, user_message):
 
     conversation_chain = create_retrieval_chain(retrieval_chain, combine_docs_chain)
 
+    current_historynum = historynum.get(username, 0)
+
     response = conversation_chain.invoke({
-        "chat_history": chat_histories[username][historynum[username]],
+        "chat_history": chat_histories[username][current_historynum],
         "input": user_message,
         "question": user_message
     })
@@ -328,6 +338,7 @@ def register():
     connection.close()
     return jsonify({"message": "注册成功"}), 201
 
+
 @app.route('/login', methods=['POST'])
 def login():
     """
@@ -355,8 +366,9 @@ def login():
 
     current_historynum = historynum.get(username, 0)
 
-    chat_histories[username][current_historynum] = load_chat_history(username,current_historynum)  # 加载聊天记录
+    chat_histories[username][current_historynum] = load_chat_history(username, current_historynum)  # 加载聊天记录
     return jsonify({"message": "登录成功"}), 200
+
 
 @app.route('/logout')
 def logout():
@@ -404,6 +416,7 @@ def allowed_file(filename):
     """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """
@@ -421,6 +434,7 @@ def upload_file():
             return jsonify({"message": "Invalid file type"}), 400
     return jsonify({"message": "Files uploaded successfully"}), 200
 
+
 @app.route('/get_chat_history', methods=['GET'])
 def get_chat_history():
     """
@@ -432,9 +446,11 @@ def get_chat_history():
 
     username = session['username']
     current_historynum = historynum.get(username, 0)
-    chat_history = load_chat_history(username,current_historynum)
-    history_with_sender = [{"sender": "ai" if isinstance(message, AIMessage) else "user", "content": message.content} for message in chat_history]
+    chat_history = load_chat_history(username, current_historynum)
+    history_with_sender = [{"sender": "ai" if isinstance(message, AIMessage) else "user", "content": message.content}
+                           for message in chat_history]
     return jsonify({"chat_history": history_with_sender}), 200
+
 
 @app.route('/delete_conversation', methods=['POST'])
 def delete_conversation():
@@ -458,6 +474,7 @@ def delete_conversation():
     rearrange_chat_histories(username)
     return jsonify({"message": "Chat history cleared"}), 200
 
+
 @app.route('/new_conversation', methods=['POST'])
 def new_conversation():
     """
@@ -467,7 +484,7 @@ def new_conversation():
     username = session.get('username')
     if not username:
         return jsonify({"message": "User not logged in"}), 401
-    
+
     create_chat_history(username)
     return jsonify({"message": "New conversation created", "history_num": historynum[username]}), 200
 
