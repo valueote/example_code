@@ -258,35 +258,35 @@ export default {
     },
 
     async switchConversation(index) {
-  if (this.currentConversationIndex === index && this.messages.length > 0) return;
-  console.log("switch form", this.currentConversationIndex)
-  console.log("switch to", index)
-  this.currentConversationIndex = index;
-  this.isLoading = true;
-  
-  try {
-    const response = await axios.post('/switch_conversation', { history_num: index });
-    if (response.data.chat_history) {
-      this.messages = response.data.chat_history.map(message => ({
-        sender: message.type === 'HumanMessage' ? 'user' : 'ai',
-        content: message.content
-      }));
-    } else {
-      this.messages = [];
-    }
-    this.$nextTick(() => {
-      this.scrollToBottom();
-      this.forceUpdateMessages(); // 强制重新渲染消息组件
-    });
-  } catch (error) {
-    console.error('Error switching conversation:', error);
-  } finally {
-    this.isLoading = false;
-  }
-},
-forceUpdateMessages() {
-  this.messages = this.messages.map(message => ({ ...message }));
-},
+      if (this.currentConversationIndex === index && this.messages.length > 0) return;
+      console.log("switch form", this.currentConversationIndex)
+      console.log("switch to", index)
+      this.currentConversationIndex = index;
+      this.isLoading = true;
+      
+      try {
+        const response = await axios.post('/switch_conversation', { history_num: index });
+        if (response.data.chat_history) {
+          this.messages = response.data.chat_history.map(message => ({
+            sender: message.type === 'HumanMessage' ? 'user' : 'ai',
+            content: message.content
+          }));
+        } else {
+          this.messages = [];
+        }
+        this.$nextTick(() => {
+          this.scrollToBottom();
+          this.forceUpdateMessages(); // 强制重新渲染消息组件
+        });
+      } catch (error) {
+        console.error('Error switching conversation:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    forceUpdateMessages() {
+      this.messages = this.messages.map(message => ({ ...message }));
+    },
 
     async getConversations() {
       // 获取所有会话
@@ -322,10 +322,8 @@ forceUpdateMessages() {
     },
     async deleteConversation(index) {
       try {
-        // 发送请求到后端删除对话
         await axios.post('/delete_conversation', { history_num: index });
         
-        // 从前端数组中删除对话
         this.conversations.splice(index, 1);
         
         // 如果删除的是当前对话，切换到第一个对话或清空消息
