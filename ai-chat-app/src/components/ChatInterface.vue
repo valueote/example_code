@@ -70,7 +70,7 @@
           </button>
         </div>
         <div class="text-xs text-gray-500 mt-2 text-center">
-          ChatGPT may produce inaccurate information about people, places, or facts.
+          AI may produce inaccurate information about people, places, or facts.
         </div>
       </div>
     </div>

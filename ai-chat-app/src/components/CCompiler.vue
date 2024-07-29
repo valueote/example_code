@@ -1,34 +1,35 @@
 <template>
-    <div v-if="visible" class="c-compiler-modal">
-      <div class="c-compiler-content">
-        <button @click="close" class="close-button" aria-label="Close">
-          <svg viewBox="0 0 24 24" width="24" height="24">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+    <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl p-6 relative">
+        <button @click="close" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200" aria-label="Close">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
         </button>
-        <h2>C Compiler</h2>
-        <div class="editor-wrapper">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">C Compiler</h2>
+        <div class="mb-4">
           <textarea
             ref="codeEditor"
             v-model="code"
             @keydown="handleTab"
             placeholder="Enter your C code here"
             spellcheck="false"
+            class="w-full h-64 p-4 text-sm font-mono bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           ></textarea>
         </div>
-        <button @click="compileAndRun" class="run-button">
-          <svg viewBox="0 0 24 24" width="16" height="16">
-            <path d="M8 5v14l11-7z"/>
+        <button @click="compileAndRun" class="flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-blue-600 transition-colors duration-200">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
           </svg>
           Compile and Run
         </button>
-        <div v-if="output" class="output">
-          <h3>Output:</h3>
-          <pre>{{ output }}</pre>
+        <div v-if="output" class="mt-4 bg-gray-100 rounded-md p-4">
+          <h3 class="text-lg font-semibold mb-2 text-gray-800">Output:</h3>
+          <pre class="text-sm font-mono whitespace-pre-wrap break-words text-gray-700">{{ output }}</pre>
         </div>
-        <div v-if="error" class="error">
-          <h3>Error:</h3>
-          <pre>{{ error }}</pre>
+        <div v-if="error" class="mt-4 bg-red-100 rounded-md p-4">
+          <h3 class="text-lg font-semibold mb-2 text-red-800">Error:</h3>
+          <pre class="text-sm font-mono whitespace-pre-wrap break-words text-red-700">{{ error }}</pre>
         </div>
       </div>
     </div>
@@ -84,131 +85,3 @@
     }
   };
   </script>
-  
-  <style scoped>
-  .c-compiler-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .c-compiler-content {
-    background-color: #f8f9fa;
-    padding: 30px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 800px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    position: relative;
-  }
-  
-  .close-button {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
-  }
-  
-  .close-button:hover {
-    transform: scale(1.1);
-  }
-  
-  .close-button svg {
-    fill: #6c757d;
-  }
-  
-  h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #343a40;
-  }
-  
-  .editor-wrapper {
-    position: relative;
-    margin-bottom: 20px;
-  }
-  
-  textarea {
-    width: 100%;
-    height: 300px;
-    padding: 15px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    line-height: 1.5;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    resize: vertical;
-    background-color: #fff;
-    color: #212529;
-  }
-  
-  .run-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.2s;
-  }
-  
-  .run-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .run-button svg {
-    margin-right: 8px;
-    fill: currentColor;
-  }
-  
-  .output, .error {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 4px;
-    font-family: 'Courier New', Courier, monospace;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  
-  .output {
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
-  }
-  
-  .error {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-  }
-  
-  h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 18px;
-    color: #343a40;
-  }
-  
-  pre {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  </style>
