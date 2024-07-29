@@ -325,7 +325,16 @@ export default {
         await axios.post('/delete_conversation', { history_num: index });
         
         this.conversations.splice(index, 1);
-        
+        this.getConversations();
+        if(index === 0 && this.currentConversationIndex === 0){
+          if(this.conversations.length >= 1){
+            this.currentConversationIndex = 1;
+            this.switchConversation(0)
+          }
+        }else if(index === 0 && this.currentConversationIndex != 0){
+          this.switchConversation(0)
+        }
+
         // 如果删除的是当前对话，切换到第一个对话或清空消息
         if (index === this.currentConversationIndex) {
           if (this.conversations.length > 1) {
@@ -333,7 +342,6 @@ export default {
           } else {
             this.messages = [];
             this.currentConversationIndex = 0;
-            this.switchConversation(0)
           }
         }
         // 如果删除的对话在当前对话之前，更新当前对话索引
