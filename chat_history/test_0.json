@@ -1,5 +1,26 @@
 [
     {
+        "content": "give me a short python code\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "```python\ndef greet(name):\n    print(\"Hello, \" + name + \"!\")\n\ngreet(\"Alice\")\n```",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
         "content": "hello\n",
         "additional_kwargs": {},
         "response_metadata": {},
@@ -9,7 +30,7 @@
         "example": false
     },
     {
-        "content": "hello",
+        "content": "chat_historyinputquestioncontextanswer",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "ai",
@@ -21,7 +42,7 @@
         "usage_metadata": null
     },
     {
-        "content": "give me a short cpp code\n",
+        "content": "hello\n",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "human",
@@ -30,7 +51,7 @@
         "example": false
     },
     {
-        "content": "Sure, here is a simple C++ code that prints \"Hello, World!\" to the console:\n\n```cpp\n#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}\n```",
+        "content": "chat_historyinputquestioncontextanswer",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "ai",
@@ -42,7 +63,7 @@
         "usage_metadata": null
     },
     {
-        "content": "give me a short cpp code\n",
+        "content": "hello\n",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "human",
@@ -51,7 +72,28 @@
         "example": false
     },
     {
-        "content": "Sure, here is a simple C++ code that prints \"Hello, World!\" to the console:\n\n```cpp\n#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}\n```",
+        "content": "chat_historyinputquestioncontextanswer",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "hello\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "chat_historyinputquestioncontextanswer",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "ai",
@@ -93,61 +135,28 @@
         "example": false
     },
     {
+        "content": "chat_historyinputquestioncontextanswer",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+    },
+    {
+        "content": "hello\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
         "content": "Hello! How can I assist you today?",
-        "additional_kwargs": {},
-        "response_metadata": {},
-        "type": "ai",
-        "name": null,
-        "id": null,
-        "example": false,
-        "tool_calls": [],
-        "invalid_tool_calls": [],
-        "usage_metadata": null
-    },
-    {
-        "content": "give me a short java code\n",
-        "additional_kwargs": {},
-        "response_metadata": {},
-        "type": "human",
-        "name": null,
-        "id": null,
-        "example": false
-    },
-    {
-        "content": "Sure, here is a simple Java code that prints \"Hello, World!\" to the console:\n\n```java\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}\n```",
-        "additional_kwargs": {},
-        "response_metadata": {},
-        "type": "ai",
-        "name": null,
-        "id": null,
-        "example": false,
-        "tool_calls": [],
-        "invalid_tool_calls": [],
-        "usage_metadata": null
-    },
-    {
-        "content": "hi\n",
-        "additional_kwargs": {},
-        "response_metadata": {},
-        "type": "human",
-        "name": null,
-        "id": null,
-        "example": false
-    },
-    {
-        "content": "Hi! How can I help you today?",
-        "additional_kwargs": {},
-        "response_metadata": {},
-        "type": "ai",
-        "name": null,
-        "id": null,
-        "example": false,
-        "tool_calls": [],
-        "invalid_tool_calls": [],
-        "usage_metadata": null
-    },
-    {
-        "content": "Hello! How can I help you?",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "ai",

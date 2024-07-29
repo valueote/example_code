@@ -2,47 +2,46 @@
   <div class="flex h-screen w-screen bg-gray-50">
     <!-- 侧边栏 -->
     <transition name="slide-fade-show">
-      <div v-show="showSidebar" class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
-        <!-- 新建对话按钮 -->
-        <div class="p-4">
-          <button @click="newConversation" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-plus mr-2"></i> New Chat
-          </button>
-        </div>
-        
-        <!-- 对话列表 -->
-        <div class="flex-1 overflow-y-auto">
-          <transition-group name="conversation">
-          <div v-for="(conversation, index) in conversations" :key="index" 
-              class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-              :class="{ 'bg-gray-200': currentConversationIndex === index }"
-              @click="switchConversation(index)" :disabled="isLoading">
-            <div class="flex items-center flex-grow">
-              <i class="far fa-comment-alt mr-3"></i>
-              <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
-            </div>
-            <button @click.stop="deleteConversation(index)" class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-    </div>
-  </transition-group>
-        </div>
-        
-        <!-- 用户信息和设置 -->
-        <div class="p-4 border-t border-gray-200 flex items-center justify-between">
-          <button @click="logout" class="text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center text-sm">
-            <i class="fas fa-sign-out-alt mr-2"></i> Log out
-          </button>
-          <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-gray-100 transition duration-300">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-        </div>
+    <div v-show="showSidebar" class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
+      <!-- 新建对话按钮 -->
+      <div class="p-4">
+        <button @click="newConversation" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+          <i class="fas fa-plus mr-2"></i> New Chat
+        </button>
       </div>
+      
+      <!-- 对话列表 -->
+      <div class="flex-1 overflow-y-auto">
+        <transition-group name="conversation">
+        <div v-for="(conversation, index) in conversations" :key="index" 
+            class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
+            :class="{ 'bg-gray-200': currentConversationIndex === index }"
+            @click="switchConversation(index)" :disabled="isLoading">
+          <div class="flex items-center flex-grow">
+            <i class="far fa-comment-alt mr-3"></i>
+            <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
+          </div>
+          <button @click.stop="deleteConversation(index)" class="text-red-500 hover:text-red-700">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+        </transition-group>
+      </div>
+      
+      <!-- 用户信息和设置 -->
+      <div class="p-4 border-t border-gray-200 flex items-center justify-between">
+        <button @click="openSettings" class="text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center text-sm">
+          <i class="fas fa-cog mr-2"></i> Settings
+        </button>
+        <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-gray-100 transition duration-300">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+    </div>
     </transition>
 
     <!-- 主聊天界面 -->
     <div class="flex-1 flex flex-col" :class="{ 'w-full': !showSidebar, 'w-4/5': showSidebar }">
-
       <!-- 聊天消息区域 -->
       <div class="flex-1 overflow-y-auto px-4 py-6" ref="chatMessages">
         <transition-group name="message-fade" tag="div">
@@ -56,8 +55,8 @@
       <div class="border-t border-gray-200 p-4">
         <div class="flex items-center bg-white rounded-lg shadow-sm">
           <!-- 侧边栏切换按钮 -->
-          <button @click="toggleSidebar" class="p-2 text-gray-500 hover:text-gray-700 transition-transform duration-300 ease-in-out" :class="{ 'transform rotate-180': showSidebar }">
-            <i class="fas fa-chevron-left"></i>
+          <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-gray-500" :class="{ 'transform rotate-180': !showSidebar }">
+              <i class="fas fa-chevron-left"></i>
           </button>
           
           <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Send a message..."
@@ -75,13 +74,42 @@
         </div>
       </div>
     </div>
+
+    <!-- 设置页面 -->
+    <div v-if="showSettings" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+      <div class="bg-white p-5 rounded-lg shadow-xl w-1/3">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Settings</h2>
+          <button @click="closeSettings" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <button @click="logout" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+            <i class="fas fa-sign-out-alt mr-2"></i> Log out
+          </button>
+          <button @click="runPythonInterpreter" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+            <i class="fas fa-code mr-2"></i> Run Python Interpreter
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Python解释器 -->
+    <PythonInterpreter 
+      :show="showPythonInterpreter" 
+      @close="closePythonInterpreter"
+      ref="pythonInterpreter"
+    />
   </div>
 </template>
 
 
 <script>
+
 import axios from 'axios';
 import ChatMessageComponent from './ChatMessageComponent.vue';
+import PythonInterpreter from './PythonInterpreter.vue';
 
 export default {
   name: 'ChatInterface',
@@ -91,12 +119,23 @@ export default {
       userInput: '', // 用户输入的消息
       conversations: [], // 存储会话的数组
       currentConversationIndex: 0, // 当前会话的索引
+      showPythonInterpreter: false,
       showSidebar: true,
-      isLoading: false // 是否正在加载消息
+      showSettings: false,
+      isLoading: false, // 是否正在加载消息
     };
   },
+  
+  provide() {
+    return {
+      runPythonCode: this.runPythonCode,
+      showPythonInterpreter: () => this.showPythonInterpreter
+    };
+  },
+
   components: {
     ChatMessageComponent,
+    PythonInterpreter,
   },
   mounted() {
     // 组件挂载时加载聊天历史记录并滚动到底部
@@ -186,20 +225,6 @@ export default {
       }
     },
 
-    async clearHistory() {
-      // 清除聊天历史记录
-      try {
-        // 发送POST请求到'/clear_chat_history'端点以清除聊天历史记录
-        await axios.post('/clear_chat_history');
-        // 清空messages数组
-        this.messages = [];
-        // 清空当前会话的messages数组
-        this.conversations[this.currentConversationIndex] = [];
-      } catch (error) {
-        // 如果清除聊天历史记录时发生错误，打印错误信息
-        console.error('Error clearing chat history:', error);
-      }
-    },
 
     async loadConversations() {
       try {
@@ -251,12 +276,16 @@ export default {
         }
         this.$nextTick(() => {
           this.scrollToBottom();
+          this.forceUpdateMessages(); // 强制重新渲染消息组件
         });
       } catch (error) {
         console.error('Error switching conversation:', error);
       } finally {
         this.isLoading = false;
       }
+    },
+    forceUpdateMessages() {
+      this.messages = this.messages.map(message => ({ ...message }));
     },
 
     async getConversations() {
@@ -293,10 +322,8 @@ export default {
     },
     async deleteConversation(index) {
       try {
-        // 发送请求到后端删除对话
         await axios.post('/delete_conversation', { history_num: index });
         
-        // 从前端数组中删除对话
         this.conversations.splice(index, 1);
         
         // 如果删除的是当前对话，切换到第一个对话或清空消息
@@ -326,11 +353,36 @@ export default {
         // 隐藏侧边栏时，立即设置 showSidebar 为 false
         this.showSidebar = false;
       }
+    },
+    openSettings() {
+      this.showSettings = true;
+    },
+    closeSettings() {
+      this.showSettings = false;
+    },
+    
+    runPythonInterpreter() {
+      this.showPythonInterpreter = true;
+      this.$nextTick(() => {
+        this.$refs.pythonInterpreter.runPythonInterpreter();
+      });
+    },
+
+    runPythonCode(code) {
+      this.showPythonInterpreter = true;
+      this.$nextTick(() => {
+        this.$refs.pythonInterpreter.runCode(code);
+      });
+    },
+        
+    closePythonInterpreter(){
+      this.showPythonInterpreter = false;
     }
   }
   
 };
 </script>
+
 
 <style scoped>
 html, body {
@@ -388,4 +440,5 @@ button:active {
   transform: translateX(-100%);
   opacity: 0;
 }
+
 </style>

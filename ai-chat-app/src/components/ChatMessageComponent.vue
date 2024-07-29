@@ -16,6 +16,7 @@ import 'highlight.js/styles/github-dark.css';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import ClipboardJS from 'clipboard';
+import { inject } from 'vue';
 
 export default {
   name: 'ChatMessageComponent',
@@ -25,6 +26,13 @@ export default {
       required: true
     }
   },
+  
+  setup() {
+    const runPythonCode = inject('runPythonCode');
+    const showPythonInterpreter = inject('showPythonInterpreter');
+    return { runPythonCode, showPythonInterpreter };
+  },
+
   computed: {
     formattedMessage() {
       if (this.message.sender === 'ai') {
@@ -44,6 +52,16 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
+      this.highlightCodeBlocks();
+    });
+  },
+  updated() {
+    this.$nextTick(() => {
+      this.highlightCodeBlocks();
+    });
+  },
+  methods: {
+    highlightCodeBlocks() {
       this.$el.querySelectorAll('pre code').forEach(block => {
         hljs.highlightElement(block);
         const pre = block.parentNode;
@@ -60,10 +78,16 @@ export default {
         toolbar.appendChild(langTag);
 
         // Create copy button
-        const button = document.createElement('button');
-        button.className = 'copy-btn';
-        button.textContent = 'Copy';
-        toolbar.appendChild(button);
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-btn';
+        copyButton.textContent = 'Copy';
+        toolbar.appendChild(copyButton);
+
+        // Create run button
+        const runButton = document.createElement('button');
+        runButton.className = 'run-btn';
+        runButton.textContent = 'Run';
+        toolbar.appendChild(runButton);
 
         // Insert toolbar before the code block
         pre.insertBefore(toolbar, pre.firstChild);
@@ -77,7 +101,21 @@ export default {
           return trigger.parentNode.parentNode.querySelector('code');
         }
       });
-    });
+
+      const handleRunCode = (code) => {
+        this.showPythonInterpreter.value = true;
+        this.runPythonCode(code);
+      };
+
+      // Add event listener for run button
+      this.$el.querySelectorAll('.run-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const codeBlock = button.parentNode.parentNode.querySelector('code');
+          const code = codeBlock.innerText;
+          handleRunCode(code);
+        });
+      });
+    }
   }
 };
 </script>
@@ -122,6 +160,10 @@ export default {
 
 :deep(.copy-btn) {
   @apply bg-gray-600 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity duration-200;
+}
+
+:deep(.run-btn) {
+  @apply bg-green-600 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity duration-200;
 }
 
 :deep(.lang-tag) {
