@@ -1,10 +1,9 @@
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader, UnstructuredEPubLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Qdrant
+from langchain_community.vectorstores import FAISS
 import os
 from concurrent.futures import ThreadPoolExecutor
-
 
 def load_document(file_path):
     if file_path.endswith(".pdf"):
@@ -39,11 +38,9 @@ def build_and_save_vectordb():
     embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
-    vectorstore = Qdrant.from_documents(
+    vectorstore = FAISS.from_documents(
         documents=chunked_documents,
         embedding=embeddings,
-        location=":memory:",
-        collection_name="my_documents",
     )
 
     vectorstore.save_local("vectorstore")

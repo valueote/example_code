@@ -236,15 +236,15 @@ def get_vectordb():
     从本地文件加载向量数据库
     :return: 向量数据库对象
     """
-    from langchain.vectorstores import Qdrant
-    from langchain.embeddings import HuggingFaceEmbeddings
 
     EMBEDDING_DEVICE = "cpu"
     embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     # 从本地文件加载向量数据库
-    vectorstore = Qdrant.load_local("vectorstore", embeddings)
+
+    vectorstore = FAISS.load_local("vectorstore", embeddings, allow_dangerous_deserialization=True)
+    
 
     return vectorstore
 
