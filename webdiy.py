@@ -1,10 +1,10 @@
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
+from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader, UnstructuredEPubLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Qdrant
 import os
 from concurrent.futures import ThreadPoolExecutor
-import time
+
 
 def load_document(file_path):
     if file_path.endswith(".pdf"):
@@ -15,6 +15,8 @@ def load_document(file_path):
         loader = TextLoader(file_path, encoding='utf-8')
     elif file_path.endswith(".py") or file_path.endswith(".cpp") or file_path.endswith(".java"):
         loader = TextLoader(file_path, encoding='utf-8')
+    elif file_path.endswith(".epub"):
+        loader = UnstructuredEPubLoader(file_path)
     return loader.load()
 
 def build_and_save_vectordb():
