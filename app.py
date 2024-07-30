@@ -364,10 +364,11 @@ def login():
 
     session['username'] = username
     load_all_histories()
-    if username not in chat_histories:
+    if username not in chat_histories or not chat_histories[username]:
         chat_histories[username] = {}
         historynum[username] = 0
         chat_histories[username][historynum[username]] = []
+        save_chat_history(username, chat_histories[username][historynum[username]])
 
     current_historynum = historynum.get(username, 0)
 
