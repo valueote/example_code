@@ -238,7 +238,7 @@ def get_vectordb():
     """
 
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     # 从本地文件加载向量数据库
@@ -470,34 +470,41 @@ def get_chat_history():
 @app.route('/delete_conversation', methods=['POST'])
 def delete_conversation():
     """
-    清除聊天历史记录
+    清除选定的聊天历史记录
     :return: 清除结果
     """
     if 'username' not in session:
         return jsonify({"message": "请先登录"}), 401
 
-    index = request.json.get('history_num')
+    # 从请求中获取history_num
+    history_num = request.json.get('history_num')
     username = session['username']
-    current_historynum = historynum.get(username, index)
 
-    if username in chat_histories and current_historynum in chat_histories[username]:
-        del chat_histories[username][current_historynum]
+    if history_num is None:
+        return jsonify({"message": "历史会话编号未提供"}), 400
 
-    file_path = f"chat_history/{username}_{current_historynum}.json"
+    if username in chat_histories and history_num in chat_histories[username]:
+        # 删除内存中的聊天历史
+        del chat_histories[username][history_num]
+
+    # 删除文件系统中的聊天历史
+    file_path = f"chat_history/{username}_{history_num}.json"
     if os.path.exists(file_path):
         os.remove(file_path)
 
     # 删除名字文件
-    name_file_path = f"chat_names/{username}_{current_historynum}.json"
+    name_file_path = f"chat_names/{username}_{history_num}.json"
     if os.path.exists(name_file_path):
         os.remove(name_file_path)
 
     # 删除名字数组中的对应项
-    if username in chat_names and current_historynum in chat_names[username]:
-        del chat_names[username][current_historynum]
+    if username in chat_names and history_num in chat_names[username]:
+        del chat_names[username][history_num]
 
+    # 重新排列聊天历史记录
     rearrange_chat_histories(username)
-    return jsonify({"message": "Chat history cleared"}), 200
+    return jsonify({"message": "chat history deleted"}), 200
+
 
 
 @app.route('/new_conversation', methods=['POST'])
