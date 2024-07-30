@@ -202,45 +202,19 @@ def rearrange_chat_histories(username):
 
 def get_vectordb():
     """
-    获取向量数据库
+    从本地文件加载向量数据库
     :return: 向量数据库对象
     """
-    from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
-    # 遍历文件夹，加载所有文档
-    base_dir = "doc"
-    documents = []
-    for filename in os.listdir(base_dir):
-        file_path = os.path.join(base_dir, filename)
-        if os.path.getsize(file_path) > 0:
-            if filename.endswith(".pdf"):
-                loader = PyPDFLoader(file_path)
-                documents.extend(loader.load())
-            elif filename.endswith(".docx"):
-                loader = Docx2txtLoader(file_path)
-                documents.extend(loader.load())
-            elif filename.endswith(".txt"):
-                loader = TextLoader(file_path, encoding='utf-8')
-                documents.extend(loader.load())
-            elif filename.endswith(".py") or filename.endswith(".cpp") or filename.endswith(".java"):
-                loader = TextLoader(file_path, encoding='utf-8')
-                documents.extend(loader.load())
+    from langchain.vectorstores import Qdrant
+    from langchain.embeddings import HuggingFaceEmbeddings
 
-    # 文本分割
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=10)
-    chunked_documents = text_splitter.split_documents(documents=documents)
-
-    # 嵌入模型
-    # /home/vivy/ai/m3e-base
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
-    # 创建向量数据库
-    vectorstore = Qdrant.from_documents(
-        documents=chunked_documents,
-        embedding=embeddings,
-        location=":memory:",
-        collection_name="my_documents",
-    )
+    
+    # 从本地文件加载向量数据库
+    vectorstore = Qdrant.load_local("vectorstore", embeddings)
+    
     return vectorstore
 
 
