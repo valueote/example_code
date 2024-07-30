@@ -272,7 +272,7 @@ def get_qa_chain(username, user_message):
 
     prompt = ChatPromptTemplate.from_messages([
         ("system",
-         "You are a helpful assistant for computer science learner. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question."),
+         "You are a helpful assistant for computer science learner. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question.Make sure your answer is in the markdown format."),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}"),
     ])
@@ -556,10 +556,10 @@ def get_conversations():
     conversations = []
     for i in range(historynum[username] + 1):
         conversations.append({
+            "history_num": i,
             "name": chat_names[username].get(i, "")
         })
     return jsonify({"conversations": conversations}), 200
-
 
 import subprocess
 import os

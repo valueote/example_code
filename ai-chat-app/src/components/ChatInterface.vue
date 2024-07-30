@@ -11,22 +11,22 @@
         </div>
         
         <!-- 对话列表 -->
-        <div class="flex-1 overflow-y-auto">
-          <transition-group name="conversation">
-            <div v-for="(conversation, index) in conversations" :key="index" 
-                class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-                :class="{ 'bg-gray-200': currentConversationIndex === index }"
-                @click="switchConversation(index)" :disabled="isLoading">
-              <div class="flex items-center flex-grow">
-                <i class="far fa-comment-alt mr-3"></i>
-                <span class="text-sm">{{ conversation.title || `Chat ${index + 1}` }}</span>
-              </div>
-              <button @click.stop="deleteConversation(index)" class="text-red-500 hover:text-red-700">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          </transition-group>
-        </div>
+  <div class="flex-1 overflow-y-auto">
+    <transition-group name="conversation">
+      <div v-for="(conversation) in conversations" :key="conversation.history_num" 
+      class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
+      :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
+      @click="switchConversation(conversation.history_num)" :disabled="isLoading">
+    <div class="flex items-center flex-grow">
+      <i class="far fa-comment-alt mr-3"></i>
+      <span class="text-sm">{{ conversation.title || `Chat ${conversation.history_num}` }}</span>
+    </div>
+    <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </div>
+    </transition-group>
+  </div>
         
         <!-- 用户信息和设置 -->
         <div class="p-4 border-t border-gray-200 flex items-center justify-between">
@@ -190,6 +190,7 @@ export default {
         // 更新当前会话的消息数组
         this.conversations[this.currentConversationIndex] = [...this.messages];
         this.scrollToBottom();
+        this.forceUpdateMessages();
       }
     },
     updateLastAIMessage(content) {
@@ -218,62 +219,59 @@ export default {
           console.error('Logout error:', error);
         });
     },
-    async loadChatHistory() {
-      // 加载聊天历史记录
-      try {
-        // 发送GET请求到'/get_chat_history'端点以获取聊天历史记录
-        const response = await axios.get('/get_chat_history');
-        // 将获取到的聊天历史记录赋值给messages数组
-        this.messages = response.data.chat_history;
-        // 将messages数组复制到conversations数组的第一个元素
-        this.conversations[0] = [...this.messages];
-      } catch (error) {
-        // 如果加载聊天历史记录时发生错误，打印错误信息
-        console.error('Error loading chat history:', error);
-      }
-    },
-
-
     async loadConversations() {
       try {
         const response = await axios.get('/get_conversations');
-        this.conversations = response.data.conversations;
-        console.log('Conversations:', this.conversations);
+        this.conversations = response.data.conversations.map(conversation => ({
+          history_num: conversation.history_num,
+          title: conversation.name || `Chat ${conversation.history_num}`
+        }));
         
-        // 如果有对话，自动切换到第一个对话
         if (this.conversations.length > 0) {
-          await this.switchConversation(0);
+          // 如果当前选中的对话不在新的对话列表中，切换到第一个对话
+          if (!this.conversations.some(conv => conv.history_num === this.currentConversationIndex)) {
+            await this.switchConversation(this.conversations[0].history_num);
+          } else {
+            // 否则，刷新当前对话的消息
+            await this.switchConversation(this.currentConversationIndex);
+          }
+        } else {
+          this.messages = [];
+          this.currentConversationIndex = null;
         }
       } catch (error) {
         console.error('Error loading conversations:', error);
       }
     },
 
-    async newConversation() {
-      // 创建新会话
-      try {
-        // 发送POST请求到'/new_conversation'端点以创建新会话
-        const response = await axios.post('/new_conversation');
-        // 将新会话的编号添加到conversations数组
-        this.conversations.push(response.data.history_num);
-        // 切换到新会话
-        console.log('num conunt', response.data.history_num);
-        this.switchConversation(response.data.history_num);
-      } catch (error) {
-        // 如果创建新会话时发生错误，打印错误信息
-        console.error('Error creating new conversation:', error);
-      }
-    },
 
-    async switchConversation(index) {
-      if (this.currentConversationIndex === index && this.messages.length > 0) return;
-      console.log("switch form", this.currentConversationIndex)
-      console.log("switch to", index)
-      this.currentConversationIndex = index;
+
+async newConversation() {
+  // 创建新会话
+  try {
+    // 发送POST请求到'/new_conversation'端点以创建新会话
+    const response = await axios.post('/new_conversation');
+    // 将新会话的编号和名称添加到conversations数组
+    this.conversations.push({
+      history_num: response.data.history_num,
+      title: '' // 初始化新对话的名称
+    });
+    // 切换到新会话
+    console.log('num count', response.data.history_num);
+    this.switchConversation(response.data.history_num);
+  } catch (error) {
+    // 如果创建新会话时发生错误，打印错误信息
+    console.error('Error creating new conversation:', error);
+  }
+},
+
+async switchConversation(historyNum) {
+      if (this.currentConversationIndex === historyNum && this.messages.length > 0) return;
+      this.currentConversationIndex = historyNum;
       this.isLoading = true;
       
       try {
-        const response = await axios.post('/switch_conversation', { history_num: index });
+        const response = await axios.post('/switch_conversation', { history_num: historyNum });
         if (response.data.chat_history) {
           this.messages = response.data.chat_history.map(message => ({
             sender: message.type === 'HumanMessage' ? 'user' : 'ai',
@@ -284,7 +282,7 @@ export default {
         }
         this.$nextTick(() => {
           this.scrollToBottom();
-          this.forceUpdateMessages(); // 强制重新渲染消息组件
+          this.forceUpdateMessages();
         });
       } catch (error) {
         console.error('Error switching conversation:', error);
@@ -292,22 +290,7 @@ export default {
         this.isLoading = false;
       }
     },
-    forceUpdateMessages() {
-      this.messages = this.messages.map(message => ({ ...message }));
-    },
 
-    async getConversations() {
-      // 获取所有会话
-      try {
-        // 发送GET请求到'/get_conversations'端点以获取所有会话
-        const response = await axios.get('/get_conversations');
-        // 将获取到的会话赋值给conversations数组
-        this.conversations = response.data.conversations;
-      } catch (error) {
-        // 如果获取会话时发生错误，打印错误信息
-        console.error('Error fetching conversations:', error);
-      }
-    },
     async handleFileUpload() {
       const files = this.$refs.fileInput.files;
       if (files.length === 0) return;
@@ -328,36 +311,22 @@ export default {
         this.messages.push({ sender: 'system', content: 'File upload failed' });
       }
     },
-    async deleteConversation(index) {
+    async deleteConversation(historyNum) {
       try {
-        await axios.post('/delete_conversation', { history_num: index });
+        await axios.post('/delete_conversation', { history_num: historyNum });
         
-        this.conversations.splice(index, 1);
-        this.getConversations();
-        if(index === 0 && this.currentConversationIndex === 0){
-          if(this.conversations.length >= 1){
-            this.currentConversationIndex = 1;
-            this.switchConversation(0)
-          }
-        }else if(index === 0 && this.currentConversationIndex != 0){
-          this.switchConversation(0)
-        }
-
-        // 如果删除的是当前对话，切换到第一个对话或清空消息
-        if (index === this.currentConversationIndex) {
-          if (this.conversations.length > 1) {
-            this.switchConversation(0);
+        const deletedIndex = this.conversations.findIndex(conv => conv.history_num === historyNum);
+        this.conversations.splice(deletedIndex, 1);
+        this.loadConversations();
+        if (historyNum === this.currentConversationIndex) {
+          if (this.conversations.length > 0) {
+            await this.switchConversation(this.conversations[0].history_num);
           } else {
             this.messages = [];
-            this.currentConversationIndex = 0;
+            this.currentConversationIndex = null;
+            this.switchConversation(this.conversations[0].historyNum);
           }
         }
-        // 如果删除的对话在当前对话之前，更新当前对话索引
-        else if (index < this.currentConversationIndex) {
-          this.currentConversationIndex--;
-        }
-        console.log(this.conversations);
-
       } catch (error) {
         console.error('Error deleting conversation:', error);
       }
