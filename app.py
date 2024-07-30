@@ -68,8 +68,18 @@ def get_spark_chat_model():
         timeout=90,
         streaming=False
     )
+    from langchain_openai import ChatOpenAI
+    from langchain.chains import LLMChain
+    from langchain.memory import ConversationBufferMemory
 
-    return chat_model_spark
+    llm = ChatOpenAI(
+        temperature=0.95,
+        model="glm-4",
+        openai_api_key="897260a0fd332dcaaaa7c00b22d22091.HQtEoSqNdwdnINB4",
+        openai_api_base="https://open.bigmodel.cn/api/paas/v4/"
+    )
+
+    return llm
 
 
 import json
@@ -238,7 +248,7 @@ def get_vectordb():
     """
 
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     # 从本地文件加载向量数据库
