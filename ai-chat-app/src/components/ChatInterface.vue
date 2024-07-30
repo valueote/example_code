@@ -356,6 +356,8 @@ export default {
         else if (index < this.currentConversationIndex) {
           this.currentConversationIndex--;
         }
+        console.log(this.conversations);
+
       } catch (error) {
         console.error('Error deleting conversation:', error);
       }

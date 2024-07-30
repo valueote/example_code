@@ -38,6 +38,7 @@ from langchain.schema import (
     HumanMessage
 )
 from flask import stream_with_context
+
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
@@ -65,10 +66,20 @@ def get_spark_chat_model():
         spark_api_url="wss://spark-api.xf-yun.com/v3.5/chat",
         spark_llm_domain="generalv3.5",
         timeout=90,
-        streaming=True
+        streaming=False
+    )
+    from langchain_openai import ChatOpenAI
+    from langchain.chains import LLMChain
+    from langchain.memory import ConversationBufferMemory
+
+    llm = ChatOpenAI(
+        temperature=0.95,
+        model="glm-4",
+        openai_api_key="897260a0fd332dcaaaa7c00b22d22091.HQtEoSqNdwdnINB4",
+        openai_api_base="https://open.bigmodel.cn/api/paas/v4/"
     )
 
-    return chat_model_spark
+    return llm
 
 
 import json
@@ -97,9 +108,11 @@ def create_chat_history(username):
     else:
         historynum[username] = 0
         chat_histories[username] = {}
+        chat_names[username] = {}
 
     # 确保创建新的聊天历史列表
     chat_histories[username][historynum[username]] = []
+    chat_names[username][historynum[username]] = []
 
     save_chat_history(username, chat_histories[username][historynum[username]])
 
@@ -120,37 +133,10 @@ def save_chat_history(username, chat_history):
         json.dump({username: current_historynum for username, current_historynum in historynum.items()}, f,
                   ensure_ascii=False, indent=4)
 
+    # 保存名字
 
-def load_all_histories():
-    # 初始化全局聊天历史和最大 historynum
-    global chat_histories, historynum
-    chat_histories = {}
-    historynum = {}
-
-    # 遍历 chat_history 文件夹中的所有文件
-    for filename in os.listdir('chat_history'):
-        # 检查文件名是否符合格式
-        if "_" in filename and filename.endswith(".json"):
-            try:
-                # 提取用户名和 historynum
-                username, history_num_str = filename.split('_')
-                history_num = int(history_num_str[:-5])
-
-                # 初始化该用户的聊天历史
-                if username not in chat_histories:
-                    chat_histories[username] = {}
-                    historynum[username] = -1
-                historynum[username] = max(historynum[username], history_num)
-                # 加载聊天记录
-                with open(os.path.join('chat_history', filename), 'r', encoding='utf-8') as f:
-                    messages = json.load(f)
-                    chat_histories[username][history_num] = [
-                        HumanMessage(**msg) if msg['type'] == 'human' else AIMessage(**msg)
-                        for msg in messages
-                    ]
-            except (ValueError, json.JSONDecodeError):
-                # 忽略无法解析的文件
-                continue
+    with open(f"chat_names/{username}_{current_historynum}.json", 'w', encoding='utf-8') as f:
+        json.dump(chat_names[username][current_historynum], f, ensure_ascii=False, indent=4)
 
 
 def load_chat_history(username, history_num=None):
@@ -174,6 +160,49 @@ def load_chat_history(username, history_num=None):
     return []
 
 
+def load_all_histories():
+    # 初始化全局聊天历史和最大 historynum
+    global chat_histories, historynum, chat_names
+    chat_histories = {}
+    historynum = {}
+    chat_names = {}
+
+    # 遍历 chat_history 文件夹中的所有文件
+    for filename in os.listdir('chat_history'):
+        # 检查文件名是否符合格式
+        if "_" in filename and filename.endswith(".json"):
+            try:
+                # 提取用户名和 historynum
+                username, history_num_str = filename.split('_')
+                history_num = int(history_num_str[:-5])
+
+                # 初始化该用户的聊天历史
+                if username not in chat_histories:
+                    chat_histories[username] = {}
+                    historynum[username] = -1
+                historynum[username] = max(historynum[username], history_num)
+                # 加载聊天记录
+                with open(os.path.join('chat_history', filename), 'r', encoding='utf-8') as f:
+                    messages = json.load(f)
+                    chat_histories[username][history_num] = [
+                        HumanMessage(**msg) if msg['type'] == 'human' else AIMessage(**msg)
+                        for msg in messages
+                    ]
+                if username not in chat_names:
+                    chat_names[username] = {}
+                # 加载名字
+                name_file_path = f"chat_names/{username}_{history_num}.json"
+                if os.path.exists(name_file_path):
+                    with open(name_file_path, 'r', encoding='utf-8') as f:
+                        chat_names[username][history_num] = json.load(f)
+                else:
+                    chat_names[username][history_num] = ""
+
+            except (ValueError, json.JSONDecodeError):
+                # 忽略无法解析的文件
+                continue
+
+
 def rearrange_chat_histories(username):
     if username not in chat_histories:
         return
@@ -191,9 +220,21 @@ def rearrange_chat_histories(username):
         if os.path.exists(old_file_path):
             os.rename(old_file_path, new_file_path)
 
+        # 重命名名字文件
+        old_name_file_path = f"chat_names/{username}_{old_num}.json"
+        new_name_file_path = f"chat_names/{username}_{new_num}.json"
+        if os.path.exists(old_name_file_path):
+            os.rename(old_name_file_path, new_name_file_path)
+
     # 更新 chat_histories 和 historynum
     chat_histories[username] = new_histories
     historynum[username] = len(new_histories) - 1
+
+    # 更新 chat_names
+    new_names = {}
+    for new_num, (old_num, name) in enumerate(sorted(chat_names[username].items())):
+        new_names[new_num] = name
+    chat_names[username] = new_names
 
     # 保存 historynum
     with open('historynum.json', 'w', encoding='utf-8') as f:
@@ -205,16 +246,15 @@ def get_vectordb():
     从本地文件加载向量数据库
     :return: 向量数据库对象
     """
-    from langchain.vectorstores import Qdrant
-    from langchain.embeddings import HuggingFaceEmbeddings
 
     EMBEDDING_DEVICE = "cpu"
     embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
-    
+
     # 从本地文件加载向量数据库
-    vectorstore = Qdrant.load_local("vectorstore", embeddings)
-    
+
+    vectorstore = FAISS.load_local("vectorstore", embeddings, allow_dangerous_deserialization=True)
+
     return vectorstore
 
 
@@ -232,7 +272,7 @@ def get_qa_chain(username, user_message):
 
     prompt = ChatPromptTemplate.from_messages([
         ("system",
-         "You are a helpful AI assistant. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question."),
+         "You are a helpful assistant for computer science learner. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question."),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}"),
     ])
@@ -240,7 +280,7 @@ def get_qa_chain(username, user_message):
 
     combine_prompt = ChatPromptTemplate.from_messages([
         ("system",
-         "You are a helpful AI assistant. Use the following pieces of context to answer the user's question. If you don't know the answer, just say that you don't know, don't try to make up an answer.\n\nContext: {context}"),
+         "You are a helpful AI assistant for computer science learner. Use the following pieces of context to answer the user's question. Don't try to make up an answer.Make sure your answer is in the markdown format.\n\nContext: {context}"),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{question}"),
     ])
@@ -249,13 +289,11 @@ def get_qa_chain(username, user_message):
     conversation_chain = create_retrieval_chain(retrieval_chain, combine_docs_chain)
     current_historynum = historynum.get(username, 0)
 
-    response = conversation_chain.invoke({
-        "chat_history": chat_histories[username][current_historynum],
-        "input": user_message,
-        "question": user_message
-    })
-
-    return response["answer"]
+    for chunk in conversation_chain.stream({"chat_history": chat_histories[username][current_historynum],
+                                            "input": user_message,
+                                            "question": user_message}):
+        if answer_chunk := chunk.get("answer"):
+            yield answer_chunk
 
 
 ################################# End #################################
@@ -336,10 +374,12 @@ def login():
 
     session['username'] = username
     load_all_histories()
-    if username not in chat_histories:
+    if username not in chat_histories or not chat_histories[username]:
         chat_histories[username] = {}
+        chat_names[username] = {}
         historynum[username] = 0
         chat_histories[username][historynum[username]] = []
+        save_chat_history(username, chat_histories[username][historynum[username]])
 
     current_historynum = historynum.get(username, 0)
 
@@ -371,11 +411,19 @@ def ask():
     current_historynum = historynum.get(username, 0)
     chat_histories[username][current_historynum].append(HumanMessage(content=user_message))
 
+    # 设置对话名
+    if current_historynum not in chat_names[username] or not chat_names[username][current_historynum]:
+        chat_names[username][current_historynum] = user_message[:10]
+
     def generate():
-        response = get_qa_chain(username, user_message)
-        chat_histories[username][current_historynum].append(AIMessage(content=response))
+        full_response = ""
+        response_stream = get_qa_chain(username, user_message)  # 假设 get_qa_chain 支持流式返回
+        for chunk in response_stream:
+            full_response += chunk  # 累加完整响应
+            yield chunk
+        # 完成流式传输后将完整响应存储到聊天记录中
+        chat_histories[username][current_historynum].append(AIMessage(content=full_response))
         save_chat_history(username, chat_histories[username][current_historynum])
-        yield response
 
     return Response(generate(), mimetype='text/event-stream')
 
@@ -432,24 +480,41 @@ def get_chat_history():
 @app.route('/delete_conversation', methods=['POST'])
 def delete_conversation():
     """
-    清除聊天历史记录
+    清除选定的聊天历史记录
     :return: 清除结果
     """
     if 'username' not in session:
         return jsonify({"message": "请先登录"}), 401
 
-    index = request.json.get('history_num')
+    # 从请求中获取history_num
+    history_num = request.json.get('history_num')
     username = session['username']
-    current_historynum = historynum.get(username, index)
 
-    if username in chat_histories and current_historynum in chat_histories[username]:
-        del chat_histories[username][current_historynum]
+    if history_num is None:
+        return jsonify({"message": "历史会话编号未提供"}), 400
 
-    file_path = f"chat_history/{username}_{current_historynum}.json"
+    if username in chat_histories and history_num in chat_histories[username]:
+        # 删除内存中的聊天历史
+        del chat_histories[username][history_num]
+
+    # 删除文件系统中的聊天历史
+    file_path = f"chat_history/{username}_{history_num}.json"
     if os.path.exists(file_path):
         os.remove(file_path)
+
+    # 删除名字文件
+    name_file_path = f"chat_names/{username}_{history_num}.json"
+    if os.path.exists(name_file_path):
+        os.remove(name_file_path)
+
+    # 删除名字数组中的对应项
+    if username in chat_names and history_num in chat_names[username]:
+        del chat_names[username][history_num]
+
+    # 重新排列聊天历史记录
     rearrange_chat_histories(username)
-    return jsonify({"message": "Chat history cleared"}), 200
+    return jsonify({"message": "chat history deleted"}), 200
+
 
 
 @app.route('/new_conversation', methods=['POST'])
@@ -488,12 +553,17 @@ def get_conversations():
     if not username:
         return jsonify({"message": "User not logged in"}), 401
 
-    conversations = list(range(historynum[username] + 1))
+    conversations = []
+    for i in range(historynum[username] + 1):
+        conversations.append({
+            "name": chat_names[username].get(i, "")
+        })
     return jsonify({"conversations": conversations}), 200
 
 
 import subprocess
 import os
+
 
 @app.route('/compile_run_c', methods=['POST'])
 def compile_run_c():
@@ -524,5 +594,6 @@ def compile_run_c():
         os.remove("temp.c")
         os.remove("temp")
 
+
 if __name__ == '__main__':
-    app.run(debug=True,use_reloader=False)
+    app.run(debug=True, use_reloader=False)
