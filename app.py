@@ -112,7 +112,7 @@ def create_chat_history(username):
 
     # 确保创建新的聊天历史列表
     chat_histories[username][historynum[username]] = []
-    chat_names[username][historynum[username]] = []
+    chat_names[username][historynum[username]] = "New Chat"
 
     save_chat_history(username, chat_histories[username][historynum[username]])
 
@@ -196,7 +196,7 @@ def load_all_histories():
                     with open(name_file_path, 'r', encoding='utf-8') as f:
                         chat_names[username][history_num] = json.load(f)
                 else:
-                    chat_names[username][history_num] = ""
+                    chat_names[username][history_num] = "New Chat"
 
             except (ValueError, json.JSONDecodeError):
                 # 忽略无法解析的文件
@@ -248,7 +248,7 @@ def get_vectordb():
     """
 
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     # 从本地文件加载向量数据库
@@ -379,6 +379,7 @@ def login():
         chat_names[username] = {}
         historynum[username] = 0
         chat_histories[username][historynum[username]] = []
+        chat_names[username][historynum[username]] = "New Chat"
         save_chat_history(username, chat_histories[username][historynum[username]])
 
     current_historynum = historynum.get(username, 0)
@@ -412,8 +413,8 @@ def ask():
     chat_histories[username][current_historynum].append(HumanMessage(content=user_message))
 
     # 设置对话名
-    if current_historynum not in chat_names[username] or not chat_names[username][current_historynum]:
-        chat_names[username][current_historynum] = user_message[:10]
+    if   chat_names[username][current_historynum]== "New Chat" :
+        chat_names[username][current_historynum] = user_message[:20]
 
     def generate():
         full_response = ""
