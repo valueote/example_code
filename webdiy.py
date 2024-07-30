@@ -32,7 +32,7 @@ def build_and_save_vectordb():
         for future in futures:
             documents.extend(future.result())
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=20)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=20000, chunk_overlap=200)
     chunked_documents = text_splitter.split_documents(documents=documents)
 
     EMBEDDING_DEVICE = "cpu"
