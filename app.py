@@ -244,7 +244,6 @@ def get_vectordb():
     # 从本地文件加载向量数据库
 
     vectorstore = FAISS.load_local("vectorstore", embeddings, allow_dangerous_deserialization=True)
-    
 
     return vectorstore
 
@@ -280,13 +279,11 @@ def get_qa_chain(username, user_message):
     conversation_chain = create_retrieval_chain(retrieval_chain, combine_docs_chain)
     current_historynum = historynum.get(username, 0)
 
-    response = conversation_chain.invoke({
-        "chat_history": chat_histories[username][current_historynum],
-        "input": user_message,
-        "question": user_message
-    })
-
-    return response["answer"]
+    for chunk in conversation_chain.stream({"chat_history": chat_histories[username][current_historynum],
+                                            "input": user_message,
+                                            "question": user_message}):
+        if answer_chunk := chunk.get("answer"):
+            yield answer_chunk
 
 
 ################################# End #################################
@@ -407,10 +404,14 @@ def ask():
         chat_names[username][current_historynum] = user_message[:10]
 
     def generate():
-        response = get_qa_chain(username, user_message)
-        chat_histories[username][current_historynum].append(AIMessage(content=response))
+        full_response = ""
+        response_stream = get_qa_chain(username, user_message)  # 假设 get_qa_chain 支持流式返回
+        for chunk in response_stream:
+            full_response += chunk  # 累加完整响应
+            yield chunk
+        # 完成流式传输后将完整响应存储到聊天记录中
+        chat_histories[username][current_historynum].append(AIMessage(content=full_response))
         save_chat_history(username, chat_histories[username][current_historynum])
-        yield response
 
     return Response(generate(), mimetype='text/event-stream')
 
