@@ -260,29 +260,6 @@ def get_qa_chain(username, user_message):
     os_setenv()
     chat_model = get_spark_chat_model()
 
-
-    from transformers import AutoTokenizer
-
-    # Initialize the tokenizer
-    tokenizer = AutoTokenizer.from_pretrained("your-model-name")
-
-    # Define the maximum token limit
-    max_token_limit = 4096  # Example limit, adjust as needed
-
-    # Function to truncate input to fit within the token limit
-    def truncate_input(text, max_tokens):
-        tokens = tokenizer.tokenize(text)
-        if len(tokens) > max_tokens:
-            tokens = tokens[:max_tokens]
-        return tokenizer.convert_tokens_to_string(tokens)
-
-    # Example usage
-    user_message = "Your long input text here..."
-    truncated_message = truncate_input(user_message, max_token_limit)
-
-    # Use the truncated message in your request
-    response = get_qa_chain(username, truncated_message)
-
     prompt = ChatPromptTemplate.from_messages([
         ("system",
          "You are a helpful assistant for computer science learner. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question."),
