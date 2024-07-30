@@ -102,7 +102,7 @@ def create_chat_history(username):
 
     # 确保创建新的聊天历史列表
     chat_histories[username][historynum[username]] = []
-    chat_names[username][historynum[username]] = ["new chat"]
+    chat_names[username][historynum[username]] = []
 
     save_chat_history(username, chat_histories[username][historynum[username]])
 
