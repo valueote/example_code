@@ -1,10 +1,9 @@
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader, UnstructuredEPubLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Qdrant
+from langchain_community.vectorstores import FAISS
 import os
 from concurrent.futures import ThreadPoolExecutor
-
 
 def load_document(file_path):
     if file_path.endswith(".pdf"):
@@ -30,18 +29,16 @@ def build_and_save_vectordb():
         for future in futures:
             documents.extend(future.result())
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=20)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=20000, chunk_overlap=200)
     chunked_documents = text_splitter.split_documents(documents=documents)
 
     EMBEDDING_DEVICE = "cpu"
     embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
     
-    vectorstore = Qdrant.from_documents(
+    vectorstore = FAISS.from_documents(
         documents=chunked_documents,
         embedding=embeddings,
-        location=":memory:",
-        collection_name="my_documents",
     )
     
     vectorstore.save_local("vectorstore")
