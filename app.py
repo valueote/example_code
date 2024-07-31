@@ -5,6 +5,8 @@ import mysql.connector
 import secrets
 from werkzeug.utils import secure_filename
 import os
+import subprocess
+import shutil
 import time
 import webbrowser
 from langchain_community.chat_models import ChatSparkLLM
@@ -248,7 +250,7 @@ def get_vectordb():
     """
 
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     # 从本地文件加载向量数据库
@@ -577,63 +579,80 @@ def get_conversations():
 import subprocess
 
 
+import subprocess
+import os
+import shutil
+
+
 @app.route('/compile_run_c', methods=['POST'])
-def compile_run_c():
-    code = request.json.get('code')
-    if not code:
-        return jsonify({"error": "No code provided"}), 400
-
-    # 保存代码到临时文件
-    with open("temp.c", "w") as f:
-        f.write(code)
-
-    try:
-        # 编译代码
-        subprocess.check_output(["gcc", "temp.c", "-o", "temp"], stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        # 编译错误
-        return jsonify({"error": e.output.decode()}), 400
-
-    try:
-        # 运行可执行文件
-        result = subprocess.check_output(["./temp"], stderr=subprocess.STDOUT)
-        return jsonify({"output": result.decode()})
-    except subprocess.CalledProcessError as e:
-        # 运行时错误
-        return jsonify({"error": e.output.decode()}), 400
-    finally:
-        # 清理文件
-        os.remove("temp.c")
-        os.remove("temp")
-
-@app.route('/compile_run_cpp', methods=['POST'])
 def compile_run_cpp():
     code = request.json.get('code')
     if not code:
         return jsonify({"error": "No code provided"}), 400
 
-    # 保存代码到临时文件
-    with open("temp.cpp", "w") as f:
-        f.write(code)
+    # 创建临时目录
+    temp_dir = "temp_c_dir"
+    os.makedirs(temp_dir, exist_ok=True)
 
     try:
-        # 编译代码
-        subprocess.check_output(["g++", "temp.cpp", "-o", "temp"], stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        # 编译错误
-        return jsonify({"error": e.output.decode()}), 400
+        # 保存代码到临时文件
+        temp_cpp_file = os.path.join(temp_dir, "temp.c")
+        with open(temp_cpp_file, "w") as f:
+            f.write(code)
 
-    try:
-        # 运行可执行文件
-        result = subprocess.check_output(["./temp"], stderr=subprocess.STDOUT)
-        return jsonify({"output": result.decode()})
-    except subprocess.CalledProcessError as e:
-        # 运行时错误
-        return jsonify({"error": e.output.decode()}), 400
+        try:
+            # 编译代码
+            subprocess.check_output(["gcc", "temp.c", "-o", "temp"], cwd=temp_dir, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            # 编译错误
+            return jsonify({"error": e.output.decode()}), 400
+
+        try:
+            # 运行可执行文件
+            result = subprocess.check_output(["./temp"], cwd=temp_dir, stderr=subprocess.STDOUT)
+            return jsonify({"output": result.decode()})
+        except subprocess.CalledProcessError as e:
+            # 运行时错误
+            return jsonify({"error": e.output.decode()}), 400
     finally:
-        # 清理文件
-        os.remove("temp.cpp")
-        os.remove("temp")
+        # 清理临时目录
+        shutil.rmtree(temp_dir)
+
+
+@app.route('/compile_run_java', methods=['POST'])
+def compile_run_java():
+    code = request.json.get('code')
+    if not code:
+        return jsonify({"error": "No code provided"}), 400
+
+    # 创建临时目录
+    temp_dir = "temp_java_dir"
+    os.makedirs(temp_dir, exist_ok=True)
+
+    try:
+        # 保存代码到临时文件
+        temp_java_file = os.path.join(temp_dir, "Main.java")
+        with open(temp_java_file, "w") as f:
+            f.write(code)
+
+        try:
+            # 编译代码
+            subprocess.check_output(["javac", "Main.java"], cwd=temp_dir, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            # 编译错误
+            return jsonify({"error": e.output.decode()}), 400
+
+        try:
+            # 运行编译后的类文件
+            result = subprocess.check_output(["java", "Main"], cwd=temp_dir, stderr=subprocess.STDOUT)
+            return jsonify({"output": result.decode()})
+        except subprocess.CalledProcessError as e:
+            # 运行时错误
+            return jsonify({"error": e.output.decode()}), 400
+    finally:
+        # 清理临时目录
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

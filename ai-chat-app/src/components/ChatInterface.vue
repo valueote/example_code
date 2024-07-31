@@ -13,19 +13,20 @@
         <!-- 对话列表 -->
         <div class="flex-1 overflow-y-auto">
           <transition-group name="conversation">
-            <div v-for="(conversation) in conversations" :key="conversation.history_num" 
-    class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-    :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
-    @click="switchConversation(conversation.history_num)" :disabled="isLoading">
-    <div class="flex items-center flex-grow">
-      <i class="far fa-comment-alt mr-3"></i>
-      <span class="text-sm">{{ conversation.title || 'New Chat' }}</span>
-    </div>
-    <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
-      <i class="fas fa-trash-alt"></i>
-    </button>
-  </div>
-  
+            <div v-for="(conversation, index) in conversations" :key="conversation.history_num" 
+                class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
+                :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
+                @click="switchConversation(conversation.history_num)" 
+                :disabled="isLoading"
+                :style="{ '--i': index }">
+              <div class="flex items-center flex-grow">
+                <i class="far fa-comment-alt mr-3"></i>
+                <span class="text-sm">{{ conversation.title || 'New Chat' }}</span>
+              </div>
+              <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
           </transition-group>
         </div>
         
@@ -92,12 +93,17 @@
           <button @click="runPythonInterpreter" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
             <i class="fas fa-code mr-2"></i> Run Python Interpreter
           </button>
-          <!-- 添加C语言编译器按钮 -->
+          <!--C Compiler-->
           <button @click="showCCompiler = true" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
             <i class="fas fa-code mr-2"></i> Run C Compiler
           </button>
+          <!--Cpp-->
           <button @click="showCppCompiler = true" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
             <i class="fas fa-code mr-2"></i> Run Cpp Compiler
+          </button>
+          <!--Java-->
+          <button @click="showJavaCompiler = true" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+            <i class="fas fa-code mr-2"></i> Run Java Compiler
           </button>
         </div>
       </div>
@@ -114,8 +120,11 @@
     <CCompiler :visible="showCCompiler" @close="showCCompiler = false" />
     <!--Cpp Compiler-->>
     <CppCompiler :visible="showCppCompiler" @close="showCppCompiler = false"/>
+    <JavaCompiler :visible="showJavaCompiler" @close="showJavaCompiler = false" />
+
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -124,6 +133,7 @@ import PythonInterpreter from './PythonInterpreter.vue';
 import CCompiler from './CCompiler.vue'; // 引入CCompiler组件
 import {reactive } from 'vue';
 import CppCompiler from './CppCompiler.vue';
+import JavaCompiler from './JavaCompiler.vue';
 
 export default {
   name: 'ChatInterface',
@@ -140,6 +150,7 @@ export default {
       showSettings: false,
       showCCompiler: false, // 控制C语言编译器显示
       showCppCompiler: false,
+      showJavaCompiler: false,
     };
   },
   
@@ -154,7 +165,8 @@ export default {
     ChatMessageComponent,
     PythonInterpreter,
     CCompiler, // 注册CCompiler组件
-    CppCompiler
+    CppCompiler,
+    JavaCompiler,
   },
   mounted() {
     // 组件挂载时加载聊天历史记录并滚动到底部
@@ -235,6 +247,9 @@ async updateConversationTitle() {
       } else {
         this.messages.push({ sender: 'ai', content: content });
       }
+      this.$nextTick(() => {
+        this.highlightCodeBlocks();
+      });
     },
     scrollToBottom() {
       // 滚动到聊天消息的底部
@@ -467,10 +482,14 @@ button:active {
   transition: all 0.3s ease-out;
 }
 
-.conversation-enter-from,
-.conversation-leave-to {
+.conversation-enter-from {
+  transform: translateX(-100%);
   opacity: 0;
-  transform: translateY(-20px);
+}
+
+.conversation-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
 }
 
 .slide-fade-show-enter-active {
@@ -480,6 +499,16 @@ button:active {
 .slide-fade-show-enter-from {
   transform: translateX(-100%);
   opacity: 0;
+}
+
+/* New styles for staggered entry of conversation items */
+.conversation-move {
+  transition: transform 0.5s;
+}
+
+.conversation-enter-active {
+  transition: all 0.5s ease-out;
+  transition-delay: calc(0.1s * var(--i));
 }
 
 </style>
