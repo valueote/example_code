@@ -11,22 +11,22 @@
         </div>
         
         <!-- 对话列表 -->
-  <div class="flex-1 overflow-y-auto">
-    <transition-group name="conversation">
-      <div v-for="(conversation) in conversations" :key="conversation.history_num" 
-      class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-      :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
-      @click="switchConversation(conversation.history_num)" :disabled="isLoading">
-    <div class="flex items-center flex-grow">
-      <i class="far fa-comment-alt mr-3"></i>
-      <span class="text-sm">{{ conversation.title || `Chat ${conversation.history_num}` }}</span>
-    </div>
-    <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
-      <i class="fas fa-trash-alt"></i>
-    </button>
-  </div>
-    </transition-group>
-  </div>
+        <div class="flex-1 overflow-y-auto">
+          <transition-group name="conversation">
+            <div v-for="(conversation) in conversations" :key="conversation.history_num" 
+              class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
+              :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
+              @click="switchConversation(conversation.history_num)" :disabled="isLoading">
+              <div class="flex items-center flex-grow">
+                <i class="far fa-comment-alt mr-3"></i>
+                <span class="text-sm">{{ conversation.title || `New Chat` }}</span>
+              </div>
+              <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </transition-group>
+        </div>
         
         <!-- 用户信息和设置 -->
         <div class="p-4 border-t border-gray-200 flex items-center justify-between">
@@ -224,7 +224,7 @@ export default {
         const response = await axios.get('/get_conversations');
         this.conversations = response.data.conversations.map(conversation => ({
           history_num: conversation.history_num,
-          title: conversation.name || `Chat ${conversation.history_num}`
+          title: conversation.name || `New Chat`
         }));
         
         if (this.conversations.length > 0) {
@@ -290,6 +290,10 @@ async switchConversation(historyNum) {
         this.isLoading = false;
       }
     },
+    
+    forceUpdateMessages() {
+      this.messages = this.messages.map(message => ({ ...message }));
+    },
 
     async handleFileUpload() {
       const files = this.$refs.fileInput.files;
@@ -311,6 +315,7 @@ async switchConversation(historyNum) {
         this.messages.push({ sender: 'system', content: 'File upload failed' });
       }
     },
+
     async deleteConversation(historyNum) {
       try {
         await axios.post('/delete_conversation', { history_num: historyNum });
@@ -318,14 +323,27 @@ async switchConversation(historyNum) {
         const deletedIndex = this.conversations.findIndex(conv => conv.history_num === historyNum);
         this.conversations.splice(deletedIndex, 1);
         this.loadConversations();
+        console.log("conversations length",this.conversations.length);
+        console.log("delete num",historyNum);
+
         if (historyNum === this.currentConversationIndex) {
           if (this.conversations.length > 0) {
-            await this.switchConversation(this.conversations[0].history_num);
+            if(historyNum === 0){
+              await this.switchConversation(historyNum);
+              console.log("deleteConversation hit case 1");
+            }else if(historyNum === this.conversations.length){
+              await this.switchConversation(historyNum - 1);
+              console.log("deleteConversation hit case 2");
+            }else{
+              await this.switchConversation(historyNum);
+              console.log("deleteConversation hit case 3");
+            }
           } else {
             this.messages = [];
-            this.currentConversationIndex = null;
-            this.switchConversation(this.conversations[0].historyNum);
+            this.currentConversationIndex = -1;
           }
+        }else{
+          this.switchConversation(this.currentConversationIndex - 1);
         }
       } catch (error) {
         console.error('Error deleting conversation:', error);
