@@ -248,7 +248,7 @@ def get_vectordb():
     """
 
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     # 从本地文件加载向量数据库
@@ -401,9 +401,10 @@ def logout():
 
 @app.route('/update_conversation_title', methods=['POST'])
 def update_conversation_title():
+    username = session['username']
     data = request.json
     history_num = data.get('history_num')
-    new_title = ""
+    new_title = chat_names[username][history_num]
 
 
     return jsonify({"history_num": history_num, "new_title": new_title}), 200
