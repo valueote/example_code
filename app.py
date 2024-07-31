@@ -248,7 +248,7 @@ def get_vectordb():
     """
 
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     # 从本地文件加载向量数据库
@@ -272,7 +272,7 @@ def get_qa_chain(username, user_message):
 
     prompt = ChatPromptTemplate.from_messages([
         ("system",
-         "You are a helpful assistant for computer science learner. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question.Make sure your answer is in the markdown format."),
+         "You are a helpful assistant for computer science learner. Use the following conversation history and the user's input to create a search query to find relevant information to answer the user's question."),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}"),
     ])
@@ -280,7 +280,7 @@ def get_qa_chain(username, user_message):
 
     combine_prompt = ChatPromptTemplate.from_messages([
         ("system",
-         "You are a helpful AI assistant for computer science learner. Use the following pieces of context to answer the user's question. Don't try to make up an answer.Make sure your answer is in the markdown format.\n\nContext: {context}"),
+         "You are a helpful AI assistant for computer science learner. Use the following pieces of context to answer the user's question. Don't try to make up an answer.\n\nContext: {context}"),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{question}"),
     ])
@@ -397,6 +397,18 @@ def logout():
     session.pop('username', None)
     return jsonify({"message": "已登出"}), 200
 
+
+
+@app.route('/update_conversation_title', methods=['POST'])
+def update_conversation_title():
+    data = request.json
+    history_num = data.get('history_num')
+    new_title = data.get('new_title')
+    
+    # 更新数据库中的对话标题
+    # ...
+    
+    return jsonify({'history_num': history_num, 'new_title': new_title})
 
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -563,7 +575,6 @@ def get_conversations():
     return jsonify({"conversations": conversations}), 200
 
 import subprocess
-import os
 
 
 @app.route('/compile_run_c', methods=['POST'])

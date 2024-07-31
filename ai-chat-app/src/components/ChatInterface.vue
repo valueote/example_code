@@ -14,17 +14,18 @@
         <div class="flex-1 overflow-y-auto">
           <transition-group name="conversation">
             <div v-for="(conversation) in conversations" :key="conversation.history_num" 
-              class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-              :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
-              @click="switchConversation(conversation.history_num)" :disabled="isLoading">
-              <div class="flex items-center flex-grow">
-                <i class="far fa-comment-alt mr-3"></i>
-                <span class="text-sm">{{ conversation.title || `New Chat` }}</span>
-              </div>
-              <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
+    class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
+    :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
+    @click="switchConversation(conversation.history_num)" :disabled="isLoading">
+    <div class="flex items-center flex-grow">
+      <i class="far fa-comment-alt mr-3"></i>
+      <span class="text-sm">{{ conversation.title || 'New Chat' }}</span>
+    </div>
+    <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </div>
+  
           </transition-group>
         </div>
         
@@ -116,14 +117,14 @@ import axios from 'axios';
 import ChatMessageComponent from './ChatMessageComponent.vue';
 import PythonInterpreter from './PythonInterpreter.vue';
 import CCompiler from './CCompiler.vue'; // 引入CCompiler组件
-
+import {reactive } from 'vue';
 export default {
   name: 'ChatInterface',
   data() {
     return {
       messages: [], // 存储消息的数组
       userInput: '', // 用户输入的消息
-      conversations: [], // 存储会话的数组
+      conversations: reactive([]), // 存储会话的数组
       currentConversationIndex: 0, // 当前会话的索引
       showPythonInterpreter: false,
       showSidebar: true,
@@ -152,47 +153,70 @@ export default {
   },
   methods: {
     async sendMessage() {
-      // 如果用户输入为空，则不发送消息
-      if (this.userInput.trim() === '') return;
-      
-      // 创建用户消息对象并添加到消息数组中
-      const userMessage = { sender: 'user', content: this.userInput };
-      this.messages.push(userMessage);
-      this.userInput = '';
-      this.scrollToBottom();
+  if (this.userInput.trim() === '') return;
+  
+  const userMessage = { sender: 'user', content: this.userInput };
+  this.messages.push(userMessage);
+  this.userInput = '';
+  this.scrollToBottom();
 
-      this.isLoading = true;
-      try {
-        // 发送用户消息到后端
-        const response = await fetch('/ask', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: userMessage.content }),
-        });
+  this.isLoading = true;
+  try {
+    const response = await fetch('/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: userMessage.content }),
+    });
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let aiResponse = '';
-        // 持续读取后端返回的流数据
-        // eslint-disable-next-line
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value);
-          aiResponse += chunk;
-          this.updateLastAIMessage(aiResponse);
-        }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let aiResponse = '';
+    // eslint-disable-next-line
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      aiResponse += chunk;
+      this.updateLastAIMessage(aiResponse);
+    }
 
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        this.isLoading = false;
-        // 更新当前会话的消息数组
-        this.conversations[this.currentConversationIndex] = [...this.messages];
-        this.scrollToBottom();
-        this.forceUpdateMessages();
-      }
-    },
+    // 更新对话标题
+    await this.updateConversationTitle();
+
+    this.scrollToBottom();
+    this.forceUpdateMessages();
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    this.isLoading = false;
+  }
+},
+
+async updateConversationTitle() {
+  try {
+    const response = await fetch('/update_conversation_title', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ history_num: this.currentConversationIndex }),
+    });
+
+    const data = await response.json();
+    const { history_num, new_title } = data;
+
+    const conversationIndex = this.conversations.findIndex(conv => conv.history_num === history_num);
+    if (conversationIndex !== -1) {
+      // 直接更新 title 属性
+      this.conversations[conversationIndex].title = new_title;
+    }
+    console.log("now coversation", this.conversations[conversationIndex]);
+    console.log("now title",this.conversations[conversationIndex].title);
+    console.log("new title", this.conversations[conversationIndex].title);
+    // 强制更新视图
+    this.$forceUpdate();
+  } catch (error) {
+    console.error('Error updating conversation title:', error);
+  }
+},
     updateLastAIMessage(content) {
       // 更新最后一条AI消息的内容
       const lastMessage = this.messages[this.messages.length - 1];
@@ -222,10 +246,11 @@ export default {
     async loadConversations() {
       try {
         const response = await axios.get('/get_conversations');
-        this.conversations = response.data.conversations.map(conversation => ({
+        const newConversations = response.data.conversations.map(conversation => ({
           history_num: conversation.history_num,
           title: conversation.name || `New Chat`
         }));
+        this.conversations = newConversations;
         
         if (this.conversations.length > 0) {
           // 如果当前选中的对话不在新的对话列表中，切换到第一个对话
