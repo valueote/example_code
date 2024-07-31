@@ -113,7 +113,7 @@
     <!-- C Compiler -->
     <CCompiler :visible="showCCompiler" @close="showCCompiler = false" />
     <!--Cpp Compiler-->>
-    <CppCompiler :visible="showCppCompiler" @close="showCCompiler = false"/>
+    <CppCompiler :visible="showCppCompiler" @close="showCppCompiler = false"/>
   </div>
 </template>
 
