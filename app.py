@@ -403,12 +403,11 @@ def logout():
 def update_conversation_title():
     data = request.json
     history_num = data.get('history_num')
-    new_title = data.get('new_title')
-    
-    # 更新数据库中的对话标题
-    # ...
-    
-    return jsonify({'history_num': history_num, 'new_title': new_title})
+    new_title = ""
+
+
+    return jsonify({"history_num": history_num, "new_title": new_title}), 200
+
 
 @app.route('/ask', methods=['POST'])
 def ask():
