@@ -17,13 +17,13 @@
             class="w-full h-64 p-4 text-sm font-mono bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           ></textarea>
         </div>
-        <button @click="compileAndRun" class="flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-blue-600 transition-colors duration-200">
+        <button @click="compileAndRun" class="flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200">
           <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
           </svg>
           Compile and Run
         </button>
-        <div v-if="output" class="mt-4 bg-gray-100 rounded-md p-4">
+        <div v-if="output" class="mt-4 bg-green-100 rounded-md p-4">
           <h3 class="text-lg font-semibold mb-2 text-gray-800">Output:</h3>
           <pre class="text-sm font-mono whitespace-pre-wrap break-words text-gray-700">{{ output }}</pre>
         </div>
