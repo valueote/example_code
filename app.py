@@ -605,6 +605,34 @@ def compile_run_c():
         os.remove("temp.c")
         os.remove("temp")
 
+@app.route('/compile_run_cpp', methods=['POST'])
+def compile_run_cpp():
+    code = request.json.get('code')
+    if not code:
+        return jsonify({"error": "No code provided"}), 400
+
+    # 保存代码到临时文件
+    with open("temp.cpp", "w") as f:
+        f.write(code)
+
+    try:
+        # 编译代码
+        subprocess.check_output(["g++", "temp.cpp", "-o", "temp"], stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        # 编译错误
+        return jsonify({"error": e.output.decode()}), 400
+
+    try:
+        # 运行可执行文件
+        result = subprocess.check_output(["./temp"], stderr=subprocess.STDOUT)
+        return jsonify({"output": result.decode()})
+    except subprocess.CalledProcessError as e:
+        # 运行时错误
+        return jsonify({"error": e.output.decode()}), 400
+    finally:
+        # 清理文件
+        os.remove("temp.cpp")
+        os.remove("temp")
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

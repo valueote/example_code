@@ -96,6 +96,9 @@
           <button @click="showCCompiler = true" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
             <i class="fas fa-code mr-2"></i> Run C Compiler
           </button>
+          <button @click="showCppCompiler = true" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+            <i class="fas fa-code mr-2"></i> Run Cpp Compiler
+          </button>
         </div>
       </div>
     </div>
@@ -107,8 +110,10 @@
       ref="pythonInterpreter"
     />
 
-    <!-- C语言编译器 -->
+    <!-- C Compiler -->
     <CCompiler :visible="showCCompiler" @close="showCCompiler = false" />
+    <!--Cpp Compiler-->>
+    <CppCompiler :visible="showCppCompiler" @close="showCCompiler = false"/>
   </div>
 </template>
 
@@ -118,6 +123,8 @@ import ChatMessageComponent from './ChatMessageComponent.vue';
 import PythonInterpreter from './PythonInterpreter.vue';
 import CCompiler from './CCompiler.vue'; // 引入CCompiler组件
 import {reactive } from 'vue';
+import CppCompiler from './CppCompiler.vue';
+
 export default {
   name: 'ChatInterface',
   data() {
@@ -126,11 +133,13 @@ export default {
       userInput: '', // 用户输入的消息
       conversations: reactive([]), // 存储会话的数组
       currentConversationIndex: 0, // 当前会话的索引
+      isLoading: false, // 是否正在加载消息
+      
       showPythonInterpreter: false,
       showSidebar: true,
       showSettings: false,
-      isLoading: false, // 是否正在加载消息
       showCCompiler: false, // 控制C语言编译器显示
+      showCppCompiler: false,
     };
   },
   
@@ -145,6 +154,7 @@ export default {
     ChatMessageComponent,
     PythonInterpreter,
     CCompiler, // 注册CCompiler组件
+    CppCompiler
   },
   mounted() {
     // 组件挂载时加载聊天历史记录并滚动到底部
