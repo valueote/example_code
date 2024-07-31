@@ -11,23 +11,22 @@
         </div>
         
         <!-- 对话列表 -->
-        <div class="flex-1 overflow-y-auto">
-          <transition-group name="conversation">
-            <div v-for="(conversation) in conversations" :key="conversation.history_num" 
-    class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-    :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
-    @click="switchConversation(conversation.history_num)" :disabled="isLoading">
-    <div class="flex items-center flex-grow">
-      <i class="far fa-comment-alt mr-3"></i>
-      <span class="text-sm">{{ conversation.title || 'New Chat' }}</span>
-    </div>
-    <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
-      <i class="fas fa-trash-alt"></i>
-    </button>
-  </div>
-  
-          </transition-group>
-        </div>
+        <transition-group name="conversation">
+          <div v-for="(conversation, index) in conversations" :key="conversation.history_num" 
+              class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
+              :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
+              @click="switchConversation(conversation.history_num)" 
+              :disabled="isLoading"
+              :style="{ '--i': index }">
+            <div class="flex items-center flex-grow">
+              <i class="far fa-comment-alt mr-3"></i>
+              <span class="text-sm">{{ conversation.title || 'New Chat' }}</span>
+            </div>
+            <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </transition-group>
         
         <!-- 用户信息和设置 -->
         <div class="p-4 border-t border-gray-200 flex items-center justify-between">
@@ -467,10 +466,14 @@ button:active {
   transition: all 0.3s ease-out;
 }
 
-.conversation-enter-from,
-.conversation-leave-to {
+.conversation-enter-from {
+  transform: translateX(-100%);
   opacity: 0;
-  transform: translateY(-20px);
+}
+
+.conversation-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
 }
 
 .slide-fade-show-enter-active {
@@ -480,6 +483,16 @@ button:active {
 .slide-fade-show-enter-from {
   transform: translateX(-100%);
   opacity: 0;
+}
+
+/* New styles for staggered entry of conversation items */
+.conversation-move {
+  transition: transform 0.5s;
+}
+
+.conversation-enter-active {
+  transition: all 0.5s ease-out;
+  transition-delay: calc(0.1s * var(--i));
 }
 
 </style>
