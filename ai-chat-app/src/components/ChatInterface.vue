@@ -12,7 +12,7 @@
         
         <!-- 对话列表 -->
         <div class="flex-1 overflow-y-auto">
-          <transition-group name="conversation">
+          <transition-group name="conversation" tag="div">
             <div v-for="(conversation, index) in conversations" :key="conversation.history_num" 
                 class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
                 :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
@@ -479,14 +479,12 @@ button:active {
   transform: translateY(20px);
 }
 
-/* Animation for conversation items in the sidebar */
-.conversation-enter-active {
-  transition: all 0.3s ease-out;
-}
-
+/* Remove the enter animation for conversation items in the sidebar */
+.conversation-enter-active,
 .conversation-enter-from {
-  transform: translateX(-100%);
-  opacity: 0;
+  transition: none;
+  transform: none;
+  opacity: 1;
 }
 
 /* Remove the leave animation */
