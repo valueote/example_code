@@ -1,12 +1,12 @@
 <template>
-  <div class="flex h-screen w-screen bg-gray-50">
+  <div class="flex h-screen w-screen bg-pastel-pink">
     <!-- 侧边栏 -->
     <transition name="slide-fade-show">
-      <div v-show="showSidebar" class="w-1/5 bg-white border-r border-gray-200 flex flex-col">
+      <div v-show="showSidebar" class="w-1/5 bg-pastel-blue border-r border-pastel-purple flex flex-col rounded-r-xl shadow-lg">
         <!-- 新建对话按钮 -->
         <div class="p-4">
-          <button @click="newConversation" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-plus mr-2"></i> New Chat
+          <button @click="newConversation" class="w-full bg-pastel-yellow text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-orange transition duration-300 flex items-center justify-center kawaii-button">
+            <i class="fas fa-star mr-2"></i> New Adventure
           </button>
         </div>
         
@@ -14,28 +14,28 @@
         <div class="flex-1 overflow-y-auto">
           <transition-group name="conversation" tag="div">
             <div v-for="(conversation, index) in conversations" :key="conversation.history_num" 
-                class="p-3 hover:bg-gray-100 cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-lg"
-                :class="{ 'bg-gray-200': currentConversationIndex === conversation.history_num }"
+                class="p-3 hover:bg-pastel-green cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-xl"
+                :class="{ 'bg-pastel-purple text-white': currentConversationIndex === conversation.history_num }"
                 @click="switchConversation(conversation.history_num)" 
                 :disabled="isLoading"
                 :style="{ '--i': index }">
               <div class="flex items-center flex-grow">
-                <i class="far fa-comment-alt mr-3"></i>
-                <span class="text-sm">{{ conversation.title || 'New Chat' }}</span>
+                <i class="far fa-heart mr-3"></i>
+                <span class="text-sm">{{ conversation.title || 'New Adventure' }}</span>
               </div>
-              <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-500 hover:text-red-700">
-                <i class="fas fa-trash-alt"></i>
+              <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-400 hover:text-red-600">
+                <i class="fas fa-times"></i>
               </button>
             </div>
           </transition-group>
         </div>
         
         <!-- 用户信息和设置 -->
-        <div class="p-4 border-t border-gray-200 flex items-center justify-between">
-          <button @click="openSettings" class="text-left py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300 flex items-center text-sm">
-            <i class="fas fa-cog mr-2"></i> Settings
+        <div class="p-4 border-t border-pastel-purple flex items-center justify-between">
+          <button @click="openSettings" class="text-left py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center text-sm kawaii-button">
+            <i class="fas fa-cog mr-2"></i> Magic Settings
           </button>
-          <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-gray-100 transition duration-300">
+          <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-pastel-yellow transition duration-300">
             <i class="fas fa-chevron-left"></i>
           </button>
         </div>
@@ -45,7 +45,7 @@
     <!-- 主聊天界面 -->
     <div class="flex-1 flex flex-col" :class="{ 'w-full': !showSidebar, 'w-4/5': showSidebar }">
       <!-- 聊天消息区域 -->
-      <div class="flex-1 overflow-y-auto px-4 py-6" ref="chatMessages">
+      <div class="flex-1 overflow-y-auto px-4 py-6 bg-pastel-cream" ref="chatMessages">
         <transition-group name="message-fade" tag="div">
           <div v-for="(message, index) in messages" :key="index" class="mb-6">
             <ChatMessageComponent :message="message" />
@@ -54,56 +54,53 @@
       </div>
       
       <!-- 输入区域 -->
-      <div class="border-t border-gray-200 p-4">
-        <div class="flex items-center bg-white rounded-lg shadow-sm">
+      <div class="border-t border-pastel-purple p-4 bg-pastel-blue">
+        <div class="flex items-center bg-white rounded-full shadow-md">
           <!-- 侧边栏切换按钮 -->
-          <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-gray-500" :class="{ 'transform rotate-180': !showSidebar }">
+          <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-pastel-purple" :class="{ 'transform rotate-180': !showSidebar }">
               <i class="fas fa-chevron-left"></i>
           </button>
           
-          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Send a message..."
-                    class="flex-1 px-4 py-2 focus:outline-none resize-none" rows="1"></textarea>
-          <button @click="sendMessage" class="p-2 text-gray-500 hover:text-gray-700">
+          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Cast your spell..."
+                    class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-full" rows="1"></textarea>
+          <button @click="sendMessage" class="p-2 text-pastel-purple hover:text-pastel-orange">
             <i class="fas fa-paper-plane"></i>
           </button>
           <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
-          <button @click="$refs.fileInput.click()" class="p-2 text-gray-500 hover:text-gray-700">
+          <button @click="$refs.fileInput.click()" class="p-2 text-pastel-purple hover:text-pastel-orange">
             <i class="fas fa-paperclip"></i>
           </button>
         </div>
-        <div class="text-xs text-gray-500 mt-2 text-center">
-          AI may produce inaccurate information about people, places, or facts.
+        <div class="text-xs text-pastel-purple mt-2 text-center">
+          Magic may produce unexpected results. Use with caution!
         </div>
       </div>
     </div>
 
     <!-- 设置页面 -->
-    <div v-if="showSettings" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-      <div class="bg-white p-5 rounded-lg shadow-xl w-1/3">
+    <div v-if="showSettings" class="fixed inset-0 bg-pastel-purple bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+      <div class="bg-pastel-cream p-5 rounded-xl shadow-xl w-1/3">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold">Settings</h2>
-          <button @click="closeSettings" class="text-gray-500 hover:text-gray-700">
+          <h2 class="text-xl font-bold text-pastel-purple">Magic Settings</h2>
+          <button @click="closeSettings" class="text-pastel-purple hover:text-pastel-orange">
             <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="space-y-4">
-          <button @click="logout" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-sign-out-alt mr-2"></i> Log out
+          <button @click="logout" class="w-full bg-pastel-pink text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-orange transition duration-300 flex items-center justify-center kawaii-button">
+            <i class="fas fa-door-open mr-2"></i> Exit Magical Realm
           </button>
-          <button @click="runPythonInterpreter" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-code mr-2"></i> Run Python Interpreter
+          <button @click="runPythonInterpreter" class="w-full bg-pastel-green text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
+            <i class="fas fa-wand-magic-sparkles mr-2"></i> Summon Python Familiar
           </button>
-          <!--C Compiler-->
-          <button @click="showCCompiler = true" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-code mr-2"></i> Run C Compiler
+          <button @click="showCCompiler = true" class="w-full bg-pastel-blue text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
+            <i class="fas fa-hat-wizard mr-2"></i> Invoke C Spells
           </button>
-          <!--Cpp-->
-          <button @click="showCppCompiler = true" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-code mr-2"></i> Run Cpp Compiler
+          <button @click="showCppCompiler = true" class="w-full bg-pastel-orange text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
+            <i class="fas fa-wand-sparkles mr-2"></i> Cast C++ Enchantments
           </button>
-          <!--Java-->
-          <button @click="showJavaCompiler = true" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-code mr-2"></i> Run Java Compiler
+          <button @click="showJavaCompiler = true" class="w-full bg-pastel-yellow text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-orange transition duration-300 flex items-center justify-center kawaii-button">
+            <i class="fas fa-mug-hot mr-2"></i> Brew Java Potions
           </button>
         </div>
       </div>
@@ -118,13 +115,12 @@
 
     <!-- C Compiler -->
     <CCompiler :visible="showCCompiler" @close="showCCompiler = false" />
-    <!--Cpp Compiler-->>
+    <!--Cpp Compiler-->
     <CppCompiler :visible="showCppCompiler" @close="showCppCompiler = false"/>
     <JavaCompiler :visible="showJavaCompiler" @close="showJavaCompiler = false" />
 
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -479,21 +475,7 @@ button:active {
   transform: translateY(20px);
 }
 
-/* Remove the enter animation for conversation items in the sidebar */
-.conversation-enter-active,
-.conversation-enter-from {
-  transition: none;
-  transform: none;
-  opacity: 1;
-}
 
-/* Remove the leave animation */
-.conversation-leave-active,
-.conversation-leave-to {
-  transition: none;
-  transform: none;
-  opacity: 1;
-}
 
 .slide-fade-show-enter-active {
   transition: all 0.3s ease-out;
@@ -512,5 +494,55 @@ button:active {
 .conversation-enter-active {
   transition: all 0.5s ease-out;
   transition-delay: calc(0.1s * var(--i));
+}
+
+
+
+.bg-pastel-pink { background-color: #FFD1DC; }
+.bg-pastel-blue { background-color: #A2D2FF; }
+.bg-pastel-purple { background-color: #B39DDB; }
+.bg-pastel-yellow { background-color: #FDFD96; }
+.bg-pastel-orange { background-color: #FFB347; }
+.bg-pastel-green { background-color: #B5EAD7; }
+.bg-pastel-cream { background-color: #FEFAE0; }
+
+.text-pastel-purple { color: #B39DDB; }
+.text-pastel-orange { color: #FFB347; }
+
+.kawaii-button {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.kawaii-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.kawaii-button:active {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.conversation > div {
+  animation: float 4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.2s);
+}
+
+/* 为消息添加可爱的动画 */
+.message-fade-enter-active {
+  animation: bounceIn 0.5s;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  70% { transform: scale(1.1); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
 }
 </style>
