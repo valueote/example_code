@@ -7,14 +7,15 @@
           </svg>
         </button>
         <h2 class="text-2xl font-bold mb-4 text-gray-800">C Compiler</h2>
-        <div class="mb-4">
+        <div class="mb-4 relative">
+          <div class="code-background absolute inset-0"></div>
           <textarea
             ref="codeEditor"
             v-model="code"
             @keydown="handleTab"
             placeholder="Enter your C code here"
             spellcheck="false"
-            class="w-full h-64 p-4 text-sm font-mono bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full h-64 p-4 text-sm font-mono bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent relative z-10"
           ></textarea>
         </div>
         <button @click="compileAndRun" class="flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200">
@@ -85,3 +86,17 @@
     }
   };
   </script>
+
+<style scoped>
+.code-background {
+  background-image: url('./pic/C.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  filter: blur(0.5px);
+}
+
+textarea {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+</style>
