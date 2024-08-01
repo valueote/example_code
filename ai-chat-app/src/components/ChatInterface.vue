@@ -200,6 +200,7 @@ export default {
       const chunk = decoder.decode(value);
       aiResponse += chunk;
       this.updateLastAIMessage(aiResponse);
+      this.forceUpdateMessages();
     }
 
     // 更新对话标题
@@ -379,12 +380,14 @@ async switchConversation(historyNum) {
         if (historyNum === this.currentConversationIndex) {
           if (this.conversations.length > 0) {
             if(historyNum === 0){
+              this.currentConversationIndex = -1;
               await this.switchConversation(historyNum);
               console.log("deleteConversation hit case 1");
             }else if(historyNum === this.conversations.length){
               await this.switchConversation(historyNum - 1);
               console.log("deleteConversation hit case 2");
             }else{
+              this.currentConversationIndex = -1;
               await this.switchConversation(historyNum);
               console.log("deleteConversation hit case 3");
             }
@@ -477,8 +480,7 @@ button:active {
 }
 
 /* Animation for conversation items in the sidebar */
-.conversation-enter-active,
-.conversation-leave-active {
+.conversation-enter-active {
   transition: all 0.3s ease-out;
 }
 
@@ -487,9 +489,12 @@ button:active {
   opacity: 0;
 }
 
+/* Remove the leave animation */
+.conversation-leave-active,
 .conversation-leave-to {
-  transform: translateX(-100%);
-  opacity: 0;
+  transition: none;
+  transform: none;
+  opacity: 1;
 }
 
 .slide-fade-show-enter-active {
@@ -510,5 +515,4 @@ button:active {
   transition: all 0.5s ease-out;
   transition-delay: calc(0.1s * var(--i));
 }
-
 </style>
