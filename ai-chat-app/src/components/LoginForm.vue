@@ -1,22 +1,23 @@
 <template>
   <transition name="fade">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-      <h1 class="text-2xl font-semibold text-center mb-6">Welcome back</h1>
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md anime-bg">
+      <h1 class="text-3xl font-bold text-center mb-6 anime-title">Welcome back, Senpai!</h1>
       <input type="text" v-model="username" placeholder="Email address" required
-            class="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400">
+            class="w-full px-4 py-2 mb-4 border-2 border-pink-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-400 anime-input">
       <input type="password" v-model="password" placeholder="Password" required
-            class="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400">
-      <button @click="login" class="w-full bg-gray-800 text-white py-2 rounded-md hover:bg-gray-700 transition duration-300">
+            class="w-full px-4 py-2 mb-4 border-2 border-pink-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-400 anime-input">
+      <button @click="login" class="w-full bg-pink-500 text-white py-2 rounded-full hover:bg-pink-600 transition duration-300 anime-button">
         Log in
       </button>
       <div class="text-center mt-4">
-        <a href="#" @click.prevent="$emit('show-register')" class="text-gray-600 hover:underline">
-          Don't hav e an account? Sign up
+        <a href="#" @click.prevent="$emit('show-register')" class="text-pink-600 hover:underline anime-link">
+          New to our world? Join us!
         </a>
       </div>
     </div>
   </transition>
 </template>
+
 <script>
 export default {
   name:'LoginForm',
@@ -52,15 +53,44 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Varela+Round&display=swap');
 
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+.anime-bg {
+  background-image: url('https://example.com/anime-background.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
+.anime-title {
+  font-family: 'Bangers', cursive;
+  color: #FF69B4;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
 
-.animate-slide-up {
-  animation: slideUp 0.5s ease-out;
+.anime-input {
+  font-family: 'Varela Round', sans-serif;
+}
+
+.anime-button {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 1px;
+  font-size: 1.2em;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.anime-link {
+  font-family: 'Varela Round', sans-serif;
+  color: #FF69B4;
+}
+
+@keyframes floatAnimation {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.anime-button:hover {
+  animation: floatAnimation 2s ease-in-out infinite;
 }
 
 .fade-enter-active,
@@ -80,11 +110,6 @@ input, button {
 
 input:focus {
   transform: scale(1.02);
-}
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 button:active {
