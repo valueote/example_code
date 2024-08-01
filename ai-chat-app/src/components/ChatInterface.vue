@@ -200,6 +200,7 @@ export default {
       const chunk = decoder.decode(value);
       aiResponse += chunk;
       this.updateLastAIMessage(aiResponse);
+      this.forceUpdateMessages();
     }
 
     // 更新对话标题
