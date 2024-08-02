@@ -1,12 +1,12 @@
 <template>
-  <div class="flex h-screen w-screen bg-pastel-pink">
+  <div class="flex h-screen w-screen bg-airou-cream">
     <!-- 侧边栏 -->
     <transition name="slide-fade-show">
-      <div v-show="showSidebar" class="w-1/5 bg-pastel-blue border-r border-pastel-purple flex flex-col rounded-r-xl shadow-lg">
+      <div v-show="showSidebar" class="w-1/5 bg-airou-light-brown border-r border-airou-brown flex flex-col rounded-r-xl shadow-lg">
         <!-- 新建对话按钮 -->
         <div class="p-4">
-          <button @click="newConversation" class="w-full bg-pastel-yellow text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-orange transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-star mr-2"></i> New Adventure
+          <button @click="newConversation" class="w-full bg-airou-yellow text-airou-brown py-2 px-4 rounded-full hover:bg-airou-orange transition duration-300 flex items-center justify-center airou-button">
+            <i class="fas fa-paw mr-2"></i> New Meow-venture
           </button>
         </div>
         
@@ -14,14 +14,14 @@
         <div class="flex-1 overflow-y-auto">
           <transition-group name="conversation" tag="div">
             <div v-for="(conversation, index) in conversations" :key="conversation.history_num" 
-                class="p-3 hover:bg-pastel-green cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-xl"
-                :class="{ 'bg-pastel-purple text-white': currentConversationIndex === conversation.history_num }"
+                class="p-3 hover:bg-airou-light-green cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-xl"
+                :class="{ 'bg-airou-brown text-white': currentConversationIndex === conversation.history_num }"
                 @click="switchConversation(conversation.history_num)" 
                 :disabled="isLoading"
                 :style="{ '--i': index }">
               <div class="flex items-center flex-grow">
-                <i class="far fa-heart mr-3"></i>
-                <span class="text-sm">{{ conversation.title || 'New Adventure' }}</span>
+                <i class="fas fa-fish mr-3"></i>
+                <span class="text-sm">{{ conversation.title || 'New Meow-venture' }}</span>
               </div>
               <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-400 hover:text-red-600">
                 <i class="fas fa-times"></i>
@@ -31,11 +31,11 @@
         </div>
         
         <!-- 用户信息和设置 -->
-        <div class="p-4 border-t border-pastel-purple flex items-center justify-between">
-          <button @click="openSettings" class="text-left py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center text-sm kawaii-button">
-            <i class="fas fa-cog mr-2"></i> Settings
+        <div class="p-4 border-t border-airou-brown flex items-center justify-between">
+          <button @click="openSettings" class="text-left py-2 px-4 rounded-full hover:bg-airou-yellow transition duration-300 flex items-center text-sm airou-button">
+            <i class="fas fa-cat mr-2"></i> Paw-settings
           </button>
-          <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-pastel-yellow transition duration-300">
+          <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-airou-yellow transition duration-300">
             <i class="fas fa-chevron-left"></i>
           </button>
         </div>
@@ -45,7 +45,7 @@
     <!-- 主聊天界面 -->
     <div class="flex-1 flex flex-col" :class="{ 'w-full': !showSidebar, 'w-4/5': showSidebar }">
       <!-- 聊天消息区域 -->
-      <div class="flex-1 overflow-y-auto px-4 py-6 bg-pastel-cream" ref="chatMessages">
+      <div class="flex-1 overflow-y-auto px-4 py-6 bg-airou-light-cream" ref="chatMessages">
         <transition-group name="message-fade" tag="div">
           <div v-for="(message, index) in messages" :key="index" class="mb-6">
             <ChatMessageComponent :message="message" />
@@ -54,53 +54,53 @@
       </div>
       
       <!-- 输入区域 -->
-      <div class="border-t border-pastel-purple p-4 bg-pastel-blue">
+      <div class="border-t border-airou-brown p-4 bg-airou-light-brown">
         <div class="flex items-center bg-white rounded-full shadow-md">
           <!-- 侧边栏切换按钮 -->
-          <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-pastel-purple" :class="{ 'transform rotate-180': !showSidebar }">
-              <i class="fas fa-chevron-left"></i>
+          <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-airou-brown" :class="{ 'transform rotate-180': !showSidebar }">
+              <i class="fas fa-paw"></i>
           </button>
           
-          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Cast your spell..."
+          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Meow your thoughts..."
                     class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-full" rows="1"></textarea>
-          <button @click="sendMessage" class="p-2 text-pastel-purple hover:text-pastel-orange">
-            <i class="fas fa-paper-plane"></i>
+          <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange">
+            <i class="fas fa-fish"></i>
           </button>
           <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
-          <button @click="$refs.fileInput.click()" class="p-2 text-pastel-purple hover:text-pastel-orange">
+          <button @click="$refs.fileInput.click()" class="p-2 text-airou-brown hover:text-airou-orange">
             <i class="fas fa-paperclip"></i>
           </button>
         </div>
-        <div class="text-xs text-pastel-purple mt-2 text-center">
-          AI may produce unexpected results. Use with caution!
+        <div class="text-xs text-airou-brown mt-2 text-center">
+          Airou may produce unexpected purrs. Use with caution!
         </div>
       </div>
     </div>
 
     <!-- 设置页面 -->
-    <div v-if="showSettings" class="fixed inset-0 bg-pastel-purple bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-      <div class="bg-pastel-cream p-5 rounded-xl shadow-xl w-1/3">
+    <div v-if="showSettings" class="fixed inset-0 bg-airou-brown bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+      <div class="bg-airou-light-cream p-5 rounded-xl shadow-xl w-1/3">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-pastel-purple">Settings</h2>
-          <button @click="closeSettings" class="text-pastel-purple hover:text-pastel-orange">
+          <h2 class="text-xl font-bold text-airou-brown">Paw-settings</h2>
+          <button @click="closeSettings" class="text-airou-brown hover:text-airou-orange">
             <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="space-y-4">
-          <button @click="logout" class="w-full bg-pastel-pink text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-orange transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-door-open mr-2"></i> Logout
+          <button @click="logout" class="w-full bg-airou-pink text-airou-brown py-2 px-4 rounded-full hover:bg-airou-orange transition duration-300 flex items-center justify-center airou-button">
+            <i class="fas fa-paw mr-2"></i> Cat-ch you later
           </button>
-          <button @click="runPythonInterpreter" class="w-full bg-pastel-green text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-wand-magic-sparkles mr-2"></i> Run Python Interpreter
+          <button @click="runPythonInterpreter" class="w-full bg-airou-light-green text-airou-brown py-2 px-4 rounded-full hover:bg-airou-yellow transition duration-300 flex items-center justify-center airou-button">
+            <i class="fas fa-fish mr-2"></i> Python Purr-preter
           </button>
-          <button @click="showCCompiler = true" class="w-full bg-pastel-blue text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-hat-wizard mr-2"></i> Invoke C Spells
+          <button @click="showCCompiler = true" class="w-full bg-airou-light-blue text-airou-brown py-2 px-4 rounded-full hover:bg-airou-yellow transition duration-300 flex items-center justify-center airou-button">
+            <i class="fas fa-paw mr-2"></i> C Whisker Spells
           </button>
-          <button @click="showCppCompiler = true" class="w-full bg-pastel-orange text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-wand-sparkles mr-2"></i> Run C++ Compiler
+          <button @click="showCppCompiler = true" class="w-full bg-airou-orange text-airou-brown py-2 px-4 rounded-full hover:bg-airou-yellow transition duration-300 flex items-center justify-center airou-button">
+            <i class="fas fa-fish mr-2"></i> C++ Compiler
           </button>
-          <button @click="showJavaCompiler = true" class="w-full bg-pastel-yellow text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-orange transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-mug-hot mr-2"></i> Run Java Compiler
+          <button @click="showJavaCompiler = true" class="w-full bg-airou-yellow text-airou-brown py-2 px-4 rounded-full hover:bg-airou-orange transition duration-300 flex items-center justify-center airou-button">
+            <i class="fas fa-cat mr-2"></i> Java Compiler
           </button>
         </div>
       </div>
@@ -121,6 +121,138 @@
 
   </div>
 </template>
+
+<style scoped>
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.flex-1.flex.flex-col {
+  transition: width 0.3s ease;
+}
+
+button {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Animation for messages when switching conversations */
+.message-fade-enter-active,
+.message-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.message-fade-enter-from,
+.message-fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-fade-show-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-show-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* New styles for staggered entry of conversation items */
+.conversation-move {
+  transition: transform 0.5s;
+}
+
+.conversation-enter-active {
+  transition: all 0.5s ease-out;
+  transition-delay: calc(0.1s * var(--i));
+}
+
+.bg-airou-cream { background-color: #FFF9E6; }
+.bg-airou-light-brown { background-color: #D2B48C; }
+.bg-airou-brown { background-color: #8B4513; }
+.bg-airou-yellow { background-color: #FFD700; }
+.bg-airou-orange { background-color: #FFA500; }
+.bg-airou-light-green { background-color: #98FB98; }
+.bg-airou-light-cream { background-color: #FFFAF0; }
+.bg-airou-pink { background-color: #FFC0CB; }
+.bg-airou-light-blue { background-color: #ADD8E6; }
+
+.text-airou-brown { color: #8B4513; }
+.text-airou-orange { color: #FFA500; }
+
+.airou-button {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.airou-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.airou-button:active {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-5px) rotate(-5deg); }
+  50% { transform: translateY(-10px) rotate(0deg); }
+  75% { transform: translateY(-5px) rotate(5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.conversation > div {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.2s);
+}
+
+/* 为消息添加可爱的动画 */
+.message-fade-enter-active {
+  animation: bounceIn 0.5s;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  70% { transform: scale(1.1); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
+
+/* 添加毛茸茸的边框效果 */
+.rounded-xl {
+  position: relative;
+}
+
+.rounded-xl::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: 
+    radial-gradient(circle at 100% 100%, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 100% 100% / 14px 14px,
+    radial-gradient(circle at 0 100%, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 0 100% / 14px 14px,
+    radial-gradient(circle at 100% 0, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 100% 0 / 14px 14px,
+    radial-gradient(circle at 0 0, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 0 0 / 14px 14px;
+  background-repeat: no-repeat;
+  border-radius: 14px;
+  z-index: -1;
+}
+</style>
 
 <script>
 import axios from 'axios';
@@ -439,110 +571,3 @@ async switchConversation(historyNum) {
 </script>
 
 
-<style scoped>
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
-.flex-1.flex.flex-col {
-  transition: width 0.3s ease;
-}
-
-button {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-button:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-/* Animation for messages when switching conversations */
-.message-fade-enter-active,
-.message-fade-leave-active {
-  transition: all 0.5s ease;
-}
-
-.message-fade-enter-from,
-.message-fade-leave-to {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-
-
-.slide-fade-show-enter-active {
-  transition: all 0.3s ease-out;
-}
-
-.slide-fade-show-enter-from {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-
-/* New styles for staggered entry of conversation items */
-.conversation-move {
-  transition: transform 0.5s;
-}
-
-.conversation-enter-active {
-  transition: all 0.5s ease-out;
-  transition-delay: calc(0.1s * var(--i));
-}
-
-
-
-.bg-pastel-pink { background-color: #FFD1DC; }
-.bg-pastel-blue { background-color: #A2D2FF; }
-.bg-pastel-purple { background-color: #B39DDB; }
-.bg-pastel-yellow { background-color: #FDFD96; }
-.bg-pastel-orange { background-color: #FFB347; }
-.bg-pastel-green { background-color: #B5EAD7; }
-.bg-pastel-cream { background-color: #FEFAE0; }
-
-.text-pastel-purple { color: #B39DDB; }
-.text-pastel-orange { color: #FFB347; }
-
-.kawaii-button {
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.kawaii-button:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-}
-
-.kawaii-button:active {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-.conversation > div {
-  animation: float 4s ease-in-out infinite;
-  animation-delay: calc(var(--i) * 0.2s);
-}
-
-/* 为消息添加可爱的动画 */
-.message-fade-enter-active {
-  animation: bounceIn 0.5s;
-}
-
-@keyframes bounceIn {
-  0% { transform: scale(0.9); opacity: 0; }
-  70% { transform: scale(1.1); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
-}
-</style>

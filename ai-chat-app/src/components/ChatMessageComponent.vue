@@ -124,41 +124,33 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Varela+Round&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@600&display=swap');
 
 .message-bubble {
   position: relative;
   transition: all 0.3s ease;
-  font-family: 'Varela Round', sans-serif;
-  font-size: 1.1em;
-  line-height: 1.5;
-}
-
-.message-bubble::before {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 80%;
+  margin-bottom: 1rem;
+  border: 2px solid #8B4513;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .user-message {
-  background-color: #FFD6E0;
-  color: #FF69B4;
+  background-color: #FFD700;
+  color: #8B4513;
+  border-radius: 18px 18px 0 18px;
+  padding: 12px 16px;
   margin-left: auto;
 }
 
-
 .ai-message {
-  background-color: #E0F7FA;
-  color: #00BCD4;
-}
-
-.ai-message::before {
-  border-width: 15px 15px 0 0;
-  border-color: #E0F7FA transparent transparent transparent;
-  bottom: 0;
-  left: -15px;
+  background-color: #FFF9E6;
+  color: #8B4513;
+  border-radius: 18px 18px 18px 0;
+  padding: 12px 16px;
 }
 
 .message-pop-enter-active,
@@ -169,69 +161,137 @@ export default {
 .message-pop-enter-from,
 .message-pop-leave-to {
   opacity: 0;
-  transform: scale(0.9) translateY(20px);
+  transform: scale(0.95) translateY(10px);
 }
 
 :deep(.message-content) {
-  font-family: 'Varela Round', sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 :deep(.message-content h1),
 :deep(.message-content h2),
 :deep(.message-content h3) {
-  font-family: 'Bangers', cursive;
-  letter-spacing: 1px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #8B4513;
 }
 
 :deep(.message-content pre) {
-  @apply bg-gray-800 rounded-lg overflow-x-auto max-w-full my-2 relative;
-  border: 2px solid #FFD6E0;
+  background-color: #D2B48C;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  border: 2px solid #8B4513;
 }
 
 :deep(.message-content code) {
-  @apply font-mono text-sm;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
 }
 
 :deep(.message-content > *:first-child) {
-  @apply mt-0;
+  margin-top: 0;
 }
 
 :deep(.message-content > *:last-child) {
-  @apply mb-0;
+  margin-bottom: 0;
 }
 
 :deep(.message-content :not(pre) > code) {
-  @apply bg-pink-100 text-pink-800 px-1 py-0.5 rounded text-sm font-mono;
+  background-color: #FFD700;
+  color: #8B4513;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
 :deep(.hljs) {
-  @apply bg-transparent;
-  color: #e0e0e0;
+  background-color: transparent;
+  color: #8B4513;
 }
 
 :deep(.copy-btn),
 :deep(.run-btn) {
-  @apply text-white text-xs px-3 py-1 rounded-full opacity-75 hover:opacity-100 transition-all duration-200 transform hover:scale-110;
-  font-family: 'Bangers', cursive;
-  letter-spacing: 1px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #FFFFFF;
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+:deep(.copy-btn:hover),
+:deep(.run-btn:hover) {
+  opacity: 1;
+  transform: translateY(-1px);
 }
 
 :deep(.copy-btn) {
-  background-color: #FF69B4;
+  background-color: #FFA500;
 }
 
 :deep(.run-btn) {
-  background-color: #00BCD4;
+  background-color: #98FB98;
 }
 
 :deep(.lang-tag) {
-  @apply bg-purple-400 text-white text-xs px-2 py-1 rounded-full opacity-75;
-  font-family: 'Bangers', cursive;
-  letter-spacing: 1px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background-color: #8B4513;
+  color: #FFFFFF;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 :deep(.code-toolbar) {
-  @apply flex justify-between items-center absolute top-0 left-0 w-full p-2 bg-gray-700 rounded-t-lg;
-  height: 35px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #D2B48C;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom: 2px solid #8B4513;
+}
+
+/* 添加毛茸茸的边框效果 */
+.message-bubble::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: 
+    radial-gradient(circle at 100% 100%, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 100% 100% / 14px 14px,
+    radial-gradient(circle at 0 100%, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 0 100% / 14px 14px,
+    radial-gradient(circle at 100% 0, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 100% 0 / 14px 14px,
+    radial-gradient(circle at 0 0, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 0 0 / 14px 14px;
+  background-repeat: no-repeat;
+  border-radius: 14px;
+  z-index: -1;
+}
+
+/* 添加可爱的动画效果 */
+@keyframes wiggle {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(1deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-1deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.message-bubble:hover {
+  animation: wiggle 0.5s ease-in-out;
 }
 </style>
