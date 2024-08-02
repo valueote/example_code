@@ -14,13 +14,13 @@
         <div class="flex-1 overflow-y-auto">
           <transition-group name="conversation" tag="div">
             <div v-for="(conversation, index) in conversations" :key="conversation.history_num" 
-                class="p-3 hover:bg-airou-light-green cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-xl"
+                class="p-3 hover:bg-airou-light-green cursor-pointer transition duration-300 flex items-center justify-between mb-2 mx-2 rounded-xl conversation-item"
                 :class="{ 'bg-airou-brown text-white': currentConversationIndex === conversation.history_num }"
                 @click="switchConversation(conversation.history_num)" 
                 :disabled="isLoading"
                 :style="{ '--i': index }">
               <div class="flex items-center flex-grow">
-                <i class="fas fa-fish mr-3"></i>
+                <i class="fas fa-paw mr-3"></i>
                 <span class="text-sm">{{ conversation.title || 'New Meow-venture' }}</span>
               </div>
               <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-400 hover:text-red-600">
@@ -64,7 +64,7 @@
           <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Meow your thoughts..."
                     class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-full" rows="1"></textarea>
           <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange">
-            <i class="fas fa-fish"></i>
+            <i class="fas fa-paper-plane"></i>
           </button>
           <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
           <button @click="$refs.fileInput.click()" class="p-2 text-airou-brown hover:text-airou-orange">
@@ -177,18 +177,19 @@ button:active {
   transition-delay: calc(0.1s * var(--i));
 }
 
+/* 更丰富的色彩方案 */
 .bg-airou-cream { background-color: #FFF9E6; }
-.bg-airou-light-brown { background-color: #D2B48C; }
-.bg-airou-brown { background-color: #8B4513; }
-.bg-airou-yellow { background-color: #FFD700; }
-.bg-airou-orange { background-color: #FFA500; }
-.bg-airou-light-green { background-color: #98FB98; }
+.bg-airou-light-brown { background-color: #E6C9A8; }
+.bg-airou-brown { background-color: #A67B5B; }
+.bg-airou-yellow { background-color: #FFE156; }
+.bg-airou-orange { background-color: #FFA94D; }
+.bg-airou-light-green { background-color: #A8E6CF; }
 .bg-airou-light-cream { background-color: #FFFAF0; }
-.bg-airou-pink { background-color: #FFC0CB; }
-.bg-airou-light-blue { background-color: #ADD8E6; }
+.bg-airou-pink { background-color: #FFD3E0; }
+.bg-airou-light-blue { background-color: #A8D8EA; }
 
 .text-airou-brown { color: #8B4513; }
-.text-airou-orange { color: #FFA500; }
+.text-airou-orange { color: #FFA94D; }
 
 .airou-button {
   transition: all 0.3s ease;
@@ -206,22 +207,12 @@ button:active {
 }
 
 @keyframes float {
-  0% { transform: translateY(0px) rotate(0deg); }
-  25% { transform: translateY(-5px) rotate(-5deg); }
-  50% { transform: translateY(-10px) rotate(0deg); }
-  75% { transform: translateY(-5px) rotate(5deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
-.conversation > div {
-  animation: float 6s ease-in-out infinite;
-  animation-delay: calc(var(--i) * 0.2s);
-}
 
-/* 为消息添加可爱的动画 */
-.message-fade-enter-active {
-  animation: bounceIn 0.5s;
-}
+
 
 @keyframes bounceIn {
   0% { transform: scale(0.9); opacity: 0; }
@@ -229,14 +220,17 @@ button:active {
   100% { transform: scale(1); opacity: 1; }
 }
 
-
+.message-fade-enter-active {
+  animation: bounceIn 0.5s;
+}
 
 /* 添加毛茸茸的边框效果 */
 .rounded-xl {
   position: relative;
+  overflow: hidden;
 }
 
-.rounded-xl::after {
+.rounded-xl::before {
   content: '';
   position: absolute;
   top: -2px;
@@ -244,13 +238,41 @@ button:active {
   right: -2px;
   bottom: -2px;
   background: 
-    radial-gradient(circle at 100% 100%, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 100% 100% / 14px 14px,
-    radial-gradient(circle at 0 100%, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 0 100% / 14px 14px,
-    radial-gradient(circle at 100% 0, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 100% 0 / 14px 14px,
-    radial-gradient(circle at 0 0, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 0 0 / 14px 14px;
+    radial-gradient(circle at 100% 100%, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 100% 100% / 14px 14px,
+    radial-gradient(circle at 0 100%, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 0 100% / 14px 14px,
+    radial-gradient(circle at 100% 0, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 100% 0 / 14px 14px,
+    radial-gradient(circle at 0 0, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 0 0 / 14px 14px;
   background-repeat: no-repeat;
   border-radius: 14px;
   z-index: -1;
+}
+
+/* 添加可爱的阴影效果 */
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(166, 123, 91, 0.1), 0 4px 6px -2px rgba(166, 123, 91, 0.05);
+}
+
+/* 添加可爱的过渡效果 */
+.transition {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* 添加鼠标悬停时的可爱效果 */
+.hover\:bg-airou-yellow:hover {
+  background-color: #FFE156;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 添加轻微的缩放效果 */
+.scale-on-hover {
+  transition: transform 0.3s ease;
+}
+
+.scale-on-hover:hover {
+  transform: scale(1.05);
 }
 </style>
 
