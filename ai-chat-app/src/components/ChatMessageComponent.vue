@@ -2,6 +2,7 @@
   <div class="mb-6">
     <transition name="message-pop">
       <div class="flex" :class="{'justify-end': message.sender === 'user'}">
+        <img v-if="message.sender === 'ai'" src="@/assets/cat.png" alt="AI Avatar" class="ai-avatar">
         <div class="max-w-2xl rounded-2xl p-4 shadow-lg message-bubble" 
              :class="message.sender === 'user' ? 'user-message' : 'ai-message'">
           <div class="message-content" v-html="formattedMessage"></div>
@@ -10,7 +11,6 @@
     </transition>
   </div>
 </template>
-
 
 <script>
 import 'highlight.js/styles/github-dark.css';
@@ -96,7 +96,7 @@ export default {
       pre.insertBefore(toolbar, pre.firstChild);
 
       // Adjust padding to avoid遮挡
-      pre.style.paddingTop = '30px';
+      pre.style.paddingTop = '20px';
     });
 
     new ClipboardJS('.copy-btn', {
@@ -126,6 +126,8 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@600&display=swap');
 
+
+
 .message-bubble {
   position: relative;
   transition: all 0.3s ease;
@@ -151,6 +153,14 @@ export default {
   color: #8B4513;
   border-radius: 18px 18px 18px 0;
   padding: 12px 16px;
+}
+
+.ai-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  align-self: flex-end;
 }
 
 .message-pop-enter-active,
@@ -179,17 +189,19 @@ export default {
 }
 
 :deep(.message-content pre) {
-  background-color: #D2B48C;
+  background-color: #F8F8F8;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 2.5rem 1rem 1rem;
   margin: 1rem 0;
   overflow-x: auto;
   border: 2px solid #8B4513;
+  position: relative;
 }
 
 :deep(.message-content code) {
   font-family: 'Roboto Mono', monospace;
   font-size: 0.9rem;
+  color: #333;
 }
 
 :deep(.message-content > *:first-child) {
@@ -210,9 +222,8 @@ export default {
 
 :deep(.hljs) {
   background-color: transparent;
-  color: #8B4513;
+  color: #333;
 }
-
 :deep(.copy-btn),
 :deep(.run-btn) {
   font-family: 'Roboto', sans-serif;
@@ -249,6 +260,7 @@ export default {
   border-radius: 4px;
 }
 
+
 :deep(.code-toolbar) {
   display: flex;
   justify-content: space-between;
@@ -256,16 +268,16 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  right: 0;
   padding: 0.5rem;
-  background-color: #D2B48C;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  background-color: #E6E6E6;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
   border-bottom: 2px solid #8B4513;
 }
 
 
-/* 添加可爱的动画效果 */
+
 @keyframes wiggle {
   0% { transform: rotate(0deg); }
   25% { transform: rotate(1deg); }

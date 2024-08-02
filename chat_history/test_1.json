@@ -18,5 +18,25 @@
         "example": false,
         "tool_calls": [],
         "invalid_tool_calls": []
+    },
+    {
+        "content": "我该如何使用c++ vector\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "在C++中，`vector` 是一个非常有用的容器，用于存储一系列相同类型的元素，它提供了动态数组的抽象。以下是 `vector` 的一些基本用法：\n\n### 包含头文件\n首先，你需要包含 `<vector>` 头文件。\n\n```cpp\n#include <vector>\n```\n\n### 创建 vector\n你可以创建一个空的 `vector` 或者初始化它。\n\n```cpp\n// 创建一个空的int类型vector\nstd::vector<int> myVector;\n\n// 初始化一个包含5个元素的int类型vector，所有元素默认为0\nstd::vector<int> myVector(5);\n\n// 初始化一个包含5个元素的int类型vector，所有元素都为指定的值\nstd::vector<int> myVector(5, 1);\n\n// 使用初始化列表初始化vector\nstd::vector<int> myVector = {1, 2, 3, 4, 5};\n```\n\n### 访问元素\n你可以使用下标访问 `vector` 中的元素。\n\n```cpp\nint firstElement = myVector[0]; // 获取第一个元素\nint lastElement = myVector[myVector.size() - 1]; // 获取最后一个元素\n```\n\n### 插入元素\n使用 `push_back` 方法可以在 `vector` 尾部插入一个新元素。\n\n```cpp\nmyVector.push_back(6); // 在尾部插入数字6\n```\n\n### 删除元素\n从 `vector` 尾部移除元素可以使用 `pop_back`。\n\n```cpp\nmyVector.pop_back(); // 移除最后一个元素\n```\n\n### 遍历 vector\n使用范围 `for` 循环或者迭代器遍历 `vector`。\n\n```cpp\n// 使用范围for循环\nfor (int element : myVector) {\n    std::cout << element << \" \";\n}\n\n// 或者使用迭代器\nfor (std::vector<int>::iterator it = myVector.begin(); it != myVector.end(); ++it) {\n    std::cout << *it << \" \";\n}\n```\n\n### 其他常用方法\n- `size()`：获取 `vector` 中的元素个数。\n- `capacity()`：获取 `vector` 当前分配的存储空间大小。\n- `resize(n)`：改变 `vector` 的大小为 `n`，如果 `n` 小于当前大小，则多余的元素被丢弃；如果 `n` 大于当前大小，则额外的元素默认初始化为0（对于数值类型）。\n- `clear()`：移除 `vector` 中所有元素，大小变为0。\n\n使用 `vector` 时需要注意，其内存是连续分配的，因此对 `vector` 的插入和删除操作可能会使 `vector` 重新分配内存，导致之前存储的迭代器、指针和引用失效。喵。",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": []
     }
 ]
