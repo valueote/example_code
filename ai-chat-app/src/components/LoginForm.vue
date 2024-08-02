@@ -1,7 +1,7 @@
 <template>
   <transition name="fade">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md anime-bg">
-      <h1 class="text-3xl font-bold text-center mb-6 anime-title">Welcome back, Senpai!</h1>
+      <h1 class="text-3xl font-bold text-center mb-6 anime-title">Welcome back!</h1>
       <input type="text" v-model="username" placeholder="Email address" required
             class="w-full px-4 py-2 mb-4 border-2 border-pink-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-400 anime-input">
       <input type="password" v-model="password" placeholder="Password" required
@@ -11,7 +11,7 @@
       </button>
       <div class="text-center mt-4">
         <a href="#" @click.prevent="$emit('show-register')" class="text-pink-600 hover:underline anime-link">
-          New to our world? Join us!
+          New to here? Join us!
         </a>
       </div>
     </div>

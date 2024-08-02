@@ -1,7 +1,7 @@
 <template>
   <transition name="fade">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md anime-bg">
-      <h1 class="text-3xl font-bold text-center mb-6 anime-title">Join Our Anime World!</h1>
+      <h1 class="text-3xl font-bold text-center mb-6 anime-title">Create your account!</h1>
       <input type="text" v-model="username" placeholder="Email address" required
             class="w-full px-4 py-2 mb-4 border-2 border-purple-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 anime-input">
       <input type="password" v-model="password" placeholder="Password" required

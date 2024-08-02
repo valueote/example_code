@@ -33,7 +33,7 @@
         <!-- 用户信息和设置 -->
         <div class="p-4 border-t border-pastel-purple flex items-center justify-between">
           <button @click="openSettings" class="text-left py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center text-sm kawaii-button">
-            <i class="fas fa-cog mr-2"></i> Magic Settings
+            <i class="fas fa-cog mr-2"></i> Settings
           </button>
           <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-pastel-yellow transition duration-300">
             <i class="fas fa-chevron-left"></i>
@@ -72,7 +72,7 @@
           </button>
         </div>
         <div class="text-xs text-pastel-purple mt-2 text-center">
-          Magic may produce unexpected results. Use with caution!
+          AI may produce unexpected results. Use with caution!
         </div>
       </div>
     </div>
@@ -81,26 +81,26 @@
     <div v-if="showSettings" class="fixed inset-0 bg-pastel-purple bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
       <div class="bg-pastel-cream p-5 rounded-xl shadow-xl w-1/3">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-pastel-purple">Magic Settings</h2>
+          <h2 class="text-xl font-bold text-pastel-purple">Settings</h2>
           <button @click="closeSettings" class="text-pastel-purple hover:text-pastel-orange">
             <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="space-y-4">
           <button @click="logout" class="w-full bg-pastel-pink text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-orange transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-door-open mr-2"></i> Exit Magical Realm
+            <i class="fas fa-door-open mr-2"></i> Logout
           </button>
           <button @click="runPythonInterpreter" class="w-full bg-pastel-green text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-wand-magic-sparkles mr-2"></i> Summon Python Familiar
+            <i class="fas fa-wand-magic-sparkles mr-2"></i> Run Python Interpreter
           </button>
           <button @click="showCCompiler = true" class="w-full bg-pastel-blue text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
             <i class="fas fa-hat-wizard mr-2"></i> Invoke C Spells
           </button>
           <button @click="showCppCompiler = true" class="w-full bg-pastel-orange text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-yellow transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-wand-sparkles mr-2"></i> Cast C++ Enchantments
+            <i class="fas fa-wand-sparkles mr-2"></i> Run C++ Compiler
           </button>
           <button @click="showJavaCompiler = true" class="w-full bg-pastel-yellow text-pastel-purple py-2 px-4 rounded-full hover:bg-pastel-orange transition duration-300 flex items-center justify-center kawaii-button">
-            <i class="fas fa-mug-hot mr-2"></i> Brew Java Potions
+            <i class="fas fa-mug-hot mr-2"></i> Run Java Compiler
           </button>
         </div>
       </div>
