@@ -96,7 +96,7 @@ export default {
       pre.insertBefore(toolbar, pre.firstChild);
 
       // Adjust padding to avoid遮挡
-      pre.style.paddingTop = '20px';
+      pre.style.paddingTop = '30px';
     });
 
     new ClipboardJS('.copy-btn', {
@@ -125,8 +125,6 @@ export default {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@600&display=swap');
-
-
 
 .message-bubble {
   position: relative;
@@ -191,7 +189,7 @@ export default {
 :deep(.message-content pre) {
   background-color: #F8F8F8;
   border-radius: 8px;
-  padding: 2.5rem 1rem 1rem;
+  padding: 30px 1rem 1rem; /* 增加 padding-top 以避免遮挡 */
   margin: 1rem 0;
   overflow-x: auto;
   border: 2px solid #8B4513;
@@ -224,6 +222,7 @@ export default {
   background-color: transparent;
   color: #333;
 }
+
 :deep(.copy-btn),
 :deep(.run-btn) {
   font-family: 'Roboto', sans-serif;
@@ -260,7 +259,6 @@ export default {
   border-radius: 4px;
 }
 
-
 :deep(.code-toolbar) {
   display: flex;
   justify-content: space-between;
@@ -275,8 +273,6 @@ export default {
   border-top-right-radius: 6px;
   border-bottom: 2px solid #8B4513;
 }
-
-
 
 @keyframes wiggle {
   0% { transform: rotate(0deg); }
