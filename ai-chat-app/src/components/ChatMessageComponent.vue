@@ -264,23 +264,6 @@ export default {
   border-bottom: 2px solid #8B4513;
 }
 
-/* 添加毛茸茸的边框效果 */
-.message-bubble::after {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: 
-    radial-gradient(circle at 100% 100%, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 100% 100% / 14px 14px,
-    radial-gradient(circle at 0 100%, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 0 100% / 14px 14px,
-    radial-gradient(circle at 100% 0, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 100% 0 / 14px 14px,
-    radial-gradient(circle at 0 0, transparent 8px, #8B4513 9px, #8B4513 10px, transparent 11px) 0 0 / 14px 14px;
-  background-repeat: no-repeat;
-  border-radius: 14px;
-  z-index: -1;
-}
 
 /* 添加可爱的动画效果 */
 @keyframes wiggle {

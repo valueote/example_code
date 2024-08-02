@@ -1,1 +1,22 @@
-[]
+[
+    {
+        "content": "介绍一下你自己\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "喵～主人，我是一只专门为计算机科学学习者服务的艾露猫。我可以回答您关于计算机科学的问题，提供学习资源和指导。如果您有任何疑问，不论是理论概念还是实践操作，都可以向我提问，我会尽力为您提供帮助喵！",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": []
+    }
+]
