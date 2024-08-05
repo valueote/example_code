@@ -3,8 +3,7 @@
     <transition name="message-pop">
       <div class="flex" :class="{'justify-end': message.sender === 'user'}">
         <img v-if="message.sender === 'ai'" src="@/assets/cat.png" alt="AI Avatar" class="ai-avatar">
-        <div class="max-w-2xl rounded-2xl p-4 shadow-lg message-bubble" 
-             :class="message.sender === 'user' ? 'user-message' : 'ai-message'">
+        <div class="message-bubble" :class="messageClass">
           <div class="message-content" v-html="formattedMessage"></div>
         </div>
       </div>
@@ -30,8 +29,10 @@ export default {
   
   setup() {
     const runPythonCode = inject('runPythonCode');
-    const showPythonInterpreter = inject('showPythonInterpreter');
-    return { runPythonCode, showPythonInterpreter };
+    const setCCode = inject('setCCode');
+    const setCppCode = inject('setCppCode');
+    const setJavaCode = inject('setJavaCode');
+    return { runPythonCode, setCCode, setCppCode, setJavaCode };
   },
 
   computed: {
@@ -49,6 +50,9 @@ export default {
         return marked(this.message.content);
       }
       return this.message.content;
+    },
+    messageClass() {
+      return this.message.sender === 'user' ? 'user-message' : 'ai-message';
     }
   },
   mounted() {
@@ -63,62 +67,61 @@ export default {
   },
   methods: {
     highlightCodeBlocks() {
-    this.$el.querySelectorAll('pre code').forEach(block => {
-      hljs.highlightElement(block);
+      this.$el.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block);
+        this.addCodeToolbar(block);
+      });
+
+      new ClipboardJS('.copy-btn', {
+        target: function(trigger) {
+          return trigger.parentNode.parentNode.querySelector('code');
+        }
+      });
+
+      this.$el.querySelectorAll('.run-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const codeBlock = button.parentNode.parentNode.querySelector('code');
+          const code = codeBlock.innerText;
+          const lang = codeBlock.classList[0].split('-')[1];
+          if (lang === 'python') {
+            this.runPythonCode(code);
+          } else if (lang === 'c') {
+            this.setCCode(code);
+          } else if (lang === 'cpp'){
+            this.setCppCode(code);
+          } else if (lang === 'java'){
+            this.setJavaCode(code);
+          }
+        });
+      });
+    },
+    addCodeToolbar(block) {
       const pre = block.parentNode;
       const lang = block.classList[0].split('-')[1];
 
-      // Create toolbar
       const toolbar = document.createElement('div');
       toolbar.className = 'code-toolbar';
 
-      // Create language tag
       const langTag = document.createElement('span');
       langTag.className = 'lang-tag';
       langTag.textContent = lang;
       toolbar.appendChild(langTag);
 
-      // Create copy button
       const copyButton = document.createElement('button');
       copyButton.className = 'copy-btn';
       copyButton.textContent = 'Copy';
       toolbar.appendChild(copyButton);
 
-      // Create run button only if the language is Python
-      if (lang === 'python') {
+      if (lang === 'python' || lang === 'c' || lang === 'java' || lang === 'cpp') {
         const runButton = document.createElement('button');
         runButton.className = 'run-btn';
         runButton.textContent = 'Run';
         toolbar.appendChild(runButton);
       }
 
-      // Insert toolbar before the code block
       pre.insertBefore(toolbar, pre.firstChild);
-
-      // Adjust padding to avoid遮挡
       pre.style.paddingTop = '30px';
-    });
-
-    new ClipboardJS('.copy-btn', {
-      target: function(trigger) {
-        return trigger.parentNode.parentNode.querySelector('code');
-      }
-    });
-
-    const handleRunCode = (code) => {
-      this.showPythonInterpreter.value = true;
-      this.runPythonCode(code);
-    };
-
-    // Add event listener for run button
-    this.$el.querySelectorAll('.run-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        const codeBlock = button.parentNode.parentNode.querySelector('code');
-        const code = codeBlock.innerText;
-        handleRunCode(code);
-      });
-    });
-  }
+    },
   }
 };
 </script>
