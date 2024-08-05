@@ -114,7 +114,7 @@
     />
 
     <!-- C Compiler -->
-    <CCompiler :visible="showCCompiler" @close="showCCompiler = false" />
+    <CCompiler :visible="showCCompiler" @close="showCCompiler = false" ref="cCompiler" />
     <!--Cpp Compiler-->
     <CppCompiler :visible="showCppCompiler" @close="showCppCompiler = false"/>
     <JavaCompiler :visible="showJavaCompiler" @close="showJavaCompiler = false" />
@@ -307,7 +307,9 @@ export default {
   provide() {
     return {
       runPythonCode: this.runPythonCode,
-      showPythonInterpreter: () => this.showPythonInterpreter
+      showPythonInterpreter: () => this.showPythonInterpreter,
+      showCCompiler: () => this.showCCompiler,
+      setCCode: this.setCCode
     };
   },
 
@@ -586,6 +588,13 @@ async switchConversation(historyNum) {
         
     closePythonInterpreter(){
       this.showPythonInterpreter = false;
+    },
+
+    setCCode(code) { 
+      this.showCCompiler = true;
+      this.$nextTick(() => {
+        this.$refs.cCompiler.setCode(code);
+      });
     }
   }
   
