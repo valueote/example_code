@@ -1,17 +1,17 @@
 <template>
   <transition name="fade">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md anime-bg">
-      <h1 class="text-3xl font-bold text-center mb-6 anime-title">Create your account!</h1>
-      <input type="text" v-model="username" placeholder="Email address" required
-            class="w-full px-4 py-2 mb-4 border-2 border-purple-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 anime-input">
-      <input type="password" v-model="password" placeholder="Password" required
-            class="w-full px-4 py-2 mb-4 border-2 border-purple-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 anime-input">
-      <button @click="register" class="w-full bg-purple-500 text-white py-2 rounded-full hover:bg-purple-600 transition duration-300 anime-button">
-        Sign up
+    <div class="bg-airou-light-cream p-8 rounded-xl shadow-md w-full max-w-md airou-bg">
+      <h1 class="text-3xl font-bold text-center mb-6 airou-title">Join the Airou Crew!</h1>
+      <input type="text" v-model="username" placeholder="Meow-mail address" required
+            class="w-full px-4 py-2 mb-4 border-2 border-airou-brown rounded-full focus:outline-none focus:ring-2 focus:ring-airou-orange airou-input">
+      <input type="password" v-model="password" placeholder="Paw-ssword" required
+            class="w-full px-4 py-2 mb-4 border-2 border-airou-brown rounded-full focus:outline-none focus:ring-2 focus:ring-airou-orange airou-input">
+      <button @click="register" class="w-full bg-airou-yellow text-airou-brown py-2 rounded-full hover:bg-airou-orange transition duration-300 airou-button">
+        <i class="fas fa-cat mr-2"></i> Create your Account!
       </button>
       <div class="text-center mt-4">
-        <a href="#" @click.prevent="$emit('show-login')" class="text-purple-600 hover:underline anime-link">
-          Already part of our crew? Log in!
+        <a href="#" @click.prevent="$emit('show-login')" class="text-airou-brown hover:underline airou-link">
+          Already have an account? Log in!
         </a>
       </div>
     </div>
@@ -52,45 +52,66 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Varela+Round&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap');
 
-.anime-bg {
-  background-image: url('https://example.com/anime-background-2.jpg');
-  background-size: cover;
-  background-position: center;
+.airou-bg {
+  background-color: #FFF9E6;
+  border: 2px solid #A67B5B;
+  position: relative;
+  overflow: hidden;
 }
 
-.anime-title {
-  font-family: 'Bangers', cursive;
-  color: #8A2BE2;
+.airou-bg::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: 
+    radial-gradient(circle at 100% 100%, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 100% 100% / 14px 14px,
+    radial-gradient(circle at 0 100%, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 0 100% / 14px 14px,
+    radial-gradient(circle at 100% 0, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 100% 0 / 14px 14px,
+    radial-gradient(circle at 0 0, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 0 0 / 14px 14px;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+.airou-title {
+  font-family: 'Fredoka One', cursive;
+  color: #8B4513;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
-.anime-input {
+.airou-input {
   font-family: 'Varela Round', sans-serif;
 }
 
-.anime-button {
-  font-family: 'Bangers', cursive;
+.airou-button {
+  font-family: 'Fredoka One', cursive;
   letter-spacing: 1px;
   font-size: 1.2em;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.anime-link {
+.airou-link {
   font-family: 'Varela Round', sans-serif;
-  color: #8A2BE2;
+  color: #8B4513;
 }
 
-@keyframes pulseAnimation {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+@keyframes catTailAnimation {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(-15deg); }
+  100% { transform: rotate(0deg); }
 }
 
-.anime-button:hover {
-  animation: pulseAnimation 2s ease-in-out infinite;
+.airou-button:hover i {
+  animation: catTailAnimation 0.5s ease-in-out infinite;
 }
+
 
 .fade-enter-active,
 .fade-leave-active {
