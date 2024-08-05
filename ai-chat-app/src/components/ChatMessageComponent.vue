@@ -29,10 +29,8 @@ export default {
   
   setup() {
     const runPythonCode = inject('runPythonCode');
-    const showPythonInterpreter = inject('showPythonInterpreter');
-    const showCCompiler = inject('showCCompiler');
     const setCCode = inject('setCCode');
-    return { runPythonCode, showPythonInterpreter, showCCompiler, setCCode };
+    return { runPythonCode, setCCode };
   },
 
   computed: {
@@ -119,11 +117,9 @@ export default {
       pre.style.paddingTop = '30px';
     },
     handleRunCode(code) {
-      this.showPythonInterpreter.value = true;
       this.runPythonCode(code);
     },
     handleRunCCode(code) {
-      this.showCCompiler.value = true;
       this.setCCode(code);
     }
   }

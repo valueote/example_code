@@ -307,8 +307,6 @@ export default {
   provide() {
     return {
       runPythonCode: this.runPythonCode,
-      showPythonInterpreter: () => this.showPythonInterpreter,
-      showCCompiler: () => this.showCCompiler,
       setCCode: this.setCCode
     };
   },
