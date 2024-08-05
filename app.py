@@ -586,7 +586,7 @@ import shutil
 
 
 @app.route('/compile_run_c', methods=['POST'])
-def compile_run_cpp():
+def compile_run_c():
     code = request.json.get('code')
     if not code:
         return jsonify({"error": "No code provided"}), 400
@@ -619,6 +619,39 @@ def compile_run_cpp():
         # 清理临时目录
         shutil.rmtree(temp_dir)
 
+@app.route('/compile_run_cpp', methods=['POST'])
+def compile_run_cpp():
+    code = request.json.get('code')
+    if not code:
+        return jsonify({"error": "No code provided"}), 400
+
+    # 创建临时目录
+    temp_dir = "temp_cpp_dir"
+    os.makedirs(temp_dir, exist_ok=True)
+
+    try:
+        # 保存代码到临时文件
+        temp_cpp_file = os.path.join(temp_dir, "temp.cpp")
+        with open(temp_cpp_file, "w") as f:
+            f.write(code)
+
+        try:
+            # 编译代码
+            subprocess.check_output(["g++", "temp.cpp", "-o", "temp"], cwd=temp_dir, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            # 编译错误
+            return jsonify({"error": e.output.decode()}), 400
+
+        try:
+            # 运行可执行文件
+            result = subprocess.check_output(["./temp"], cwd=temp_dir, stderr=subprocess.STDOUT)
+            return jsonify({"output": result.decode()})
+        except subprocess.CalledProcessError as e:
+            # 运行时错误
+            return jsonify({"error": e.output.decode()}), 400
+    finally:
+        # 清理临时目录
+        shutil.rmtree(temp_dir)
 
 @app.route('/compile_run_java', methods=['POST'])
 def compile_run_java():
