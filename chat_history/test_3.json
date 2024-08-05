@@ -18,5 +18,25 @@
         "example": false,
         "tool_calls": [],
         "invalid_tool_calls": []
+    },
+    {
+        "content": "give me a short java code\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "Certainly, here's a simple Java program that prints \"Hello, World!\" to the console:\n\n```java\npublic class HelloWorld {\n    public static void main(String[] args) {\n        // Output the string \"Hello, World!\" to the console\n        System.out.println(\"Hello, World!\");\n    }\n}\n```\n\nTo run this program, you would save it to a file named `HelloWorld.java`, then compile it with the `javac` command, and finally run it with the `java` command:\n\n```bash\njavac HelloWorld.java\njava HelloWorld\n```\n\nAfter running the program, you should see `Hello, World!` printed to the console.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": []
     }
 ]

@@ -82,7 +82,10 @@ export default {
           this.$refs.codeEditor.selectionStart = this.$refs.codeEditor.selectionEnd = start + 4;
         });
       }
-    }
+    },
+    setCode(code) {
+        this.code = code;
+    },
   }
 };
 </script>

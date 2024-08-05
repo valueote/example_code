@@ -308,7 +308,8 @@ export default {
     return {
       runPythonCode: this.runPythonCode,
       setCCode: this.setCCode,
-      setCppCode: this.setCppCode
+      setCppCode: this.setCppCode,
+      setJavaCode: this.setJavaCode,
     };
   },
 

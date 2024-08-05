@@ -31,7 +31,8 @@ export default {
     const runPythonCode = inject('runPythonCode');
     const setCCode = inject('setCCode');
     const setCppCode = inject('setCppCode');
-    return { runPythonCode, setCCode, setCppCode };
+    const setJavaCode = inject('setJavaCode');
+    return { runPythonCode, setCCode, setCppCode, setJavaCode };
   },
 
   computed: {
@@ -88,6 +89,8 @@ export default {
             this.setCCode(code);
           } else if (lang === 'cpp'){
             this.setCppCode(code);
+          } else if (lang === 'java'){
+            this.setJavaCode(code);
           }
         });
       });
