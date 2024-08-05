@@ -30,7 +30,8 @@ export default {
   setup() {
     const runPythonCode = inject('runPythonCode');
     const setCCode = inject('setCCode');
-    return { runPythonCode, setCCode };
+    const setCppCode = inject('setCppCode');
+    return { runPythonCode, setCCode, setCppCode };
   },
 
   computed: {
@@ -82,9 +83,11 @@ export default {
           const code = codeBlock.innerText;
           const lang = codeBlock.classList[0].split('-')[1];
           if (lang === 'python') {
-            this.handleRunCode(code);
+            this.runPythonCode(code);
           } else if (lang === 'c') {
-            this.handleRunCCode(code);
+            this.setCCode(code);
+          } else if (lang === 'cpp'){
+            this.setCppCode(code);
           }
         });
       });
@@ -106,7 +109,7 @@ export default {
       copyButton.textContent = 'Copy';
       toolbar.appendChild(copyButton);
 
-      if (lang === 'python' || lang === 'c') {
+      if (lang === 'python' || lang === 'c' || lang === 'java' || lang === 'cpp') {
         const runButton = document.createElement('button');
         runButton.className = 'run-btn';
         runButton.textContent = 'Run';
@@ -116,12 +119,6 @@ export default {
       pre.insertBefore(toolbar, pre.firstChild);
       pre.style.paddingTop = '30px';
     },
-    handleRunCode(code) {
-      this.runPythonCode(code);
-    },
-    handleRunCCode(code) {
-      this.setCCode(code);
-    }
   }
 };
 </script>

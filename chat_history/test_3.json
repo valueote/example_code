@@ -1,6 +1,6 @@
 [
     {
-        "content": "give me a short c code\n",
+        "content": "give me a short cpp code\n",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "human",
@@ -9,7 +9,7 @@
         "example": false
     },
     {
-        "content": "Certainly, here's a simple C program that will print the \"Hello, World!\" message to the console, which is often used as a first program when learning a new programming language:\n\n```c\n#include <stdio.h> // Include the standard input/output header file\n\nint main() {\n    // The main function - where the program starts executing\n    printf(\"Hello, World!\\n\"); // Print the message to the console\n    return 0; // Indicate that the program executed successfully\n}\n```\n\nTo compile and run this program, you would typically use a C compiler such as `gcc`. Here's how you might do it on a terminal or command prompt:\n\n```\ngcc -o hello hello.c\n./hello\n```\n\nIn the above commands, `gcc -o hello hello.c` compiles the source code file `hello.c` into an executable named `hello`, and `./hello` runs the compiled program. Remember, this is a simple example to get you started!喵~",
+        "content": "Certainly, here's a simple C++ program that demonstrates the use of input and output, as well as a basic function. This program will ask the user for their name and greet them.\n\n```cpp\n#include <iostream> // For input/output stream\n#include <string>   // For std::string\n\n// Function to greet the user\nvoid greet(const std::string& name) {\n    std::cout << \"Hello, \" << name << \"! Welcome to C++ programming!\" << std::endl;\n}\n\nint main() {\n    std::string userName;\n\n    // Get user's name\n    std::cout << \"Please enter your name: \";\n    std::getline(std::cin, userName); // Use std::getline to handle spaces in the name\n\n    // Greet the user\n    greet(userName);\n\n    return 0; // Indicate successful execution of the program\n}\n```\n\nTo compile and run this program, you would typically use a command like `g++` to compile it, and then execute the resulting binary:\n\n```bash\ng++ -o greet_program greet.cpp\n./greet_program\n```\n\nReplace `greet.cpp` with the name of your source file if you save the code under a different name. After running the program, it will wait for you to input your name, after which it will greet you.",
         "additional_kwargs": {},
         "response_metadata": {},
         "type": "ai",

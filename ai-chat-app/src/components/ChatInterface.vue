@@ -116,8 +116,8 @@
     <!-- C Compiler -->
     <CCompiler :visible="showCCompiler" @close="showCCompiler = false" ref="cCompiler" />
     <!--Cpp Compiler-->
-    <CppCompiler :visible="showCppCompiler" @close="showCppCompiler = false"/>
-    <JavaCompiler :visible="showJavaCompiler" @close="showJavaCompiler = false" />
+    <CppCompiler :visible="showCppCompiler" @close="showCppCompiler = false" ref="cppCompiler"/>
+    <JavaCompiler :visible="showJavaCompiler" @close="showJavaCompiler = false" ref="javaCompiler"/>
 
   </div>
 </template>
@@ -307,7 +307,8 @@ export default {
   provide() {
     return {
       runPythonCode: this.runPythonCode,
-      setCCode: this.setCCode
+      setCCode: this.setCCode,
+      setCppCode: this.setCppCode
     };
   },
 
@@ -592,6 +593,18 @@ async switchConversation(historyNum) {
       this.showCCompiler = true;
       this.$nextTick(() => {
         this.$refs.cCompiler.setCode(code);
+      });
+    },
+    setCppCode(code) { 
+      this.showCppCompiler = true;
+      this.$nextTick(() => {
+        this.$refs.cppCompiler.setCode(code);
+      });
+    },
+    setJavaCode(code) { 
+      this.showJavaCompiler = true;
+      this.$nextTick(() => {
+        this.$refs.javaCompiler.setCode(code);
       });
     }
   }
