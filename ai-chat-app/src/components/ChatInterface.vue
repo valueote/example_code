@@ -21,7 +21,7 @@
                 :style="{ '--i': index }">
               <div class="flex items-center flex-grow">
                 <i class="fas fa-paw mr-3"></i>
-                <span class="text-sm">{{ conversation.title || 'New Meow-venture' }}</span>
+                <span class="text-sm">{{ conversation.title || 'New Chat' }}</span>
               </div>
               <button @click.stop="deleteConversation(conversation.history_num)" class="text-red-400 hover:text-red-600">
                 <i class="fas fa-times"></i>
@@ -61,7 +61,7 @@
               <i class="fas fa-paw"></i>
           </button>
           
-          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Meow your thoughts..."
+          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your thoughts..."
                     class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-full" rows="1"></textarea>
           <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange">
             <i class="fas fa-paper-plane"></i>
@@ -167,7 +167,6 @@ button:active {
   opacity: 0;
 }
 
-/* New styles for staggered entry of conversation items */
 .conversation-move {
   transition: transform 0.5s;
 }

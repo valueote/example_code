@@ -38,5 +38,25 @@
         "example": false,
         "tool_calls": [],
         "invalid_tool_calls": []
+    },
+    {
+        "content": "给我推荐一些关于体系结构的课程\n",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null,
+        "example": false
+    },
+    {
+        "content": "当然，关于计算机体系结构，有许多高质量的课程可以推荐。以下是一些广泛认可的、适合不同层次学习者的课程：\n\n1. **CMU 15-213: Introduction to Computer Systems (ICS)** - 这门课程是计算机系统入门的经典课程，内容覆盖了计算机体系结构、汇编语言、链接、并行性、网络等，适合初学者。\n\n2. **MIT 6.004: Computation Structures** - MIT的计算机体系结构课程，涵盖了计算机组成原理、数字逻辑设计、微处理器设计等内容，非常注重理论与实践的结合。\n\n3. **CS61C: Great Ideas in Computer Architecture** - 加州大学伯克利分校的计算机体系结构课程，深入讲解了计算机组成原理、指令集架构、流水线技术、缓存等内容。\n\n4. **ETH Zurich: Digital Design and Computer Architecture** - 苏黎世联邦理工的数字设计和计算机体系结构课程，覆盖了从晶体管到高级处理器的完整设计流程。\n\n5. **Stanford CS140e: Computer Architecture and Engineering** - 斯坦福大学的计算机体系结构课程，内容涵盖计算机组成、指令集架构、缓存、流水线、多处理器等内容。\n\n6. **MIT 6.823: Computer Systems Engineering** - 这门课程更侧重于计算机系统的设计和实现，包括系统编程、并行性、网络、存储系统等高级主题。\n\n7. **MIT 6.172: Performance Engineering of Software Systems** - 这门课程专注于软件系统的性能工程，涵盖了性能分析、优化策略、多线程等内容。\n\n8. **MIT 6.828: Operating System Engineering** - 这门课程深入探讨了操作系统的设计和实现，涵盖了进程管理、内存管理、文件系统、并发等内容。\n\n选择适合自己的课程时，可以考虑个人的基础、兴趣以及未来的职业规划。每门课程都有其独特的内容和侧重点，因此可以根据自己的学习需求进行选择。",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "example": false,
+        "tool_calls": [],
+        "invalid_tool_calls": []
     }
 ]
