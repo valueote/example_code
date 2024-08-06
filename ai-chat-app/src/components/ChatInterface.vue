@@ -56,23 +56,26 @@
       </div>
       
       <!-- 输入区域 -->
-      <div class="border-t border-airou-brown p-4 bg-airou-light-brown">
-        <div class="max-w-4xl mx-auto">
-          <div class="flex items-center bg-white rounded-full shadow-md">
+      <div class="p-4 bg-airou-light-cream">
+        <div class="max-w-4xl mx-auto relative">
+          <div class="flex items-center bg-white rounded-lg shadow-lg p-2">
             <!-- 侧边栏切换按钮 -->
-            <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-airou-brown" :class="{ 'transform rotate-180': !showSidebar }">
-                <i class="fas fa-paw"></i>
+            <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-airou-brown hover:text-airou-orange">
+              <i class="fas fa-bars"></i>
             </button>
             
             <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your thoughts..."
-                      class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-full" rows="1"></textarea>
-            <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-            <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
-            <button @click="$refs.fileInput.click()" class="p-2 text-airou-brown hover:text-airou-orange">
-              <i class="fas fa-paperclip"></i>
-            </button>
+                      class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-lg" rows="1"></textarea>
+            
+            <div class="flex items-center">
+              <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+              <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
+              <button @click="$refs.fileInput.click()" class="p-2 text-airou-brown hover:text-airou-orange">
+                <i class="fas fa-paperclip"></i>
+              </button>
+            </div>
           </div>
           <div class="text-xs text-airou-brown mt-2 text-center">
             Airou may produce unexpected purrs. Use with caution!
@@ -80,6 +83,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- 设置页面 -->
     <div v-if="showSettings" class="fixed inset-0 bg-airou-brown bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
@@ -136,14 +140,6 @@ html, body {
   transition: width 0.3s ease;
 }
 
-button {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
 button:active {
   transform: translateY(0);
@@ -159,23 +155,23 @@ button:active {
   margin-right: auto;
 }
 
-/* 调整侧边栏宽度 */
+
 .w-64 {
   width: 16rem;
 }
 
-/* 确保主聊天界面在侧边栏关闭时占据整个宽度 */
+
 .flex-1.flex.flex-col {
   width: 100%;
 }
 
-/* 可以根据需要调整内边距 */
+
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
 }
 
-/* 调整输入区域的背景色，使其与侧边栏颜色一致 */
+
 .bg-airou-light-brown {
   background-color: #E6C9A8;
 }
@@ -307,6 +303,43 @@ button:active {
 
 .scale-on-hover:hover {
   transform: scale(1.05);
+}
+
+
+.bg-airou-light-cream {
+  background-color: #FFFAF0;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 添加悬浮效果 */
+.flex.items-center.bg-white {
+  transition: all 0.3s ease;
+}
+
+.flex.items-center.bg-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.15), 0 6px 8px -2px rgba(0, 0, 0, 0.1);
+}
+
+
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.1);
+}
+
+
+textarea {
+  transition: none;
 }
 </style>
 
