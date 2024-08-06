@@ -1,21 +1,30 @@
 <template>
-  <transition name="fade">
-    <div class="bg-airou-light-cream p-8 rounded-xl shadow-md w-full max-w-md airou-bg">
-      <h1 class="text-3xl font-bold text-center mb-6 airou-title">Welcome back, nya~!</h1>
-      <input type="text" v-model="username" placeholder="Meow-mail address" required
-            class="w-full px-4 py-2 mb-4 border-2 border-airou-brown rounded-full focus:outline-none focus:ring-2 focus:ring-airou-orange airou-input">
-      <input type="password" v-model="password" placeholder="Paw-ssword" required
-            class="w-full px-4 py-2 mb-4 border-2 border-airou-brown rounded-full focus:outline-none focus:ring-2 focus:ring-airou-orange airou-input">
-      <button @click="login" class="w-full bg-airou-yellow text-airou-brown py-2 rounded-full hover:bg-airou-orange transition duration-300 airou-button">
-        <i class="fas fa-paw mr-2"></i> Log In!
-      </button>
-      <div class="text-center mt-4">
-        <a href="#" @click.prevent="$emit('show-register')" class="text-airou-brown hover:underline airou-link">
-          New to here? Join us!
-        </a>
+  <div class="min-h-screen w-full flex items-center justify-center bg-airou-pattern">
+    <div class="w-full max-w-4xl p-8 flex flex-col items-center">
+      <h1 class="text-4xl font-bold text-airou-brown mb-8 airou-main-title">Airou Chat</h1>
+      <transition name="fade">
+        <div class="bg-airou-light-cream p-8 rounded-xl shadow-lg w-full max-w-md airou-bg">
+          <h2 class="text-3xl font-bold text-center mb-6 airou-title">Welcome back, nya~!</h2>
+          <input type="text" v-model="username" placeholder="Meow-mail address" required
+                class="w-full px-4 py-2 mb-4 border-2 border-airou-brown rounded-full focus:outline-none focus:ring-2 focus:ring-airou-orange airou-input">
+          <input type="password" v-model="password" placeholder="Paw-ssword" required
+                class="w-full px-4 py-2 mb-4 border-2 border-airou-brown rounded-full focus:outline-none focus:ring-2 focus:ring-airou-orange airou-input">
+          <button @click="login" class="w-full bg-airou-yellow text-airou-brown py-2 rounded-full hover:bg-airou-orange transition duration-300 airou-button">
+            <i class="fas fa-paw mr-2"></i> Log In!
+          </button>
+          <div class="text-center mt-4">
+            <a href="#" @click.prevent="$emit('show-register')" class="text-airou-brown hover:underline airou-link">
+              New to here? Join us!
+            </a>
+          </div>
+        </div>
+      </transition>
+      <div class="mt-8 text-center text-airou-brown">
+        <p class="mb-2">Purr-fect for cat lovers and chat enthusiasts!</p>
+        <p>Join our feline-friendly community today!</p>
       </div>
     </div>
-  </transition>
+  </div>
 </template>
 
 <script>
@@ -55,6 +64,14 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap');
 
+
+
+.airou-main-title {
+  font-family: 'Fredoka One', cursive;
+  color: #8B4513;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+}
+
 .airou-bg {
   background-color: #FFF9E6;
   border: 2px solid #A67B5B;
@@ -76,6 +93,13 @@ export default {
     radial-gradient(circle at 0 0, transparent 8px, #A67B5B 9px, #A67B5B 10px, transparent 11px) 0 0 / 14px 14px;
   background-repeat: no-repeat;
   z-index: -1;
+}
+
+.bg-airou-pattern {
+  background-color: #FFF9E6;
+  background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a67b5b' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: auto;
 }
 
 .airou-title {
@@ -112,7 +136,6 @@ export default {
 .airou-button:hover i {
   animation: pawAnimation 0.5s ease-in-out infinite;
 }
-
 
 .fade-enter-active,
 .fade-leave-active {
