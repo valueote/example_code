@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen w-full flex items-center justify-center bg-airou-pattern">
     <div class="w-full max-w-4xl p-8 flex flex-col items-center">
-      <h1 class="text-4xl font-bold text-airou-brown mb-8 airou-main-title">Airou Chat</h1>
+      <h1 class="text-4xl font-bold text-airou-brown mb-8 airou-main-title">Cs Airou Cat</h1>
       <transition name="fade">
         <div class="bg-airou-light-cream p-8 rounded-xl shadow-lg w-full max-w-md airou-bg">
           <h2 class="text-3xl font-bold text-center mb-6 airou-title">Join the Airou Crew!</h2>

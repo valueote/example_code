@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen w-full flex items-center justify-center bg-airou-pattern">
     <div class="w-full max-w-4xl p-8 flex flex-col items-center">
-      <h1 class="text-4xl font-bold text-airou-brown mb-8 airou-main-title">Airou Chat</h1>
+      <h1 class="text-4xl font-bold text-airou-brown mb-8 airou-main-title">Cs Airou Cat</h1>
       <transition name="fade">
         <div class="bg-airou-light-cream p-8 rounded-xl shadow-lg w-full max-w-md airou-bg">
           <h2 class="text-3xl font-bold text-center mb-6 airou-title">Welcome back, nya~!</h2>
@@ -64,7 +64,10 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap');
 
-
+.bg-airou-pattern {
+  background-color: #FFF9E6;
+  background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a67b5b' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
 
 .airou-main-title {
   font-family: 'Fredoka One', cursive;
