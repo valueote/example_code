@@ -6,7 +6,7 @@
         <!-- 新建对话按钮 -->
         <div class="p-4">
           <button @click="newConversation" class="w-full bg-airou-yellow text-airou-brown py-2 px-4 rounded-full hover:bg-airou-orange transition duration-300 flex items-center justify-center airou-button">
-            <i class="fas fa-paw mr-2"></i> New Meow-venture
+            <i class="fas fa-paw mr-2"></i> New Chat
           </button>
         </div>
         
@@ -33,7 +33,7 @@
         <!-- 用户信息和设置 -->
         <div class="p-4 border-t border-airou-brown flex items-center justify-between">
           <button @click="openSettings" class="text-left py-2 px-4 rounded-full hover:bg-airou-yellow transition duration-300 flex items-center text-sm airou-button">
-            <i class="fas fa-cat mr-2"></i> Paw-settings
+            <i class="fas fa-cat mr-2"></i> Settings
           </button>
           <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-airou-yellow transition duration-300">
             <i class="fas fa-chevron-left"></i>
@@ -88,13 +88,13 @@
         </div>
         <div class="space-y-4">
           <button @click="logout" class="w-full bg-airou-pink text-airou-brown py-2 px-4 rounded-full hover:bg-airou-orange transition duration-300 flex items-center justify-center airou-button">
-            <i class="fas fa-paw mr-2"></i> Cat-ch you later
+            <i class="fas fa-paw mr-2"></i> Log out
           </button>
           <button @click="runPythonInterpreter" class="w-full bg-airou-light-green text-airou-brown py-2 px-4 rounded-full hover:bg-airou-yellow transition duration-300 flex items-center justify-center airou-button">
-            <i class="fas fa-fish mr-2"></i> Python Purr-preter
+            <i class="fas fa-fish mr-2"></i> Python Interpreter
           </button>
           <button @click="showCCompiler = true" class="w-full bg-airou-light-blue text-airou-brown py-2 px-4 rounded-full hover:bg-airou-yellow transition duration-300 flex items-center justify-center airou-button">
-            <i class="fas fa-paw mr-2"></i> C Whisker Spells
+            <i class="fas fa-paw mr-2"></i> C Compiler
           </button>
           <button @click="showCppCompiler = true" class="w-full bg-airou-orange text-airou-brown py-2 px-4 rounded-full hover:bg-airou-yellow transition duration-300 flex items-center justify-center airou-button">
             <i class="fas fa-fish mr-2"></i> C++ Compiler
@@ -280,7 +280,7 @@ button:active {
 import axios from 'axios';
 import ChatMessageComponent from './ChatMessageComponent.vue';
 import PythonInterpreter from './PythonInterpreter.vue';
-import CCompiler from './CCompiler.vue'; // 引入CCompiler组件
+import CCompiler from './CCompiler.vue';
 import {reactive } from 'vue';
 import CppCompiler from './CppCompiler.vue';
 import JavaCompiler from './JavaCompiler.vue';
@@ -298,7 +298,7 @@ export default {
       showPythonInterpreter: false,
       showSidebar: true,
       showSettings: false,
-      showCCompiler: false, // 控制C语言编译器显示
+      showCCompiler: false, 
       showCppCompiler: false,
       showJavaCompiler: false,
     };
