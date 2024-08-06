@@ -45,7 +45,7 @@
     <!-- 主聊天界面 -->
     <div class="flex-1 flex flex-col">
       <!-- 聊天消息区域 -->
-      <div class="flex-1 overflow-y-auto px-4 py-6 bg-airou-light-cream" ref="chatMessages">
+      <div class="flex-1 overflow-y-auto px-4 pb-2 bg-airou-light-cream" ref="chatMessages">
         <div class="max-w-4xl mx-auto">
           <transition-group name="message-fade" tag="div">
             <div v-for="(message, index) in messages" :key="index" class="mb-6">
@@ -56,23 +56,23 @@
       </div>
       
       <!-- 输入区域 -->
-      <div class="p-4 bg-airou-light-cream">
-        <div class="max-w-4xl mx-auto relative">
-          <div class="flex items-center bg-white rounded-lg shadow-lg p-2">
+      <div class="px-4 pb-4 bg-airou-light-cream">
+        <div class="max-w-4xl mx-auto">
+          <div class="flex items-center bg-white rounded-full shadow-lg">
             <!-- 侧边栏切换按钮 -->
-            <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-airou-brown hover:text-airou-orange">
+            <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-airou-brown hover:text-airou-orange rounded-full">
               <i class="fas fa-bars"></i>
             </button>
             
             <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your thoughts..."
-                      class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-lg" rows="1"></textarea>
+                      class="flex-1 px-4 py-3 focus:outline-none resize-none bg-transparent" rows="1"></textarea>
             
-            <div class="flex items-center">
-              <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange">
+            <div class="flex items-center pr-2">
+              <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange rounded-full">
                 <i class="fas fa-paper-plane"></i>
               </button>
               <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
-              <button @click="$refs.fileInput.click()" class="p-2 text-airou-brown hover:text-airou-orange">
+              <button @click="$refs.fileInput.click()" class="p-2 text-airou-brown hover:text-airou-orange rounded-full">
                 <i class="fas fa-paperclip"></i>
               </button>
             </div>
@@ -83,6 +83,7 @@
         </div>
       </div>
     </div>
+
 
 
     <!-- 设置页面 -->
@@ -329,17 +330,39 @@ button:active {
 }
 
 
+
 button {
   transition: all 0.2s ease;
 }
 
 button:hover {
   transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 
+/* 确保输入框在悬浮时不会变形 */
 textarea {
   transition: none;
+  background: transparent;
+}
+
+/* 添加自定义滚动条样式 */
+textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background-color: rgba(166, 123, 91, 0.5);
+  border-radius: 3px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(166, 123, 91, 0.7);
 }
 </style>
 
