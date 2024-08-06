@@ -2,7 +2,7 @@
   <div class="flex h-screen w-screen bg-airou-cream">
     <!-- 侧边栏 -->
     <transition name="slide-fade-show">
-      <div v-show="showSidebar" class="w-1/5 bg-airou-light-brown border-r border-airou-brown flex flex-col rounded-r-xl shadow-lg">
+      <div v-show="showSidebar" class="w-64 bg-airou-light-brown border-r border-airou-brown flex flex-col rounded-r-xl shadow-lg">
         <!-- 新建对话按钮 -->
         <div class="p-4">
           <button @click="newConversation" class="w-full bg-airou-yellow text-airou-brown py-2 px-4 rounded-full hover:bg-airou-orange transition duration-300 flex items-center justify-center airou-button">
@@ -43,36 +43,40 @@
     </transition>
 
     <!-- 主聊天界面 -->
-    <div class="flex-1 flex flex-col" :class="{ 'w-full': !showSidebar, 'w-4/5': showSidebar }">
+    <div class="flex-1 flex flex-col">
       <!-- 聊天消息区域 -->
       <div class="flex-1 overflow-y-auto px-4 py-6 bg-airou-light-cream" ref="chatMessages">
-        <transition-group name="message-fade" tag="div">
-          <div v-for="(message, index) in messages" :key="index" class="mb-6">
-            <ChatMessageComponent :message="message" />
-          </div>
-        </transition-group>
+        <div class="max-w-4xl mx-auto">
+          <transition-group name="message-fade" tag="div">
+            <div v-for="(message, index) in messages" :key="index" class="mb-6">
+              <ChatMessageComponent :message="message" />
+            </div>
+          </transition-group>
+        </div>
       </div>
       
       <!-- 输入区域 -->
       <div class="border-t border-airou-brown p-4 bg-airou-light-brown">
-        <div class="flex items-center bg-white rounded-full shadow-md">
-          <!-- 侧边栏切换按钮 -->
-          <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-airou-brown" :class="{ 'transform rotate-180': !showSidebar }">
-              <i class="fas fa-paw"></i>
-          </button>
-          
-          <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your thoughts..."
-                    class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-full" rows="1"></textarea>
-          <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange">
-            <i class="fas fa-paper-plane"></i>
-          </button>
-          <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
-          <button @click="$refs.fileInput.click()" class="p-2 text-airou-brown hover:text-airou-orange">
-            <i class="fas fa-paperclip"></i>
-          </button>
-        </div>
-        <div class="text-xs text-airou-brown mt-2 text-center">
-          Airou may produce unexpected purrs. Use with caution!
+        <div class="max-w-4xl mx-auto">
+          <div class="flex items-center bg-white rounded-full shadow-md">
+            <!-- 侧边栏切换按钮 -->
+            <button @click="toggleSidebar" v-if="!showSidebar" class="p-2 text-airou-brown" :class="{ 'transform rotate-180': !showSidebar }">
+                <i class="fas fa-paw"></i>
+            </button>
+            
+            <textarea v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your thoughts..."
+                      class="flex-1 px-4 py-2 focus:outline-none resize-none rounded-full" rows="1"></textarea>
+            <button @click="sendMessage" class="p-2 text-airou-brown hover:text-airou-orange">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+            <input type="file" ref="fileInput" @change="handleFileUpload" multiple style="display: none;">
+            <button @click="$refs.fileInput.click()" class="p-2 text-airou-brown hover:text-airou-orange">
+              <i class="fas fa-paperclip"></i>
+            </button>
+          </div>
+          <div class="text-xs text-airou-brown mt-2 text-center">
+            Airou may produce unexpected purrs. Use with caution!
+          </div>
         </div>
       </div>
     </div>
@@ -145,6 +149,37 @@ button:active {
   transform: translateY(0);
   box-shadow: none;
 }
+
+.max-w-4xl {
+  max-width: 56rem;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 调整侧边栏宽度 */
+.w-64 {
+  width: 16rem;
+}
+
+/* 确保主聊天界面在侧边栏关闭时占据整个宽度 */
+.flex-1.flex.flex-col {
+  width: 100%;
+}
+
+/* 可以根据需要调整内边距 */
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* 调整输入区域的背景色，使其与侧边栏颜色一致 */
+.bg-airou-light-brown {
+  background-color: #E6C9A8;
+}
+
 
 /* Animation for messages when switching conversations */
 .message-fade-enter-active,
