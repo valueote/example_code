@@ -19,9 +19,12 @@
           </div>
         </div>
       </transition>
-      <div class="mt-8 text-center text-airou-brown">
-        <p class="mb-2">Purr-fect for cat lovers and chat enthusiasts!</p>
-        <p>Join our feline-friendly community today!</p>
+      <div class="mt-8 text-center">
+        <p class="airou-tagline">
+          An Airou cat who can help you learn 
+          <span class="text-airou-orange font-bold">Computer Science</span> and 
+          <span class="text-airou-orange font-bold">Programming</span>!
+        </p>
       </div>
     </div>
   </div>
@@ -162,5 +165,49 @@ input:focus {
 button:active {
   transform: translateY(0);
   box-shadow: none;
+}
+
+.airou-tagline {
+  font-family: 'Varela Round', sans-serif;
+  color: #8B4513;
+  font-size: 1.2em;
+  line-height: 1.5;
+  max-width: 80%;
+  margin: 0 auto;
+  padding: 10px 20px;
+  background-color: rgba(255, 249, 230, 0.8);
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.airou-tagline::before,
+.airou-tagline::after {
+  content: '🐾';
+  position: absolute;
+  font-size: 1.5em;
+}
+
+.airou-tagline::before {
+  left: -10px;
+  top: -10px;
+  transform: rotate(-30deg);
+}
+
+.airou-tagline::after {
+  right: -10px;
+  bottom: -10px;
+  transform: rotate(30deg);
+}
+
+/* 动画效果 */
+@keyframes pawWiggle {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(10deg); }
+}
+
+.airou-tagline:hover::before,
+.airou-tagline:hover::after {
+  animation: pawWiggle 0.5s ease-in-out infinite;
 }
 </style>
