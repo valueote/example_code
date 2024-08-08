@@ -76,7 +76,7 @@ def get_spark_chat_model():
     llm = ChatOpenAI(
         temperature=0.95,
         model="glm-4",
-        openai_api_key="897260a0fd332dcaaaa7c00b22d22091.HQtEoSqNdwdnINB4",
+        openai_api_key="1f10ac91b13442e51a8742ec7c0a6295.zzcUoZKEHD1YkwyL",
         openai_api_base="https://open.bigmodel.cn/api/paas/v4/"
     )
 

@@ -35,7 +35,7 @@ def build_and_save_vectordb():
     chunked_documents = text_splitter.split_documents(documents=documents)
 
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="C:/Users/Lenovo/Desktop/workspace/pythonProject/langchain-first/models/m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     vectorstore = FAISS.from_documents(
