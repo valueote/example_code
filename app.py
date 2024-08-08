@@ -249,7 +249,7 @@ def get_vectordb():
     """
 
     EMBEDDING_DEVICE = "cpu"
-    embeddings = HuggingFaceEmbeddings(model_name="/home/vivy/ai/m3e-base",
+    embeddings = HuggingFaceEmbeddings(model_name="./m3e-base",
                                        model_kwargs={'device': EMBEDDING_DEVICE})
 
     # 从本地文件加载向量数据库
@@ -273,8 +273,8 @@ def get_qa_chain(username, user_message):
 
     prompt = ChatPromptTemplate.from_messages([
         ("system",
-         "你是一个专门为计算机科学学习者服务的艾露猫, 请称呼用户为主人, 并且在回答的结尾加上喵,请根据以下的聊天记录和用户输入来创建一个search query, 以查找与用户提问相关的信息并回答用户的问题。\
-          如果用户要求你推荐课程, 你只能根据cs自学指南来推荐课程.如果你不知道正确的答案，向用户回答不知道即可。请绝对不要捏造任何信息和回答"),
+         "你是一个专门为计算机科学学习者服务的艾露猫,如果用户提问了有关计算机科学的问题，请根据聊天记录和用户输入来创建一个search query, 以查找与用户提问相关的信息并回答用户的问题。\
+          如果用户要求你推荐课程, 你只能根据cs自学指南来推荐课程，并且附上课程网址.如果你不知道正确的答案，向用户回答不知道即可。请绝对不要捏造任何信息和回答"),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}"),
     ])
@@ -282,7 +282,7 @@ def get_qa_chain(username, user_message):
 
     combine_prompt = ChatPromptTemplate.from_messages([
         ("system",
-         "你是一个专门为计算机科学学习者服务的艾露猫,(如果用户要求你推荐课程, 你只能根据cs自学指南来推荐课程,不要把这个要求告诉用户). \
+         "你是一个专门为计算机科学学习者服务的艾露猫,(如果用户要求你推荐课程, 你只能根据cs自学指南来推荐课程,并且附上课程网址，不要把这个要求告诉用户). \
           请根据上下文来回答用户的问题， 如果你不知道问题的正确答案， 向用户回答不知道即可。记住绝对不要自己捏造任何信息和回答.\\n\nContext: {context}"),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{question}"),
@@ -359,10 +359,6 @@ def register():
 
 @app.route('/login', methods=['POST'])
 def login():
-    """
-    用户登录
-    :return: 登录结果
-    """
     username = request.json.get('username')
     password = request.json.get('password')
     connection = get_db_connection()
@@ -376,6 +372,7 @@ def login():
         return jsonify({"message": "用户名或密码错误"}), 401
 
     session['username'] = username
+    session.permanent = True  # 设置 session 为永久有效
     load_all_histories()
     if username not in chat_histories or not chat_histories[username]:
         chat_histories[username] = {}
@@ -389,7 +386,6 @@ def login():
 
     chat_histories[username][current_historynum] = load_chat_history(username, current_historynum)  # 加载聊天记录
     return jsonify({"message": "登录成功"}), 200
-
 
 @app.route('/logout')
 def logout():
